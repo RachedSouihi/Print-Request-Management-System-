@@ -28,7 +28,6 @@ const Signup: React.FC = () => {
 
         onSubmit: (values) => {
             console.log(values);
-            // Add your form submission logic here
         }
     });
 
