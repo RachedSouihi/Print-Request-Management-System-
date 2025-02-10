@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec3a966d-1b43-4663-9033-3b836968fba7" name="Changes" comment="">
+<<<<<<< HEAD
       <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
@@ -13,6 +14,11 @@
       <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" afterDir="false" />
+=======
+      <change afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/pom.xml" afterDir="false" />
+>>>>>>> 783bd52 (Added security config)
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +56,7 @@
     "Spring Boot.UserServiceApplication.executor": "Run",
     "git-widget-placeholder": "rached",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/backend",
+    "last_opened_file_path": "C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/backend/api-gateway",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -131,6 +137,9 @@
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="StructureViewState">
+    <option name="selectedTab" value="Logical" />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="ec3a966d-1b43-4663-9033-3b836968fba7" name="Changes" comment="" />
@@ -152,7 +161,14 @@
       <workItem from="1739182076061" duration="344000" />
       <workItem from="1739185441142" duration="315000" />
       <workItem from="1739190631929" duration="1154000" />
+<<<<<<< HEAD
       <workItem from="1739191801801" duration="158000" />
+=======
+      <workItem from="1739191801801" duration="1193000" />
+      <workItem from="1739193015244" duration="39000" />
+      <workItem from="1739193060093" duration="16000" />
+      <workItem from="1739193102037" duration="327000" />
+>>>>>>> 783bd52 (Added security config)
     </task>
     <servers />
   </component>
