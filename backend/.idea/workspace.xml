@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ec3a966d-1b43-4663-9033-3b836968fba7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2sp3YpcemqjfdHJVgtlxrOJsbzx" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
+    "Spring Boot.UserServiceApplication.executor": "Run",
+    "git-widget-placeholder": "rached",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/backend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.configurations.included.in.services": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager" selected="Spring Boot.UserServiceApplication">
+    <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="api-gateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.api_gateway.ApiGatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CommonModelsServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="common-models-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.common_models_service.CommonModelsServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DocumentServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="document-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.document_service.DocumentServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NotificationServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="notification-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.notification_service.NotificationServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PrintrequestServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="printrequest-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.printrequest_service.PrintrequestServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProfileServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="profile-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.profile_service.ProfileServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="user-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.user_service.UserServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Spring Boot.ApiGatewayApplication" />
+      <item itemvalue="Spring Boot.CommonModelsServiceApplication" />
+      <item itemvalue="Spring Boot.DocumentServiceApplication" />
+      <item itemvalue="Spring Boot.NotificationServiceApplication" />
+      <item itemvalue="Spring Boot.PrintrequestServiceApplication" />
+      <item itemvalue="Spring Boot.ProfileServiceApplication" />
+      <item itemvalue="Spring Boot.UserServiceApplication" />
+    </list>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.153" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.153" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ec3a966d-1b43-4663-9033-3b836968fba7" name="Changes" comment="" />
+      <created>1739138738895</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1739138738895</updated>
+      <workItem from="1739138740031" duration="79000" />
+      <workItem from="1739138830414" duration="66000" />
+      <workItem from="1739138904261" duration="2133000" />
+      <workItem from="1739141264578" duration="239000" />
+      <workItem from="1739141513291" duration="271000" />
+      <workItem from="1739179885538" duration="456000" />
+      <workItem from="1739180355958" duration="227000" />
+      <workItem from="1739180635629" duration="746000" />
+      <workItem from="1739181396016" duration="320000" />
+      <workItem from="1739181733321" duration="293000" />
+      <workItem from="1739182037532" duration="30000" />
+      <workItem from="1739182076061" duration="344000" />
+      <workItem from="1739185441142" duration="315000" />
+      <workItem from="1739190631929" duration="1154000" />
+      <workItem from="1739191801801" duration="158000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
