@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 import './SignUp.module.scss';
 import { SignUpFormData } from '../../types/authentication';
 
-const Signup: React.FC = () => {
+const SignUp: React.FC = (): React.ReactNode => {
     const { values, touched, errors, getFieldProps, handleSubmit } = useFormik<SignUpFormData>({
         initialValues: {
             firstName: '',
@@ -130,4 +130,4 @@ const Signup: React.FC = () => {
     );
 };
 
-export default Signup;
+export default SignUp;
