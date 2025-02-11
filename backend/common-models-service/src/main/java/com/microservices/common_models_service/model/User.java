@@ -18,4 +18,12 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Profile profile;
+
+    public String getEmail() {
+        return "";
+    }
+
+    public String getName() {
+        return "";
+    }
 }

@@ -1,19 +1,31 @@
 package com.microservices.user_service.controller;
 
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import com.microservices.user_service.service.KeycloakService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.microservices.user_service.service.AuthService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/auth")
 public class UserController {
 
+    private final AuthService authService;
 
 
+    public UserController(AuthService authService, KeycloakService keycloakService) {
+        this.authService = authService;
 
-    @GetMapping
-    public String getUser() {
-        return "Hello World";
+    }
+
+    @GetMapping ("/login")
+    public ResponseEntity<?> login(@RequestParam ("username")String username, @RequestParam("password") String password) {
+        try {
+            String token = authService.login(username, password);
+            return ResponseEntity.ok().body("{\"access_token\": \"" + token + "\"}");
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
 }
