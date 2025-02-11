@@ -48,9 +48,6 @@ public class UserController {
 
 
 
-        @GetMapping("/get-token")
-    public ResponseEntity<Map<String, Object>> getToken(@QueryParam("username") String username, @QueryParam("password") String password) throws Exception {
-        return ResponseEntity.ok(userService.getToken(username, password));
-    }
+
 
 }
