@@ -18,7 +18,7 @@ public class SecurityConfig {
 
 
         return httpSecurity.authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers("/auth/login").permitAll()
+                .requestMatchers("/user").permitAll()
                 .anyRequest()
                 .authenticated()).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())).build();
     }
@@ -26,7 +26,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri("http://127.0.0.1:8090/realms/spring-microservices-security-realm/protocol/openid-connect/certs").build();
+        return NimbusJwtDecoder.withJwkSetUri("http://127.0.0.1:9000/realms/spring-microservices-security-realm/protocol/openid-connect/certs").build();
     }
 
 

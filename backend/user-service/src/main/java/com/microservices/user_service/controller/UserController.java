@@ -9,11 +9,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class UserController {
 
+    private final UserService userService;
 
 
-
-    @GetMapping
-    public String getUser() {
-        return "Hello World";
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
+
+
+
+
+
+
+    @GetMapping("/signup")
+        public ResponseEntity<?> signup(@RequestBody User user) {
+        try{
+            return ResponseEntity.ok(userService.signUp(user));
+
+
+
+        }catch(Exception e){
+
+            return ResponseEntity.ok(e.getMessage());
+
+        }
+
+        }
+
+
+
+
+
+
+
 }
