@@ -1,0 +1,134 @@
+// OtpModal.scss
+$primary-blue: #4A55A2;
+$secondary-blue: #7895CB;
+$purple-accent: #8A4FFF;
+$text-color: #2D3250;
+$background: #ffffff;
+$border-color: #e2e8f0;
+
+.otp-modal {
+  .modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid rgba($primary-blue, 0.1);
+    padding: 1.5rem;
+
+    .modal-title {
+      display: flex;
+      align-items: center;
+      color: $text-color;
+      font-weight: 600;
+      margin: 0;
+
+      .title-icon {
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+        color: $primary-blue;
+      }
+    }
+
+    .btn-close {
+      &:focus {
+        box-shadow: none;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 2rem;
+    text-align: center;
+
+    .otp-instructions {
+      margin-bottom: 2rem;
+      color: lighten($text-color, 20%);
+    }
+
+    .otp-inputs {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+
+      .otp-digit {
+        width: 60px;
+        height: 60px;
+        border: 2px solid rgba($primary-blue, 0.2);
+        border-radius: 12px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $text-color;
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: $primary-blue;
+          box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+        }
+
+        &::placeholder {
+          color: rgba($text-color, 0.3);
+        }
+      }
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: lighten($text-color, 20%);
+      font-size: 0.9rem;
+
+      .clock-icon {
+        color: $purple-accent;
+      }
+    }
+  }
+
+  .modal-footer {
+    border-top: 1px solid rgba($primary-blue, 0.1);
+    padding: 1.5rem;
+    justify-content: space-between;
+
+    .verify-btn {
+      background: linear-gradient(135deg, $primary-blue, $purple-accent);
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($purple-accent, 0.2);
+      }
+
+      &:disabled {
+        opacity: 0.7;
+        transform: none;
+        box-shadow: none;
+      }
+    }
+
+    .resend-btn {
+      color: $primary-blue;
+      text-decoration: none;
+      transition: all 0.3s ease;
+
+      &:hover:not(:disabled) {
+        color: darken($primary-blue, 10%);
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        color: rgba($text-color, 0.4);
+        cursor: not-allowed;
+      }
+    }
+  }
+}
