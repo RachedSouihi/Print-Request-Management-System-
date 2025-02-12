@@ -1,0 +1,279 @@
+// Footer.scss
+/*$primary-blue: #4A55A2;
+$secondary-blue: #7895CB;
+$purple-accent: #8A4FFF;
+$text-color: #2D3250;
+$background: #F8FAFC;
+
+.footer {
+  background: $background;
+  color: $text-color;
+  font-family: 'Montserrat', sans-serif;
+  padding-top: 4rem;
+  border-top: 1px solid rgba($primary-blue, 0.1);
+
+  .logo {
+    color: $primary-blue;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .tagline {
+    color: rgba($text-color, 0.8);
+    font-size: 0.9rem;
+  }
+
+  .section-title {
+    color: $primary-blue;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+  }
+
+  .nav-link {
+    color: rgba($text-color, 0.8) !important;
+    padding: 0.3rem 0;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+
+    &:hover {
+      color: $purple-accent !important;
+      transform: translateX(5px);
+    }
+  }
+
+  .contact-info {
+    .contact-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+
+      .contact-icon {
+        color: $secondary-blue;
+        margin-right: 1rem;
+        min-width: 20px;
+      }
+
+      a {
+        color: rgba($text-color, 0.8);
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $purple-accent;
+        }
+      }
+    }
+  }
+
+  .newsletter-form {
+    .form-control {
+      border-radius: 8px;
+      border: 1px solid rgba($primary-blue, 0.2);
+      font-size: 0.9rem;
+    }
+
+    
+  }
+
+  .social-links {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+
+    a {
+      color: $text-color;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: $purple-accent;
+        transform: translateY(-3px);
+      }
+    }
+  }
+
+  .legal-section {
+    margin-top: 3rem;
+    padding: 2rem 0;
+    border-top: 1px solid rgba($primary-blue, 0.1);
+
+    .copyright {
+      color: rgba($text-color, 0.6);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding-top: 2rem;
+
+    .section-title {
+      margin-top: 1.5rem;
+    }
+
+    .social-links {
+      justify-content: center;
+    }
+
+    .legal-section {
+      text-align: center;
+    }
+  }
+}*/
+
+
+
+
+//Dark footer
+
+
+// Footer.scss (Dark Mode)
+$primary-blue: #7895CB; // Lighter shade for better visibility
+$secondary-blue: #4A55A2;
+$purple-accent: #8A4FFF;
+$text-color: #F8FAFC; // Light text for dark background
+$background: #1A1A1A; // Dark background
+$border-color: rgba(255, 255, 255, 0.1); // Subtle borders for dark mode
+
+.footer {
+  background: $background;
+  color: $text-color;
+  font-family: 'Montserrat', sans-serif;
+  padding-top: 4rem;
+  border-top: 1px solid $border-color;
+
+  .logo {
+    color: $primary-blue;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .tagline {
+    color: rgba($text-color, 0.7); // Slightly muted text
+    font-size: 0.9rem;
+  }
+
+  .section-title {
+    color: $primary-blue;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+  }
+
+  .nav-link {
+    color: rgba($text-color, 0.7) !important; // Muted links
+    padding: 0.3rem 0;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+
+    &:hover {
+      color: $purple-accent !important;
+      transform: translateX(5px);
+    }
+  }
+
+  .contact-info {
+    .contact-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+
+      .contact-icon {
+        color: $secondary-blue;
+        margin-right: 1rem;
+        min-width: 20px;
+      }
+
+      a {
+        color: rgba($text-color, 0.7); // Muted links
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $purple-accent;
+        }
+      }
+    }
+  }
+
+  .newsletter-form {
+    .form-control {
+      background: rgba(255, 255, 255, 0.1); // Dark input background
+      border: 1px solid $border-color;
+      color: $text-color;
+      border-radius: 8px;
+      font-size: 0.9rem;
+
+      &::placeholder {
+        color: rgba($text-color, 0.5); // Placeholder text
+      }
+
+      &:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: $primary-blue;
+        box-shadow: 0 0 0 0.2rem rgba($primary-blue, 0.25);
+      }
+    }
+
+    .subscribe-btn {
+      background: linear-gradient(135deg, $primary-blue, $purple-accent);
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 8px;
+      width: 100%;
+      font-weight: 500;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .social-links {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+
+    a {
+      color: rgba($text-color, 0.7); // Muted icons
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: $purple-accent;
+        transform: translateY(-3px);
+      }
+    }
+  }
+
+  .legal-section {
+    margin-top: 3rem;
+    padding: 2rem 0;
+    border-top: 1px solid $border-color;
+
+    .copyright {
+      color: rgba($text-color, 0.5); // Muted text
+      font-size: 0.85rem;
+      margin: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding-top: 2rem;
+
+    .section-title {
+      margin-top: 1.5rem;
+    }
+
+    .social-links {
+      justify-content: center;
+    }
+
+    .legal-section {
+      text-align: center;
+    }
+  }
+}
