@@ -3,8 +3,10 @@ export interface SignUpFormData {
     lastName: string;
     phone: string;
     educationLevel: string;
+    level: string;
     email: string;
     password: string;
+    agree: boolean;
 }
 
 
