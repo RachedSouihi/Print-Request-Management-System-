@@ -5,6 +5,7 @@ export interface SignUpFormData {
     educationLevel: string;
     email: string;
     password: string;
+
 }
 
 
