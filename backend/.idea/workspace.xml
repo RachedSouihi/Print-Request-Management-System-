@@ -5,18 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec3a966d-1b43-4663-9033-3b836968fba7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/user-service/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/utils/AESUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/UserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/UserServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/config/JpaConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/config/JpaConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/PRMS/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/components/DocumentOverview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/components/DocumentOverview.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/SignUp/SignUp.module.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/types/authentication.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/types/authentication.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -186,6 +193,8 @@
       <workItem from="1739271190350" duration="5004000" />
       <workItem from="1739278814580" duration="1922000" />
       <workItem from="1739281447135" duration="5421000" />
+      <workItem from="1739443116517" duration="591000" />
+      <workItem from="1739443717441" duration="3575000" />
     </task>
     <servers />
   </component>
