@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
@@ -13,32 +14,32 @@ const DocumentOverview: React.FC = () => {
       {
         title: "Algebra Basics",
         description: "Understand the fundamentals of algebra with step-by-step exercises.",
-        image: "/images/algebra.jpg"
+        image: "/antoine-dautry-05A-kdOH6Hw-unsplash-scaled.jpg"
       },
       {
         title: "Geometry Essentials",
         description: "Explore geometric shapes and their properties with detailed explanations.",
-        image: "/images/images.png"
+        image: "/geometry.png"
       },
       {
         title: "Calculus Intro",
         description: "Learn the basics of calculus, including limits and derivatives.",
-        image: "/images/calc268f.jpg"
+        image: "/calc268f.jpg"
       },
       {
         title: "Physics Basics",
         description: "Dive into the principles of physics with practical examples.",
-        image: "/images/Physics.webp"
+        image: "/Physics.webp"
       },
       {
         title: "Chemistry Concepts",
         description: "An overview of essential chemistry concepts, including reactions.",
-        image: "/images/chemestry.jpg"
+        image: "/chemestry.jpg"
       },
       {
         title: "Statistics Overview",
         description: "Overview of the statistics basics.",
-        image: "/images/statics.jpg"
+        image: "/statics.jpg"
       }
     ];
     setDocuments(mockData);
@@ -59,3 +60,4 @@ const DocumentOverview: React.FC = () => {
 };
 
 export default DocumentOverview;
+

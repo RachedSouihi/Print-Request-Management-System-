@@ -14,10 +14,8 @@ const Login = () => {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginBox}>
-        {/* 📌 Partie gauche (Triangle) */}
         <div className={styles.leftPanel}></div>
 
-        {/* 📌 Partie droite (Formulaire) */}
         <div className={styles.rightPanel}>
           <h1 className="fw-bold">Welcome back</h1>
           

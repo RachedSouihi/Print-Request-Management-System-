@@ -1,0 +1,97 @@
+// CoursesCarousel.scss
+
+.courses-carousel {
+  padding: 2rem 0;
+  margin: 0;
+  
+  .carousel {
+    padding: 0rem;
+    
+    &-control-prev,
+    &-control-next {
+      width: 40px;
+      height: 40px;
+      background: rgba(74, 85, 162, 0.1);
+      border-radius: 50%;
+      opacity: 1;
+      top: 35%;
+      transform: translateY(-50%);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(74, 85, 162, 0.2);
+      }
+
+      &-icon {
+        width: auto;
+        height: auto;
+        color: #4A55A2;
+      }
+    }
+
+    &-control-prev {
+      left: -1rem;
+    }
+
+    &-control-next {
+      right: -1rem;
+    }
+
+    &-indicators [data-bs-target] {
+      background-color: rgba(74, 85, 162, 0.4);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: none;
+      margin: 0 4px;
+
+      &.active {
+        background-color: #4A55A2;
+      }
+    }
+  }
+
+  .course-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    &-title {
+      color: #2D3250;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    &-subtitle {
+      color: #7895CB;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    &-description {
+      color: #6B7280;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+  }
+  .preview-btn{
+    &:hover {
+        color: #fff;
+    }
+
+
+
+}
+
+  
+}
+
+

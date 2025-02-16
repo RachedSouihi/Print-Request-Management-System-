@@ -1,0 +1,98 @@
+
+:root {
+  --primary: #3498db;
+  --primary-foreground: #ffffff;
+  --secondary: #8a4fff;
+  --background: #f0f4f8;
+  --foreground: #333333;
+  --muted: #666666;
+  --border: #e2e8f0;
+  --radius: 12px;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.form-label{
+  text-align: left;
+}
+
+
+.sign-up-container {
+  font-family: 'Montserrat', sans-serif;
+  
+  color: var(--foreground);
+}
+
+.signup-container {
+  background: #ffffff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.form-section {
+  background: #ffffff;
+}
+
+.form-control, .form-select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(138, 79, 255, 0.3);
+}
+
+.btn-outline-secondary {
+  border-radius: var(--radius);
+  padding: 0.5rem 1.5rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.form-check-label {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.social-signup p {
+  font-size: 14px;
+  margin: 1.5rem 0;
+}
+
+.password-field .input-group-text {
+  background: transparent;
+  border-left: none;
+}
+
+
+
+
+@media (max-width: 768px) {
+  .image-section {
+      display: none;
+  }
+  
+  .form-section {
+      padding: 2rem !important;
+  }
+}
