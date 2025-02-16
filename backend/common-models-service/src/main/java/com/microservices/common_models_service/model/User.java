@@ -7,21 +7,20 @@ import jakarta.persistence.*;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_id; // No @GeneratedValue because the ID is manually assigned
+    private String user_id; // No @GeneratedValue because the ID is manually assigned
 
     private String email;
     private String password;
 
-   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+   @OneToOne(mappedBy = "user", orphanRemoval = true)
     @JsonManagedReference
     private Profile profile;
 
     // Getters and Setters
-    public int getUser_id() {
+    public String getUser_id() {
         return user_id;
     }
-    public void setUser_id(int user_id) {
+    public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
     public String getEmail() {

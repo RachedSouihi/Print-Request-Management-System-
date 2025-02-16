@@ -7,24 +7,33 @@ import jakarta.persistence.*;
 @Entity
 public class Profile {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY )
-    private int user_id; // Shared primary key with User
+    private String user_id; // Shared primary key with User
 
     private String firstname;
     private String lastname;
     private String role;
 
+
+    @Column( name = "education_level")
+    private String educationLevel;
+
+    private String field;
+
+
+    private String phone;
+
+    private boolean agree;
+
     @OneToOne(cascade = CascadeType.ALL)
-    @MapsId // Derives the Profile's ID from the associated User's ID
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
 
     // Getters and Setters
-    public int getUser_id() {
+    public String getUser_id() {
         return user_id;
     }
-    public void setUser_id(int user_id) {
+    public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
     public String getLastname() {
@@ -42,13 +51,49 @@ public class Profile {
     public String getRole() {
         return role;
     }
+
+
     public void setRole(String role) {
         this.role = role;
     }
+
+    public String getPhone() {
+        return phone;
+    }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEducationLevel() {
+        return educationLevel;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public boolean isAgree() {
+        return agree;
+    }
+
+    public void setAgree(boolean agree) {
+        this.agree = agree;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    public void setEducationLevel(String educationLevel) {
+        this.educationLevel = educationLevel;
+    }
+
     public User getUser() {
         return user;
     }
     public void setUser(User user) {
         this.user = user;
     }
+
+
 }
