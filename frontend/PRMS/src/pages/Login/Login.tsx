@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Button, Container, Form as BootstrapForm } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+ // Import du modal
 import styles from "./Login.module.scss";
+import ForgetPassword from "../forget/ForgetPassword";
 
 const Login = () => {
+  const [showForgetModal, setShowForgetModal] = useState(false); // État du modal
+
   const validationSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
@@ -37,8 +41,15 @@ const Login = () => {
                 </BootstrapForm.Group>
 
                 <div className="text-end">
-                  <a href="#" className={styles.forgotPassword}>Forgot password?</a>
-                </div>
+  <a
+    href="#"
+    className={styles.forgotPassword}
+    onClick={() => setShowForgetModal(true)}
+  >
+    Forgot password?
+  </a>
+</div>
+
 
                 <Button type="submit" className={`btn btn-primary w-100 mt-3 ${styles.loginButton}`} disabled={isSubmitting}>
                   {isSubmitting ? "Logging in..." : "Log in"}
@@ -52,6 +63,9 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {/* Affichage du modal de récupération du mot de passe */}
+      <ForgetPassword show={showForgetModal} handleClose={() => setShowForgetModal(false)} />
     </div>
   );
 };

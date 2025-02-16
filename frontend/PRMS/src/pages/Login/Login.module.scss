@@ -1,62 +1,112 @@
+/* Container du login */
 .loginContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw; /* ✅ Prend toute la largeur de l'écran */
-    background: #1f3b4d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(45deg, #1f3b4d, #2f5970); /* Dégradé subtil de bleu foncé à bleu */
+  background-size: 400% 400%; /* Effet de mouvement */
+  animation: gradientMove 10s ease infinite; /* Animation de dégradé */
+}
+
+/* Animation du dégradé */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
   }
-  
-  .loginBox {
-    display: flex;
-    width: 90vw; /* ✅ Prend 90% de l'écran */
-    max-width: 1800px; /* ✅ Ajusté pour les grands écrans */
-    height: 80vh; /* ✅ Augmenté pour un affichage plus grand */
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
+  50% {
+    background-position: 100% 50%;
   }
-  
-  .leftPanel {
-    background-color: #0f3a47;
-    width: 40%; /* ✅ Ajusté pour un meilleur équilibre */
-    height: 100%;
-    min-height: 500px; /* ✅ Augmenté */
-    clip-path: polygon(0 0, 100% 0, 75% 100%, 0% 100%);
+  100% {
+    background-position: 0% 50%;
   }
-  
-  .rightPanel {
-    width: 60%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 4rem; /* ✅ Augmenté pour plus d’espace */
-  }
-  
-  .error {
-    color: red;
-    font-size: 1rem; /* ✅ Texte plus lisible */
-  }
-  
-  .forgotPassword {
-    text-decoration: none;
-    color: #007bff;
-    font-size: 1rem; /* ✅ Taille augmentée */
-  }
-  
-  .loginButton {
-    background-color: #007bff;
-    border: none;
-    font-weight: bold;
-    font-size: 1.2rem; /* ✅ Bouton plus gros */
-    padding: 14px; /* ✅ Plus de hauteur */
-  }
-  
-  .signUp {
-    text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
-    font-size: 1rem; /* ✅ Texte plus grand */
-  }
-  
+}
+
+/* Boîte de login */
+.loginBox {
+  display: flex;
+  width: 90vw;
+  max-width: 1800px;
+  height: 80vh;
+  background: #ffffff;
+  border-radius: 20px; /* Coins plus arrondis pour un look plus doux */
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Ombre douce pour l'effet de profondeur */
+}
+
+/* Panneau gauche */
+.leftPanel {
+  background-color: #0f3a47;
+  width: 40%;
+  height: 100%;
+  min-height: 500px;
+  clip-path: polygon(0 0, 100% 0, 75% 100%, 0% 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('https://via.placeholder.com/500'); /* Exemple d'image subtile */
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.5); /* Assombrir légèrement l'image pour un meilleur contraste */
+}
+
+/* Panneau droit */
+.rightPanel {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+}
+
+/* Style d'erreur */
+.error {
+  color: #ff4d4d; /* Rouge vif pour l'erreur */
+  font-size: 1rem;
+}
+
+/* Lien mot de passe oublié */
+.forgotPassword {
+  text-decoration: none;
+  color: #007bff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.forgotPassword:hover {
+  color: #0056b3; /* Change de couleur lors du survol */
+}
+
+/* Bouton de login */
+.loginButton {
+  background-color: #007bff;
+  border: none;
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding: 14px;
+  border-radius: 50px; /* Coins arrondis pour plus de douceur */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Ombre subtile */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.loginButton:hover {
+  background-color: #0056b3;
+  transform: scale(1.05); /* Légère animation au survol */
+}
+
+/* Lien d'inscription */
+.signUp {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.signUp:hover {
+  color: #0056b3; /* Change de couleur lors du survol */
+}

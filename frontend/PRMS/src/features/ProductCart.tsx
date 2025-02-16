@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, Button } from "react-bootstrap";
+import CustomButton from "../components/Button/Button";
 
 interface DocumentType {
   title: string;
@@ -22,7 +23,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ document }) => {
         <Card.Text className="text-muted">{document.description}</Card.Text>
         <div className="mt-auto d-flex justify-content-between">
           <Button variant="outline-primary">Preview</Button>
-          <Button variant="primary">Download</Button>
+          <CustomButton type ="button" width = {150} text="Download"/>
+          
         </div>
       </Card.Body>
     </Card>

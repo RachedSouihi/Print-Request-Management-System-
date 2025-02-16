@@ -1,5 +1,8 @@
 package com.microservices.user_service.service;
 
+
+
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.common_models_service.model.User;
 import org.springframework.http.*;
@@ -15,11 +18,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+
+
 @Service
-public class KeycloakService {
+public class KeyCloakService {
 
     private final Keycloak keycloak;
 
@@ -36,40 +42,68 @@ public class KeycloakService {
     @Value("${keycloak.credentials.secret}")
     private String client_secret;
 
-    public KeycloakService(Keycloak keycloak) {
+    public KeyCloakService(Keycloak keycloak) {
         this.keycloak = keycloak;
     }
 
-    public void assignAdminRole(User student) {
 
-        String email = student.getEmail();
-        String name= student.getName();
-        RealmResource realmResource = keycloak.realm(realm);
-        UsersResource usersResource = realmResource.users();
-        UserRepresentation user = new UserRepresentation();
+    public String createUserKeyCloak(String username, String password) {
+try {
+    //String email = user.getEmail();
+    // String firstname = user.getProfile().getFirstname();
+    //String lastname = user.getProfile().getLastname();
 
-        user.setUsername(name);
-        user.setEmail(email);
-        user.setEnabled(true);
+    //String role = user.getProfile().getRole();
 
-        jakarta.ws.rs.core.Response response = usersResource.create(user);
+    //String password = user.getPassword();
+    RealmResource realmResource = keycloak.realm(realm);
+    UsersResource usersResource = realmResource.users();
+    UserRepresentation user_rep = getUserRepresentation(username, password);
 
-        if (response.getStatus() != 201) {
-            throw new RuntimeException("Failed to create user: " + response.getStatus());
-        }
 
-        CredentialRepresentation password = new CredentialRepresentation();
-        password.setType(CredentialRepresentation.PASSWORD);
-        password.setValue("default-password"); // Change this to a secure password
-        password.setTemporary(false);
+    jakarta.ws.rs.core.Response response = usersResource.create(user_rep);
 
-        String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+    if (response.getStatus() != 201) {
+        //throw new RuntimeException("Failed to create user: " + response.getStatus());
 
-        RoleRepresentation adminRole = realmResource.roles().get("admin").toRepresentation();
-        usersResource.get(userId).roles().realmLevel().add(Collections.singletonList(adminRole));
+        return "Failed to create user";
     }
 
-    public Map getToken(String username, String password) throws Exception {
+    String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+
+    //Set the role to the user
+    RoleRepresentation userRole = realmResource.roles().get("admin").toRepresentation();
+    usersResource.get(userId).roles().realmLevel().add(Collections.singletonList(userRole));
+
+    return "User created";
+
+}catch (Exception e) {
+    return "Can't create user";
+}
+    }
+
+    private static UserRepresentation getUserRepresentation(String username, String password) {
+
+        UserRepresentation user_rep = new UserRepresentation();
+
+        // user_rep.setFirstName(firstname);
+        //user_rep.setLastName(lastname);
+        user_rep.setUsername(username);
+        user_rep.setEmail(username);
+        user_rep.setEnabled(true);
+
+        //Set the user password
+        CredentialRepresentation passwordCred = new CredentialRepresentation();
+        passwordCred.setTemporary(false);
+        passwordCred.setType(CredentialRepresentation.PASSWORD);
+        passwordCred.setValue(password);
+
+        // Attach the password to the user representation
+        user_rep.setCredentials(Collections.singletonList(passwordCred));
+        return user_rep;
+    }
+
+    public Map<String, Object> getToken(String username, String password) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -93,5 +127,5 @@ public class KeycloakService {
             throw new RuntimeException("Failed to get token: " + response.getBody());
         }
     }
-
 }
+

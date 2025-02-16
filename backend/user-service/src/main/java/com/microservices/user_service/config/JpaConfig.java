@@ -1,4 +1,4 @@
-package com.microservices.user_service.config;
+package com.microservices.user_service.Config;
 
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ public class JpaConfig {
         return DataSourceBuilder.create()
                 .url("jdbc:postgresql://localhost:5432/prms")
                 .username("postgres")
-                .password("242619")
+                .password("root")
                 .driverClassName("org.postgresql.Driver")
                 .build();
     }

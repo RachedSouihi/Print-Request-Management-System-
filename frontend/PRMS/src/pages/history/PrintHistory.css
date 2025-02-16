@@ -1,0 +1,99 @@
+/* PrintHistory.css */
+
+/* Variables de couleurs pastel */
+:root {
+    --primary-color: #a29bfe; /* violet pastel */
+    --secondary-color: #74b9ff; /* bleu pastel */
+    --accent-color: #55efc4; /* vert pastel */
+    --bg-color: #f1f2f6; /* gris très clair */
+    --card-bg: #ffffff;
+  }
+  
+  /* Fond de page doux */
+  .print-history-container {
+    background: linear-gradient(135deg, #f6f9fc, #e9eff5);
+    padding: 2rem;
+    min-height: 100vh;
+  }
+  
+  /* Style de la card principale avec ombre légère et coins arrondis */
+  .print-history-card {
+    background-color: var(--card-bg);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+  }
+  
+  /* Titre centré et moderne */
+  .print-history-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-family: "Poppins", sans-serif;
+    text-align: center;
+  }
+  
+  /* Boutons de filtre d'état */
+  .status-filter-buttons .btn {
+    margin: 0.3rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  
+  /* Style de la barre de recherche agrandie */
+  .search-bar {
+    max-width: 500px;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+  
+  .search-bar .form-control {
+    border: none;
+    border-radius: 0;
+  }
+  
+  .search-bar .btn {
+    background-color: var(--secondary-color);
+    border: none;
+    color: #fff;
+  }
+  
+  /* Style du groupe de date */
+  .date-group {
+    max-width: 320px;
+    margin-bottom: 1rem;
+  }
+  
+  .date-group .form-control {
+    border-radius: 20px;
+  }
+  
+  /* Tableau élégant */
+  .print-history-table {
+    margin-top: 1rem;
+  }
+  
+  .print-history-table thead {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-family: "Poppins", sans-serif;
+  }
+  
+  .print-history-table th,
+  .print-history-table td {
+    vertical-align: middle;
+    text-align: center;
+  }
+  
+  .print-history-table tbody tr {
+    transition: background-color 0.2s;
+  }
+  
+  .print-history-table tbody tr:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+  }
+  

@@ -2,6 +2,7 @@ package com.microservices.user_service.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microservices.user_service.service.KeyCloakService;
 import org.springframework.http.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 public class AuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final KeycloakService keycloakService;
+    private final KeyCloakService keycloakService;
 
     @Value("${keycloak.token-url}")
     private String tokenUrl;
@@ -24,7 +25,7 @@ public class AuthService {
     @Value("${keycloak.credentials.secret}")
     private String clientSecret;
 
-    public AuthService(KeycloakService keycloakService) {
+    public AuthService(KeyCloakService keycloakService) {
         this.keycloakService = keycloakService;
     }
 

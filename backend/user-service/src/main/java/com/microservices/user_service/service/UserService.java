@@ -3,11 +3,10 @@ package com.microservices.user_service.service;
 
 import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
-//import com.microservices.common_models_service.repository.ProfileRepository;
-//import com.microservices.common_models_service.repository.UserRepository;
 
-import com.microservices.common_models_service.repository.ProfileRepository;
 import com.microservices.common_models_service.repository.UserRepository;
+import com.microservices.common_models_service.repository.ProfileRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -63,7 +62,7 @@ public class UserService {
         }catch (Exception e){
             return null;
         }
-        
+
 
     }
 }

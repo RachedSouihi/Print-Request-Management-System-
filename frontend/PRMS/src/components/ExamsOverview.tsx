@@ -1,10 +1,11 @@
 import React from "react";
 
 import "../pages/Home/Exams.scss";
-import { Carousel, Row, Col } from "react-bootstrap";
+import { Carousel, Row, Col} from "react-bootstrap";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Button from "./Button/Button";
 import ExamCard from "../features/ExamCard";
+import CustomButton from "../components/Button/Button";
 
 const courses = [
   {
@@ -74,7 +75,7 @@ const CoursesCarousel = () => {
       <Row className="d-flex align-items-center justify-content-center mt-5">
         <Col md={4}>
           
-          <Button text="explore more" />
+          <CustomButton text="explore more" type={"button"} width={250} />
         </Col>
       </Row>
     </div>

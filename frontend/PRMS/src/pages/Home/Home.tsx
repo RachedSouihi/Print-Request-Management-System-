@@ -6,6 +6,7 @@ import Footer from "../../layouts/Footer";
 import Sidebar from "../../components/SideBar/SideBar";
 import { Col } from "react-bootstrap";
 import CustomToast from "../../common/Toast";
+import DocumentOverview from "../../components/DocumentOverview";
 
 const Home: React.FC = () => {
   const [showToast, setShowToast] = useState<boolean>(true);
@@ -27,6 +28,8 @@ const Home: React.FC = () => {
 
       <Col md={9}>
         <Header />
+
+        <DocumentOverview />
 
         <ExamsOverview />
 

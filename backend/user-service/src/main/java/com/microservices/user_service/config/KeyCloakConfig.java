@@ -1,4 +1,4 @@
-package com.microservices.user_service.config;
+package com.microservices.user_service.Config;
 
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;

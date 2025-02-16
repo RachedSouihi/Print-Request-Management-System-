@@ -2,7 +2,8 @@ package com.microservices.user_service.controller;
 
 
 
-import com.microservices.user_service.service.KeycloakService;
+import com.microservices.user_service.service.KeyCloakService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.microservices.user_service.service.AuthService;
@@ -14,7 +15,7 @@ public class UserController {
     private final AuthService authService;
 
 
-    public UserController(AuthService authService, KeycloakService keycloakService) {
+    public UserController(AuthService authService, KeyCloakService keycloakService) {
         this.authService = authService;
 
     }

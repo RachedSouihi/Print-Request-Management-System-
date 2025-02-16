@@ -168,7 +168,7 @@ const SignupForm = () => {
                                 {formik.errors.agree}
                             </Form.Control.Feedback>
                         </Form.Group>
-                        <CustomButton type="submit" text="Create account" />
+                        <CustomButton  width ={150}type="submit" text="Create account" />
                         <div className="social-signup text-center mt-3">
                             <p className="text-muted">Or sign up with</p>
                             <div className="d-flex justify-content-center gap-3">
