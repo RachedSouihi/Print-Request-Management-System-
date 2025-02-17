@@ -18,6 +18,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -137,7 +138,7 @@ public class UserController {
 
             if(otp.equals(data.getCode())) {
                 Map<String,Object> tokens = userService.signUp(user);
-                ResponseCookie cookie1 = ResponseCookie.from("token", tokens.get("access_token").toString())
+                ResponseCookie cookie1 = ResponseCookie.from("access_token", tokens.get("access_token").toString())
                         .httpOnly(true)
                         .sameSite("Lax")
                         .path("/")
@@ -145,7 +146,7 @@ public class UserController {
                         .build();
 
 
-                ResponseCookie cookie2 = ResponseCookie.from("token", tokens.get("access_token").toString())
+                ResponseCookie cookie2 = ResponseCookie.from("refresh_token", tokens.get("access_token").toString())
                         .httpOnly(true)
                         .sameSite("Lax")
                         .path("/")
@@ -165,6 +166,8 @@ public class UserController {
 
             }
 
+            System.out.println("wrong otp");
+
             return ResponseEntity.status(401).body("Invalid otp");
 
 
@@ -174,6 +177,8 @@ public class UserController {
 
 
         } catch (Exception e) {
+
+            System.out.println(e.getMessage());
 
             return ResponseEntity.ok().body(e.getMessage());
 
@@ -203,17 +208,27 @@ public class UserController {
     }
 
 
-    @GetMapping("/signed-in")
-    public String signinPage(Authentication authentication) {
+    @GetMapping("/is-signed-in")
+    @PreAuthorize("hasRole('ROLE_admin')")
+    public ResponseEntity<?> signinPage(Authentication authentication) {
+
+        System.out.println("Authentication: " + authentication);
+
         // If there's no authentication or if it's anonymous, treat as not signed in.
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
             // The user is not signed .
-            return "not signed in";
+            return ResponseEntity.status(401).build();
         }
         // Otherwise, the user is signed in.
-        return "signed in";
+        return ResponseEntity.ok().build();
     }
 
+
+    @PostMapping("/test")
+
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("test");
+    }
 
 
 
