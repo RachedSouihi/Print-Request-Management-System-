@@ -12,7 +12,12 @@ public class User {
     private String email;
     private String password;
 
-   @OneToOne(mappedBy = "user", orphanRemoval = true)
+   /*@OneToOne(mappedBy = "user", orphanRemoval = true)
+    @JsonManagedReference
+    private Profile profile;*/
+
+
+    @OneToOne(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL) // Changed to CascadeType.ALL
     @JsonManagedReference
     private Profile profile;
 

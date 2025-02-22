@@ -2,30 +2,29 @@ package com.microservices.common_models_service.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 
 @Entity
 public class Profile {
     @Id
-    private String user_id; // Shared primary key with User
+    private String user_id;
 
     private String firstname;
     private String lastname;
     private String role;
 
-
-    @Column( name = "education_level")
+    @Column(name = "education_level")
     private String educationLevel;
-
     private String field;
-
-
     private String phone;
-
     private boolean agree;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    @MapsId  // This tells Hibernate to use user_id as both PK and FK.
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference
     private User user;
 
