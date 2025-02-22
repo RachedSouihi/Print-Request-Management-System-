@@ -5,6 +5,7 @@ package com.microservices.user_service.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.common_models_service.model.User;
+import org.keycloak.admin.client.resource.UserResource;
 import org.springframework.http.*;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -20,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -72,6 +75,8 @@ try {
     RoleRepresentation userRole = realmResource.roles().get("admin").toRepresentation();
     usersResource.get(userId).roles().realmLevel().add(Collections.singletonList(userRole));
 
+
+
     return "User created";
 
 }catch (Exception e) {
@@ -119,10 +124,94 @@ try {
         if (response.getStatusCode() == HttpStatus.OK) {
             // Parse JSON response into a Map
             ObjectMapper objectMapper = new ObjectMapper();
+
             return objectMapper.readValue(response.getBody(), Map.class);
         } else {
             throw new RuntimeException("Failed to get token: " + response.getBody());
         }
+    }
+
+
+
+
+    public String updatePassword(String email, String newPassword){
+
+        UsersResource usersResource = keycloak.realm(realm).users();
+        List<UserRepresentation> users = usersResource.search(email, true);
+
+
+        if (users != null && !users.isEmpty()) {
+
+
+            CredentialRepresentation credential = new CredentialRepresentation();
+            credential.setType(CredentialRepresentation.PASSWORD);
+            credential.setTemporary(false); // Change to true if you want the user to change on next login
+
+            credential.setValue(newPassword);
+
+           UserResource userResource = usersResource.get(users.get(0).getId());
+            userResource.resetPassword(credential);
+
+
+
+            return "Password updated";
+        }
+
+
+        return null;
+
+    }
+
+
+    public Map<String, Object> updateProfile(Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+
+        String email = (String) request.get("email");
+        String firstName = (String) request.get("firstName");
+        String lastName = (String) request.get("lastName");
+        String phone = (String) request.get("phone");
+
+        UsersResource usersResource = keycloak.realm(realm).users();
+        List<UserRepresentation> users = usersResource.search(email, true);
+
+        if (users != null && !users.isEmpty()) {
+            try {
+                UserRepresentation userRep = users.get(0);
+
+                // Update first and last name if provided
+                if (firstName != null && !firstName.isEmpty()) {
+                    userRep.setFirstName(firstName);
+                }
+                if (lastName != null && !lastName.isEmpty()) {
+                    userRep.setLastName(lastName);
+                }
+
+                // Update phone number as an attribute if provided
+                if (phone != null && !phone.isEmpty()) {
+                    Map<String, List<String>> attributes = userRep.getAttributes();
+                    if (attributes == null) {
+                        attributes = new HashMap<>();
+                    }
+                    attributes.put("phone", Collections.singletonList(phone));
+                    userRep.setAttributes(attributes);
+                }
+
+                // Update the user in Keycloak
+                UserResource userResource = usersResource.get(userRep.getId());
+                userResource.update(userRep);
+
+                response.put("code", 200);
+                response.put("message", "Profile updated successfully.");
+            } catch (Exception e) {
+                response.put("code", 500);
+                response.put("message", "Error updating profile: " + e.getMessage());
+            }
+        } else {
+            response.put("code", 404);
+            response.put("message", "User not found for email: " + email);
+        }
+
+        return response;
     }
 }
 

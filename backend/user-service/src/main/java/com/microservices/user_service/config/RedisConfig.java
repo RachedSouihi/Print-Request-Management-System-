@@ -12,7 +12,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-    @Bean
+   /* @Bean
     public RedisTemplate<String, VerificationData> redisTemplate(
             RedisConnectionFactory connectionFactory,
             ObjectMapper objectMapper) {
@@ -28,6 +28,23 @@ public class RedisConfig {
                 new Jackson2JsonRedisSerializer<>(objectMapper, VerificationData.class);
         template.setValueSerializer(serializer);
 
+        return template;
+    }*/
+
+
+
+
+    @Bean
+    public RedisTemplate<String, String> otpRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, String> passwordRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
         return template;
     }
 }
