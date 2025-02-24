@@ -2,24 +2,15 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { SignUpFormData } from '../types/authentication';
 import { encryptPassword } from '../features/encrypt';
-
-// Define the shape of the state
-interface User {
-  user_id: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  phone: string;
-  role: string;
-  // Add other user properties as needed
-}
+import { UserState } from '../types/userTypes';
 
 interface AuthState {
-  user: User | null;
+  user: UserState | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
   emailVerificationStatus: boolean | null;
+  apiCallResult?: boolean;
 }
 
 // Load initial state from localStorage
@@ -61,7 +52,7 @@ const saveState = (state: AuthState) => {
 const initialState: AuthState = loadState();
 
 // Async thunk for login
-export const loginUser = createAsyncThunk<User, { email: string; password: string }, { rejectValue: string }>(
+export const loginUser = createAsyncThunk<UserState, { email: string; password: string }, { rejectValue: string }>(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
@@ -77,7 +68,7 @@ export const loginUser = createAsyncThunk<User, { email: string; password: strin
 );
 
 // Async thunk for sign-up
-export const signUpUser = createAsyncThunk<boolean, { otp: string }, { rejectValue: string }>(
+export const signUpUser = createAsyncThunk<{ status: number; message: string; user?: UserState }, { otp: string }>(
   'auth/signUp',
   async ({ otp }, { rejectWithValue }) => {
     try {
@@ -108,30 +99,31 @@ export const signUpUser = createAsyncThunk<boolean, { otp: string }, { rejectVal
           withCredentials: true, // Allow cookies
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + btoa('admin:admin')
+            'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
           }
         }
       );
 
+      console.log("response: ", response)
       if (response.status === 200) {
-        return true;
+        return { status: response.status, message: 'Sign-up successful', user: response.data.user as UserState };
       } else {
-        return false;
+        throw new Error('Sign-up failed');
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
-        return false; // Return false for 401 error
+      if (axios.isAxiosError(error) && error.response && [401, 403].includes(error.response.status)) {
+        return rejectWithValue({ status: error.response.status, message: error.response.data });
       }
       if (error instanceof Error) {
-        return rejectWithValue(error.message);
+        return rejectWithValue({ status: 500, message: error.message });
       }
-      return rejectWithValue('An unknown error occurred');
+      return rejectWithValue({ status: 500, message: 'An unknown error occurred' });
     }
   }
 );
 
 // Async thunk for checking auth status
-export const checkAuth = createAsyncThunk<User, void, { rejectValue: string }>(
+export const checkAuth = createAsyncThunk<UserState, void, { rejectValue: string }>(
   'auth/check',
   async (_, { rejectWithValue }) => {
     try {
@@ -145,6 +137,38 @@ export const checkAuth = createAsyncThunk<User, void, { rejectValue: string }>(
     }
   }
 );
+
+export const testAPICall = createAsyncThunk<string, void, { rejectValue: string }>(
+  '/testAPICall',
+  async (_, { rejectWithValue }) => {
+    try {
+      // Pass an empty object as data payload and the config as third argument.
+      const response = await axios.post(
+        import.meta.env.VITE_TEST_API_PATH,
+        {}, // Empty data payload if not needed
+        {
+          withCredentials: true, // Ensure cookies are included
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        return "auth";
+      } else {
+        return rejectWithValue("API call failed");
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
+        return "unauthorized user";
+      }
+      return rejectWithValue("API call failed");
+    }
+  }
+);
+
 
 // Async thunk for email verification
 export const sendVerifEmail = createAsyncThunk<boolean, { email: string; passwd: string; firstname: string }, { rejectValue: string }>(
@@ -161,7 +185,7 @@ export const sendVerifEmail = createAsyncThunk<boolean, { email: string; passwd:
           withCredentials: true, // Allow cookies
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + btoa('admin:admin')
+            'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
           }
         }
       );
@@ -189,7 +213,6 @@ export const verifyAuth = createAsyncThunk<boolean, number, { rejectValue: strin
         return false;
       }
     } catch (error) {
-
       if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
         return false;
       }
@@ -214,61 +237,71 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
-        //state.loading = true;
+        state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<User>) => {
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<UserState>) => {
         state.user = action.payload;
         state.isAuthenticated = true;
-        //state.loading = false;
+        state.loading = false;
         saveState(state); // Save state to localStorage on login
       })
       .addCase(loginUser.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.error = action.payload || 'Login failed';
-        //state.loading = false;
+        state.loading = false;
       })
       .addCase(signUpUser.pending, (state) => {
-        //state.loading = true;
+        state.loading = true;
         state.error = null;
       })
-      .addCase(signUpUser.fulfilled, (state, action: PayloadAction<boolean>) => {
-        //state.loading = false;
-        if (action.payload) {
-          // Handle successful sign-up
-          // Only update the necessary parts of the state
+      .addCase(signUpUser.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user?: UserState }>) => {
+        if (action.payload.user) {
+          state.user = action.payload.user;
           state.isAuthenticated = true;
-        } else {
-          state.error = 'Invalid OTP';
         }
+        state.loading = false;
+        saveState(state); // Save state to localStorage on sign-up
       })
-      .addCase(signUpUser.rejected, (state, action: PayloadAction<string | undefined>) => {
-        state.error = action.payload || 'Sign-up failed';
-        //state.loading = false;
+      .addCase(signUpUser.rejected, (state, action) => {
+        state.error = typeof action.payload === 'string' ? action.payload : 'Sign-up failed';
+        state.loading = false;
       })
       .addCase(checkAuth.pending, (state) => {
         state.loading = true;
       })
-      .addCase(checkAuth.fulfilled, (state, action: PayloadAction<User>) => {
+      .addCase(checkAuth.fulfilled, (state, action: PayloadAction<UserState>) => {
         state.user = action.payload;
         state.isAuthenticated = true;
-        //state.loading = false;
+        state.loading = false;
         saveState(state); // Save state to localStorage on auth check
       })
       .addCase(checkAuth.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.error = action.payload || 'Authentication check failed';
-        //state.loading = false;
+        state.loading = false;
       })
       .addCase(sendVerifEmail.pending, (state) => {
-       // state.loading = true;
+        state.loading = true;
         state.error = null;
       })
       .addCase(sendVerifEmail.fulfilled, (state, action: PayloadAction<boolean>) => {
         state.emailVerificationStatus = action.payload;
-        //state.loading = false;
+        state.loading = false;
       })
       .addCase(sendVerifEmail.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.error = action.payload || 'Email verification failed';
-        //state.loading = false;
+        state.loading = false;
+      })
+      .addCase(testAPICall.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(testAPICall.fulfilled, (state, action: PayloadAction<boolean>) => {
+        state.apiCallResult = action.payload;
+        state.loading = false;
+      })
+      .addCase(testAPICall.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.error = action.payload || 'API call failed';
+        state.loading = false;
       });
   },
 });
