@@ -3,7 +3,20 @@ import { Modal, Button } from 'react-bootstrap';
 import { FiClock, FiMail } from 'react-icons/fi';
 import './OTP.scss';
 
-const OtpModal = ({ show, onClose, email }: any) => {
+interface OtpModalProps {
+  show: boolean;
+  onClose: () => void;
+  email: string;
+  //setToast: React.Dispatch<React.SetStateAction<ToastState>>;
+  signUp: (otp: string) => Promise<void>;
+
+  showToast: any
+
+}
+
+
+
+const OtpModal: React.FC<OtpModalProps> = ({ show, onClose, email, showToast, signUp }) => {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [timer, setTimer] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
@@ -21,12 +34,13 @@ const OtpModal = ({ show, onClose, email }: any) => {
   }, [timer, show]);
 
   const handleOtpChange = (index: number, value: any) => {
-    if (/^\d*$/.test(value) && value.length <= 1) {
+    const upperCaseValue = value.toUpperCase();
+    if (/^[A-Z0-9]*$/.test(upperCaseValue) && upperCaseValue.length <= 1) {
       const newOtp = [...otp];
-      newOtp[index] = value;
+      newOtp[index] = upperCaseValue;
       setOtp(newOtp);
 
-      if (value && index < 3) {
+      if (upperCaseValue && index < 3) {
         const nextInput = document.getElementById(`otp-input-${index + 1}`);
         if (nextInput) nextInput.focus();
       }
@@ -40,12 +54,14 @@ const OtpModal = ({ show, onClose, email }: any) => {
     }
   };
 
-  const checkCode = (): void => {
-    const code = otp.join('');
-    if (code === '1234') {
-      alert('OTP verified!');
-    } else {
-      alert('Invalid OTP!');
+  const checkCode = async (): Promise<void> => {
+    const otpCode = otp.join('');
+    try {
+      await signUp(otpCode);
+    } catch (error) {
+
+
+      showToast("OTP verification failed", "danger")
     }
   };
 
