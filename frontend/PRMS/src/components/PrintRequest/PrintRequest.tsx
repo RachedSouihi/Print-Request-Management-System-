@@ -4,15 +4,15 @@ import { Modal, Form, Button, FormText } from 'react-bootstrap';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 
-import './PrintRequest.scss'
+import './PrintRequest.scss';
+import { Document } from '../../pages/Documents/Documents';
+
 interface PrintRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: any) => void;
-  documentName: string;
-  documentInfo: string;
+  document: Document;
 }
-
 
 const validationSchema = Yup.object().shape({
   copies: Yup.number()
@@ -20,15 +20,16 @@ const validationSchema = Yup.object().shape({
     .required('Number of copies is required'),
   printMode: Yup.string()
     .oneOf(['color', 'bw'], 'Invalid print mode')
-    .required('Please select a print mode')
+    .required('Please select a print mode'),
+  file: Yup.mixed().required('A file is required'),
+  notes: Yup.string().optional()
 });
 
 export const PrintRequestModal = ({
   isOpen,
   onClose,
   onSubmit,
-  documentName,
-  documentInfo
+  document
 }: PrintRequestModalProps) => {
   const copiesInputRef = useRef<HTMLInputElement>(null);
 
@@ -54,24 +55,25 @@ export const PrintRequestModal = ({
         initialValues={{
           copies: 1,
           printMode: 'color',
-          notes: ''
+          notes: '',
+          file: null
         }}
         validationSchema={validationSchema}
-        onSubmit={(values) => onSubmit({ documentName, ...values })}
+        onSubmit={(values) => onSubmit({  ...values })}
       >
-        {({ handleSubmit, isSubmitting, errors, touched }) => (
+        {({ handleSubmit, isSubmitting, errors, touched, setFieldValue }) => (
           <Form onSubmit={handleSubmit}>
             <Modal.Body>
               <Form.Group controlId="formDocumentName">
                 <Form.Label>Document</Form.Label>
                 <Form.Control
                   type="text"
-                  value={documentName}
+                  value={document.subject}
                   readOnly
                   className="bg-light border-0"
                 />
                 <FormText className="text-muted">
-                  {documentInfo}
+                  {document.field} - Grade {document.level}
                 </FormText>
               </Form.Group>
 
@@ -82,8 +84,7 @@ export const PrintRequestModal = ({
                   type="number"
                   min="1"
                   ref={copiesInputRef}
-                  className={`form-control text-center ${errors.copies && touched.copies ? 'is-invalid' : ''
-                    }`}
+                  className={`form-control text-center ${errors.copies && touched.copies ? 'is-invalid' : ''}`}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.copies}
@@ -115,12 +116,30 @@ export const PrintRequestModal = ({
                   </Form.Control.Feedback>
                 )}
               </Form.Group>
+
+              <Form.Group controlId="formFile">
+                <Form.Label>Upload File</Form.Label>
+                <input
+                  name="file"
+                  type="file"
+                  className={`form-control ${errors.file && touched.file ? 'is-invalid' : ''}`}
+                  onChange={(event) => {
+                    setFieldValue("file", event.currentTarget.files![0]);
+                  }}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.file}
+                </Form.Control.Feedback>
+              </Form.Group>
+
               <Form.Group controlId="formNotes">
                 <Form.Label>Special Instructions</Form.Label>
-                <Form.Control
+                <Field
                   as="textarea"
+                  name="notes"
                   rows={3}
                   placeholder="Enter any special instructions..."
+                  className="form-control"
                 />
               </Form.Group>
             </Modal.Body>
@@ -129,7 +148,8 @@ export const PrintRequestModal = ({
                 Cancel
               </Button>
               <Button
-                variant="primary"
+              className='submit-btn'
+                //variant=""
                 type="submit"
                 disabled={isSubmitting}
               >

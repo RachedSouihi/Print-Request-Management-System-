@@ -1,5 +1,5 @@
 // components/PrintRequestModal.module.scss]
-@import '../../pages/Account/design.scss';
+@import '../../design.scss';
 
 
 /// components/PrintRequestModal.module.scss
@@ -68,7 +68,14 @@
         border-top: 1px solid $border-color;
         text-align: right;
         gap: map-get($spacing-scale, "md");
+
+        .submit-btn{
+          background: linear-gradient(to right, $primary-blue, $purple-accent);
+          color: $background-light;
+          border: none;
+        }
       }
+
   
       button {
         padding: map-get($spacing-scale, "sm") map-get($spacing-scale, "lg");
