@@ -3,39 +3,39 @@ import axios from 'axios';
 import { SignUpFormData } from '../types/authentication';
 import { encryptPassword } from '../features/encrypt';
 
-// Define the shape of the state
+
+
+// Interface utilisateur
 interface User {
-  user_id: string;
-  firstname: string;
-  lastname: string;
+  id: string;  // Assure-toi que `id` est de type string ou le type approprié
   email: string;
-  phone: string;
-  role: string;
-  // Add other user properties as needed
+  name: string;
+  roles: string[];
 }
 
+
+// Interface de l'état d'authentification
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
   emailVerificationStatus: boolean | null;
+  token: string | null;
 }
 
-// Load initial state from localStorage
+// Chargement de l'état initial depuis localStorage
 const loadState = (): AuthState => {
   try {
     const serializedState = localStorage.getItem('authState');
-    if (serializedState === null) {
-      return {
-        user: null,
-        isAuthenticated: false,
-        loading: false,
-        error: null,
-        emailVerificationStatus: null,
-      };
-    }
-    return JSON.parse(serializedState);
+    return serializedState ? JSON.parse(serializedState) : {
+      user: null,
+      isAuthenticated: false,
+      loading: false,
+      error: null,
+      emailVerificationStatus: null,
+      token: null,
+    };
   } catch (err) {
     return {
       user: null,
@@ -43,94 +43,142 @@ const loadState = (): AuthState => {
       loading: false,
       error: null,
       emailVerificationStatus: null,
+      token: null,
     };
   }
 };
 
-// Save state to localStorage
+// Sauvegarde de l'état dans localStorage
 const saveState = (state: AuthState) => {
   try {
-    const serializedState = JSON.stringify(state);
-    localStorage.setItem('authState', serializedState);
+    localStorage.setItem('authState', JSON.stringify(state));
   } catch (err) {
-    // Ignore write errors
+    console.error('Erreur lors de la sauvegarde de l’état', err);
   }
 };
 
-// Initial state
+// Suppression du token et état utilisateur
+const clearAuthState = () => {
+  try {
+    localStorage.removeItem('authState');
+  } catch (err) {
+    console.error('Erreur lors de la suppression de l’état', err);
+  }
+};
+
+// État initial
 const initialState: AuthState = loadState();
 
-// Async thunk for login
-export const loginUser = createAsyncThunk<User, { email: string; password: string }, { rejectValue: string }>(
+// Thunk pour la connexion
+export const loginUser = createAsyncThunk<
+  User,  // Type de retour attendu pour une réponse réussie
+  { email: string; password: string },  // Paramètres d'entrée
+  { rejectValue: string }  // Type de la valeur rejetée
+>(
   'auth/login',
-  async (credentials, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/auth/login', credentials);
-      return response.data.user; // { id, name, email, etc. }
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data);
+      // Envoi de la requête GET pour la connexion
+      const response = await axios.get(
+        `http://127.0.0.1:8081/auth/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true, // Si ton backend utilise des cookies
+        }
+      );
+
+      console.log("Réponse serveur :", response);
+
+      // Extraction du token brut
+      const rawToken = response.data.access_token;
+      const extractedToken = rawToken.match(/access_token=([^,]*)/)?.[1] || rawToken;
+       // Extrait le token
+
+      if (!extractedToken) {
+        console.error("Échec de l'extraction du token :", rawToken);
+        return rejectWithValue("Échec de connexion. Token invalide.");
       }
-      return rejectWithValue('An unknown error occurred');
+    
+      // Sauvegarder le token directement dans le localStorage
+      localStorage.setItem("token", extractedToken);
+
+      // Décodage du JWT pour obtenir l'utilisateur
+      const parseJwt = (token: string) => {
+        try {
+          const base64Url = token.split('.')[1]; // Partie encodée du payload
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64)); // Décodage en JSON
+        } catch (error) {
+          console.error("Erreur lors du décodage du token :", error);
+          return {}; // Retourne un objet vide en cas d'erreur
+        }
+      };
+
+      const decodedToken = parseJwt(extractedToken);
+      console.log("Token décodé :", decodedToken);
+
+      if (!decodedToken.sub || !decodedToken.email) {
+        console.error("Erreur : Impossible de décoder le token ou les informations sont invalides.");
+        return rejectWithValue("Échec de connexion. Token invalide.");
+      }
+
+      // Création de l'utilisateur à partir du token décodé
+      const user: User = {
+        id: decodedToken.sub,
+        email: decodedToken.email,
+        name: decodedToken.name || '',
+        roles: decodedToken.realm_access?.roles || [], // Définit des rôles vides si non présents
+      };
+
+      // Sauvegarde dans le state
+      saveState({ 
+        ...initialState, 
+        user: user, 
+        isAuthenticated: true, 
+        token: extractedToken 
+      });
+
+      console.log("Utilisateur authentifié :", user);
+      return user; // Renvoie l'utilisateur si la connexion est réussie
+
+    } catch (error) {
+      console.error("Erreur de connexion :", error);
+      return rejectWithValue('Échec de connexion. Vérifiez vos informations.'); // Retourne une erreur si la connexion échoue
     }
   }
 );
 
-// Async thunk for sign-up
+
+      
+
+
 export const signUpUser = createAsyncThunk<boolean, { otp: string }, { rejectValue: string }>(
   'auth/signUp',
   async ({ otp }, { rejectWithValue }) => {
     try {
       const data = sessionStorage.getItem('signupData');
-      if (!data) {
-        throw new Error("No sign-up data found in session storage");
-      }
+      if (!data) throw new Error("Données d'inscription manquantes");
+
       const user_data: SignUpFormData = JSON.parse(data);
-
-      const { email, ...profile } = user_data;
-
       const post_data = {
-        user: {
-          email: email,
-          password: "",
-          profile: {
-            ...profile,
-            role: "student"
-          }
-        },
+        user: { ...user_data, password: "" },  // Retirer le rôle ici
         otp
       };
 
-      const response = await axios.post(
-        import.meta.env.VITE_SIGN_UP_URL,
-        post_data,
-        {
-          withCredentials: true, // Allow cookies
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + btoa('admin:admin')
-          }
-        }
-      );
+      const response = await axios.post('http://localhost:8081/user/signup', post_data, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa('admin:admin') }
+      });
 
-      if (response.status === 200) {
-        return true;
-      } else {
-        return false;
-      }
+      return response.status === 200;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
-        return false; // Return false for 401 error
-      }
-      if (error instanceof Error) {
-        return rejectWithValue(error.message);
-      }
-      return rejectWithValue('An unknown error occurred');
+      return rejectWithValue('Échec de l’inscription');
     }
   }
 );
 
-// Async thunk for checking auth status
+
+// Thunk pour la vérification de session
 export const checkAuth = createAsyncThunk<User, void, { rejectValue: string }>(
   'auth/check',
   async (_, { rejectWithValue }) => {
@@ -138,69 +186,47 @@ export const checkAuth = createAsyncThunk<User, void, { rejectValue: string }>(
       const response = await axios.get('/api/auth/me');
       return response.data;
     } catch (error) {
-      if (error instanceof Error) {
-        return rejectWithValue(error.message);
-      }
-      return rejectWithValue('An unknown error occurred');
+      return rejectWithValue('Session expirée, veuillez vous reconnecter.');
     }
   }
 );
 
-// Async thunk for email verification
+// Thunk pour l'envoi d'un email de vérification
 export const sendVerifEmail = createAsyncThunk<boolean, { email: string; passwd: string; firstname: string }, { rejectValue: string }>(
   'auth/sendVerifEmail',
   async ({ email, passwd, firstname }, { rejectWithValue }) => {
     try {
-      const timestamp = new Date().getTime();
-      const password: string = await encryptPassword(JSON.stringify({ passwd, timestamp }));
+      const password: string = await encryptPassword(JSON.stringify({ passwd, timestamp: Date.now() }));
+      const response = await axios.post('http://localhost:8081/user/verify-email', { email, password, firstname }, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa('admin:admin') }
+      });
 
-      const response = await axios.post(
-        import.meta.env.VITE_VERIF_EMAIL_URL,
-        { email, password, firstname },
-        {
-          withCredentials: true, // Allow cookies
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + btoa('admin:admin')
-          }
-        }
-      );
-
-      if (response.status === 200) {
-        return true;
-      } else {
-        return false;
-      }
+      return response.status === 200;
     } catch (error) {
-      console.error("Email verification failed:", error);
-      return rejectWithValue("Email verification failed");
+      return rejectWithValue('Échec de la vérification de l’email');
     }
   }
 );
 
-export const verifyAuth = createAsyncThunk<boolean, number, { rejectValue: string }>(
-  'auth/verifyAuth',
-  async (_, { rejectWithValue }) => {
+// Thunk pour la mise à jour du mot de passe
+export const updatePassword = createAsyncThunk<boolean, { email: string; newPassword: string }, { rejectValue: string }>(
+  'auth/updatePassword',
+  async ({ email, newPassword }, { rejectWithValue }) => {
     try {
-      const response = await axios.get('http://127.0.0.1:/user/auth/is-signed-in');
-      if (response.status === 200) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
+      const response = await axios.put('http://localhost:8081/update-password', { email, newPassword }, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa('admin:admin') }
+      });
 
-      if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
-        return false;
-      }
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data);
-      }
-      return rejectWithValue('An unknown error occurred');
+      return response.status === 200 && response.data === "Password updated successfully";
+    } catch (error) {
+      return rejectWithValue('Échec de la mise à jour du mot de passe');
     }
   }
 );
 
+// Slice Redux
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -208,68 +234,34 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      saveState(state); // Save state to localStorage on logout
+      state.token = null;
+      clearAuthState();
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => {
-        //state.loading = true;
-        state.error = null;
-      })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<User>) => {
+      .addCase(loginUser.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(loginUser.fulfilled, (state, action) => {
         state.user = action.payload;
         state.isAuthenticated = true;
-        //state.loading = false;
-        saveState(state); // Save state to localStorage on login
+        state.loading = false;
+        state.token = localStorage.getItem('authState') ? JSON.parse(localStorage.getItem('authState')!).token : null;
       })
-      .addCase(loginUser.rejected, (state, action: PayloadAction<string | undefined>) => {
-        state.error = action.payload || 'Login failed';
-        //state.loading = false;
-      })
-      .addCase(signUpUser.pending, (state) => {
-        //state.loading = true;
-        state.error = null;
-      })
-      .addCase(signUpUser.fulfilled, (state, action: PayloadAction<boolean>) => {
-        //state.loading = false;
-        if (action.payload) {
-          // Handle successful sign-up
-          // Only update the necessary parts of the state
-          state.isAuthenticated = true;
-        } else {
-          state.error = 'Invalid OTP';
-        }
-      })
-      .addCase(signUpUser.rejected, (state, action: PayloadAction<string | undefined>) => {
-        state.error = action.payload || 'Sign-up failed';
-        //state.loading = false;
-      })
-      .addCase(checkAuth.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(checkAuth.fulfilled, (state, action: PayloadAction<User>) => {
-        state.user = action.payload;
-        state.isAuthenticated = true;
-        //state.loading = false;
-        saveState(state); // Save state to localStorage on auth check
-      })
-      .addCase(checkAuth.rejected, (state, action: PayloadAction<string | undefined>) => {
-        state.error = action.payload || 'Authentication check failed';
-        //state.loading = false;
-      })
-      .addCase(sendVerifEmail.pending, (state) => {
-       // state.loading = true;
-        state.error = null;
-      })
-      .addCase(sendVerifEmail.fulfilled, (state, action: PayloadAction<boolean>) => {
-        state.emailVerificationStatus = action.payload;
-        //state.loading = false;
-      })
-      .addCase(sendVerifEmail.rejected, (state, action: PayloadAction<string | undefined>) => {
-        state.error = action.payload || 'Email verification failed';
-        //state.loading = false;
-      });
+      .addCase(loginUser.rejected, (state, action) => { state.error = action.payload || 'Échec de connexion'; state.loading = false; })
+      
+      .addCase(signUpUser.pending, (state) => { state.loading = true; })
+      .addCase(signUpUser.fulfilled, (state, action) => { state.isAuthenticated = action.payload; state.loading = false; })
+      .addCase(signUpUser.rejected, (state, action) => { state.error = action.payload || 'Inscription échouée'; state.loading = false; })
+
+      .addCase(checkAuth.pending, (state) => { state.loading = true; })
+      .addCase(checkAuth.fulfilled, (state, action) => { state.user = action.payload; state.isAuthenticated = true; state.loading = false; })
+      .addCase(checkAuth.rejected, (state, action) => { state.error = action.payload || 'Session expirée'; state.loading = false; })
+      
+      .addCase(sendVerifEmail.fulfilled, (state, action) => { state.emailVerificationStatus = action.payload; })
+      .addCase(sendVerifEmail.rejected, (state, action) => { state.error = action.payload || 'Échec de la vérification de l’email'; })
+
+      .addCase(updatePassword.fulfilled, (state) => { state.loading = false; })
+      .addCase(updatePassword.rejected, (state, action) => { state.error = action.payload || 'Erreur lors de la mise à jour du mot de passe'; state.loading = false; });
   },
 });
 

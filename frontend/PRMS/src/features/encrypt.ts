@@ -1,10 +1,9 @@
 import CryptoJS from "crypto-js";
 
 // Base64 secret key
-const secretKey = import.meta.env.VITE_SECRET_KEY;
+const secretKey = "a2P1MfLtUss3joijeGzYLPXcPhsySuYAb9MSg5mWkdg=";
 const nonceExpirationMinutes = 1; // Expiration time for nonce
-console.log("Import Meta ENV:", import.meta.env);
-console.log("Secret Key:", import.meta.env.VITE_SECRET_KEY);
+
 
 
 export default function hashPassword(password: string): string {

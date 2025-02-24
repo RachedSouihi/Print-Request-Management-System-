@@ -1,59 +1,47 @@
-package com.microservices.user_service.config;
+package com.microservices.user_service.Config;
 
-import com.microservices.user_service.filter.JwtAuthenticationFilter;
-import com.microservices.user_service.utils.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authorize -> authorize
+                        // Autoriser les routes spécifiques sans authentification
+                        .requestMatchers("/user/verify-email", "/user/signup", "/auth/login").permitAll()
+                        // Autoriser la route /update-password pour les utilisateurs authentifiés
+                        .requestMatchers("/update-password").permitAll()
+                        .requestMatchers("/user/sendOtp").permitAll()
+                        // Toutes les autres routes nécessitent une authentification
+                        .anyRequest().authenticated()
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Activer la configuration CORS
+                .csrf(csrf -> csrf.disable());  // Désactiver CSRF si vous avez une API REST
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+        return http.build();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                // Disable CSRF for stateless APIs
-                .csrf(csrf -> csrf.disable())
-                // Use stateless session management
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                // Configure request authorization
-                .authorizeHttpRequests(auth ->
-                        auth
-                                // Require authentication for the /user/signed-in endpoint
-                                .requestMatchers("/user/signed-in").authenticated()
-                                // Permit all other requests
-                                .anyRequest().permitAll()
-                )
-                // Add the custom JWT authentication filter before the default authentication filter
-                .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenProvider),
-                        UsernamePasswordAuthenticationFilter.class
-                )
-                // Disable form login to prevent redirects and enable proper 401 responses
-                .formLogin(form -> form.disable())
-                // Configure exception handling to return 401 Unauthorized for unauthorized requests
-                .exceptionHandling(exceptions ->
-                        exceptions.authenticationEntryPoint((request, response, authException) ->
-                                response.sendError(401, "Unauthorized")
-                        )
-                );
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Frontend React
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));  // Accepte tous les headers
+        configuration.setExposedHeaders(List.of("Authorization")); // Permet d'exposer le token JWT
+        configuration.setAllowCredentials(true);  // Autorise l'envoi de cookies et d'infos d'authentification
 
-        return http.build();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);  // Applique CORS sur tous les endpoints
+        return source;
     }
 }

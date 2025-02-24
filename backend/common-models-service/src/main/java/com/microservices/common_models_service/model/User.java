@@ -3,6 +3,11 @@ package com.microservices.common_models_service.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -12,7 +17,12 @@ public class User {
     private String email;
     private String password;
 
-   @OneToOne(mappedBy = "user", orphanRemoval = true)
+   /*@OneToOne(mappedBy = "user", orphanRemoval = true)
+    @JsonManagedReference
+    private Profile profile;*/
+
+
+    @OneToOne(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL) // Changed to CascadeType.ALL
     @JsonManagedReference
     private Profile profile;
 

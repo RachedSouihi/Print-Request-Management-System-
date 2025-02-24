@@ -1,43 +1,8 @@
-<<<<<<< HEAD
 package com.microservices.user_service.controller;
-
-
-
-import com.microservices.user_service.service.KeyCloakService;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import com.microservices.user_service.service.AuthService;
-
-@RestController
-@RequestMapping("/auth")
-public class UserController {
-
-    private final AuthService authService;
-
-
-    public UserController(AuthService authService, KeyCloakService keycloakService) {
-        this.authService = authService;
-
-    }
-
-    @GetMapping ("/login")
-    public ResponseEntity<?> login(@RequestParam ("username")String username, @RequestParam("password") String password) {
-        try {
-            String token = authService.login(username, password);
-            return ResponseEntity.ok().body("{\"access_token\": \"" + token + "\"}");
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body("{\"error\": \"" + e.getMessage() + "\"}");
-        }
-    }
-}
-=======
-package com.microservices.user_service.controller;
-
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
+import com.microservices.user_service.service.AuthService;
 import com.microservices.user_service.service.EmailService;
 import com.microservices.user_service.service.UserService;
 import com.microservices.user_service.service.VerificationService;
@@ -48,135 +13,24 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.microservices.user_service.service.KeyCloakService;
 import java.time.Duration;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
-@EnableJpaRepositories(basePackages = "com.microservices.common-models.repository")
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
-@RequestMapping("/user")
-public class UserController {
-
-    private final ObjectMapper objectMapper;
-
-
-
-
-
-    private final EmailService emailService;
-
-
-    private final UserService userService;
-
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-    private final VerificationService verificationService;
-
-    @Value("${app.secret.key}")
-    private String SECRET_KEY;
-
-    @Value("${app.encrytion.algo}")
-    private String ALGO;
-
-
-    @Autowired
-    public UserController(UserService userService, ObjectMapper objectMapper, EmailService emailService, VerificationService verificationService) {
-        this.userService = userService;
-        this.emailService = emailService;
-        this.objectMapper = objectMapper;
-        this.verificationService = verificationService;
-    }
-
-
-
-    @GetMapping("/generate-secret-key")
-    public ResponseEntity<?> generateSecretKey() throws Exception {
-
-        String secret_key = AESUtil.generateSecretKeyBase64();
-
-        // In Spring Boot
-        //byte[] keyBytes = Base64.getDecoder().decode(SECRET_KEY);
-        //System.out.println("Key length: " + keyBytes.length + " bytes"); // Should print "32"
-
-        return ResponseEntity.ok(secret_key);
-    }
-
-
-    @GetMapping("check-pwd")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> request) {
-
-        try {
-            // Decrypt the payload
-            String encryptedPayload = request.get("encryptedPayload");
-            String decryptedPayload = AESUtil.decrypt(encryptedPayload, SECRET_KEY, ALGO);
-
-            // Parse the decrypted JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> payloadMap = objectMapper.readValue(decryptedPayload, HashMap.class);
-
-            // Extract the password and timestamp
-            String password = (String) payloadMap.get("password");
-            long timestamp = (long) payloadMap.get("timestamp");
-
-            // Validate the timestamp
-            long currentTime = new Date().getTime();
-            long timeDifference = currentTime - timestamp;
-            long expirationMillis = 1 * 60 * 1000;
-
-            if (timeDifference > expirationMillis) {
-                return ResponseEntity.status(401).body("Payload expired");
-            }else{
-                return  ResponseEntity.ok("Payload valid");
-            }
-
-            // Proceed with password validation (e.g., hash and compare with the database)
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Decryption failed");
-        }
-    }
-
-package com.microservices.user_service.controller;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microservices.common_models_service.model.Profile;
-import com.microservices.common_models_service.model.User;
-import com.microservices.user_service.service.*;
-import com.microservices.user_service.utils.AESUtil;
-import com.microservices.user_service.utils.VerificationCodeUtil;
-import com.microservices.user_service.utils.VerificationData;
-import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.Duration;
-import java.util.*;
-
-@RestController
-@EnableJpaRepositories(basePackages = "com.microservices.common-models.repository")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
-@RequestMapping("/user")
 public class UserController {
 
     private final AuthService authService;
@@ -191,6 +45,10 @@ public class UserController {
 
     @Value("${app.encrytion.algo}")
     private String ALGO;
+    @Autowired
+    private KeyCloakService keyCloakService;
+
+
 
     @Autowired
     public UserController(AuthService authService, UserService userService, EmailService emailService,
@@ -202,9 +60,13 @@ public class UserController {
         this.objectMapper = objectMapper;
     }
 
-    // Méthode de connexion
-    @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestParam("username") String username, @RequestParam("password") String password) {
+    // ===========================
+    // Endpoints d'authentification
+    // ===========================
+
+    @GetMapping  ("/auth/login")
+    public ResponseEntity<?> login(@RequestParam("username") String username,
+                                   @RequestParam("password") String password) {
         try {
             String token = authService.login(username, password);
             return ResponseEntity.ok().body("{\"access_token\": \"" + token + "\"}");
@@ -213,210 +75,135 @@ public class UserController {
         }
     }
 
-    // Génération de clé secrète
-    @GetMapping("/generate-secret-key")
+    // ===========================
+    // Endpoints de gestion des utilisateurs
+    // ===========================
+
+    // Génération d'une clé secrète
+    @GetMapping("/user/generate-secret-key")
     public ResponseEntity<?> generateSecretKey() throws Exception {
         String secret_key = AESUtil.generateSecretKeyBase64();
         return ResponseEntity.ok(secret_key);
     }
 
-    // Vérification du mot de passe encrypté
-    @GetMapping("/check-pwd")
+    // Vérification d'un mot de passe encrypté
+    @GetMapping("/user/check-pwd")
     public ResponseEntity<String> checkPassword(@RequestBody Map<String, String> request) {
         try {
             String encryptedPayload = request.get("encryptedPayload");
             String decryptedPayload = AESUtil.decrypt(encryptedPayload, SECRET_KEY, ALGO);
             Map<String, Object> payloadMap = objectMapper.readValue(decryptedPayload, HashMap.class);
-
-            String password = (String) payloadMap.get("password");
-            long timestamp = (long) payloadMap.get("timestamp");
-
+            long timestamp = ((Number) payloadMap.get("timestamp")).longValue();
             long currentTime = new Date().getTime();
             long timeDifference = currentTime - timestamp;
-            long expirationMillis = 1 * 60 * 1000;
-
+            long expirationMillis = 1 * 60 * 1000; // 1 minute
             if (timeDifference > expirationMillis) {
                 return ResponseEntity.status(401).body("Payload expired");
             } else {
                 return ResponseEntity.ok("Payload valid");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).body("Decryption failed");
         }
     }
 
     // Inscription d'un utilisateur
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody Map<String, Object> request, HttpServletResponse response) {
+    @PostMapping("/user/signup")
+    public ResponseEntity<String> signup(@RequestBody Map<String, Object> payload) {
         try {
-            String otp = objectMapper.convertValue(request.get("otp"), String.class);
-            User user = objectMapper.convertValue(request.get("user"), User.class);
-            VerificationData data = verificationService.getVerificationData(user.getEmail());
-            user.setPassword(data.getHashedPassword());
+            // Extraire l'OTP
+            String otp = (String) payload.get("otp");
 
-            if (otp.equals(data.getCode())) {
-                Map<String, Object> tokens = userService.signUp(user);
-                ResponseCookie cookie1 = ResponseCookie.from("token", tokens.get("access_token").toString())
-                        .httpOnly(true).sameSite("Lax").path("/").maxAge(Duration.ofDays(2)).build();
-                ResponseCookie cookie2 = ResponseCookie.from("token", tokens.get("access_token").toString())
-                        .httpOnly(true).sameSite("Lax").path("/").maxAge(Duration.ofDays(10)).build();
+            // Extraire l'objet 'user' et le désérialiser manuellement
+            Map<String, Object> userMap = (Map<String, Object>) payload.get("user");
+            String email = (String) userMap.get("email");
+            String password = (String) userMap.get("password");
+            String firstname = (String) userMap.get("firstname");
 
-                response.addHeader(HttpHeaders.SET_COOKIE, cookie1.toString());
-                response.addHeader(HttpHeaders.SET_COOKIE, cookie2.toString());
+            // Créer un objet User à partir des données extraites
+            User user = new User();
+            user.setEmail(email);
+            user.setPassword(password);
 
-                return ResponseEntity.ok().body("Login successful");
+
+            // Logique d'inscription (vérification de l'OTP, etc.)
+            if (otp == null || otp.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("OTP manquant.");
             }
-            return ResponseEntity.status(401).body("Invalid otp");
+
+            // Exemple de traitement d'inscription
+            // Vous pouvez ajouter ici la logique pour valider l'OTP et enregistrer l'utilisateur dans la base de données
+
+            return ResponseEntity.ok("Inscription réussie pour l'email : " + user.getEmail());
         } catch (Exception e) {
-            return ResponseEntity.ok().body(e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur interne : " + e.getMessage());
         }
     }
 
+
+
     // Envoi d'un e-mail de vérification
-    @PostMapping("/verify-email")
-    public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws MessagingException {
+    @PostMapping("/user/verify-email")
+    public ResponseEntity<?> sendVerificationEmail(@RequestBody Map<String, String> request) throws MessagingException {
         String email = request.get("email");
         String password = request.get("password");
+        String firstname = request.get("firstname");
 
-        VerificationData data = new VerificationData();
-        data.setCode(VerificationCodeUtil.generateVerificationCode(4));
-        data.setEmail(email);
-        data.setHashedPassword(bCryptPasswordEncoder.encode(password));
+        // Générer et stocker l'OTP
+        verificationService.generateAndStoreOtp(email, password);
 
-        verificationService.storeVerificationData(email, data);
-        emailService.sendVerificationEmail(data.getEmail(), data.getCode(), request.get("firstname"));
+        // Récupérer les données de vérification depuis Redis
+        VerificationData data = verificationService.getVerificationData(email);
+
+        // Envoyer l'email avec le code de vérification
+        emailService.sendVerificationEmail(email, data.getCode(), firstname);
+
         return ResponseEntity.ok("Email sent");
     }
 
     // Vérification de l'état de connexion
-    @GetMapping("/signed-in")
-    public String signinPage(Authentication authentication) {
+    @GetMapping("/user/is-signed-in")
+   // @PreAuthorize("hasRole('ROLE_admin')")
+    public ResponseEntity<?> isSignedIn(Authentication authentication) {
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            return "not signed in";
-        }
-        return "signed in";
-    }
-}
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody Map<String, Object> request, HttpServletResponse response) {
-        try {
-
-            ObjectMapper mapper = new ObjectMapper();
-
-
-
-            String otp = mapper.convertValue(request.get("otp"), String.class);
-
-
-            User user = mapper.convertValue(request.get("user"), User.class);
-
-            VerificationData data = verificationService.getVerificationData(user.getEmail());
-
-            user.setPassword(data.getHashedPassword());
-            System.out.println("third line success:");
-
-
-
-
-
-            if(otp.equals(data.getCode())) {
-                Map<String,Object> tokens = userService.signUp(user);
-                ResponseCookie cookie1 = ResponseCookie.from("access_token", tokens.get("access_token").toString())
-                        .httpOnly(true)
-                        .sameSite("Lax")
-                        .path("/")
-                        .maxAge(Duration.ofDays(2))
-                        .build();
-
-
-                ResponseCookie cookie2 = ResponseCookie.from("refresh_token", tokens.get("access_token").toString())
-                        .httpOnly(true)
-                        .sameSite("Lax")
-                        .path("/")
-                        .maxAge(Duration.ofDays(10))
-                        .build();
-
-
-
-                response.addHeader(HttpHeaders.SET_COOKIE, cookie1.toString());
-                response.addHeader(HttpHeaders.SET_COOKIE, cookie2.toString());
-
-
-
-                return ResponseEntity.ok().body("Login successful");
-
-
-
-            }
-
-            System.out.println("wrong otp");
-
-            return ResponseEntity.status(401).body("Invalid otp");
-
-
-
-
-
-
-
-        } catch (Exception e) {
-
-            System.out.println(e.getMessage());
-
-            return ResponseEntity.ok().body(e.getMessage());
-
-        }
-
-    }
-
-    @PostMapping("/verify-email")
-    public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws MessagingException {
-
-        System.out.println("Starting email verification");
-        String email = request.get("email");
-        String password = request.get("password");
-
-        System.out.println(email);
-        System.out.println(password);
-
-        VerificationData data = new VerificationData();
-        data.setCode(VerificationCodeUtil.generateVerificationCode(4));
-        data.setEmail(email);
-        data.setHashedPassword(bCryptPasswordEncoder.encode(password));
-
-        verificationService.storeVerificationData(email, data);
-
-        emailService.sendVerificationEmail(data.getEmail(), data.getCode(), request.get("firstname"));
-        return ResponseEntity.ok("Email sent");
-    }
-
-
-    @GetMapping("/is-signed-in")
-    @PreAuthorize("hasRole('ROLE_admin')")
-    public ResponseEntity<?> signinPage(Authentication authentication) {
-
-        System.out.println("Authentication: " + authentication);
-
-        // If there's no authentication or if it's anonymous, treat as not signed in.
-        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            // The user is not signed .
             return ResponseEntity.status(401).build();
         }
-        // Otherwise, the user is signed in.
         return ResponseEntity.ok().build();
     }
 
-
-    @PostMapping("/test")
-
+    // Endpoint de test
+    @PostMapping("/user/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("test");
     }
+    @PutMapping("/update-password")
+    public ResponseEntity<String> updatePassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
 
+        if (email == null || newPassword == null) {
+            return ResponseEntity.badRequest().body("Missing email or newPassword");
+        }
 
+        String response = keyCloakService.updatePassword(email, newPassword);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/user/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String verificationCode = request.get("verificationCode");
 
+        // Vérifier que l'OTP correspond à celui stocké
+        VerificationData data = verificationService.getVerificationData(email);
 
+        if (data == null || !data.getCode().equals(verificationCode)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Code incorrect.");
+        }
 
+        return ResponseEntity.ok("Code vérifié.");
+    }
 
 
 }
@@ -424,4 +211,6 @@ public class UserController {
 
 
 
->>>>>>> origin/rached
+
+
+

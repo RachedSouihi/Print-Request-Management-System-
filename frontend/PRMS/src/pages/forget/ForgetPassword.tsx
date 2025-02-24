@@ -1,6 +1,7 @@
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { useState } from "react";
-import "./forget.css";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store/store";
 
 interface ForgetPasswordProps {
   show: boolean;
@@ -8,106 +9,143 @@ interface ForgetPasswordProps {
 }
 
 const ForgetPassword = ({ show, handleClose }: ForgetPasswordProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [step, setStep] = useState(1); // Étape 1: Email, Étape 2: Code de vérification et Nouveau mot de passe
-  const [error, setError] = useState("");
+  const [step, setStep] = useState(1); // 1: Send email, 2: Verify + New password
+  const [localError, setLocalError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Step 1: Send verification code via email
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Email soumis:", email);
-    setStep(2); // Passer à l'étape suivante
-  };
-
-  const handleSubmitVerification = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (newPassword !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+    setLocalError("");
+    if (!email) {
+      setLocalError("Please enter a valid email.");
       return;
     }
 
-    console.log("Code de vérification soumis:", verificationCode);
-    console.log("Nouveau mot de passe:", newPassword);
+    try {
+      const response = await fetch("http://localhost:8081/user/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    // Logic to verify code and update password here
+      if (!response.ok) throw new Error("Failed to send the verification code.");
 
-    handleClose(); // Fermeture du modal après succès
+      console.log("Email sent successfully.");
+      setStep(2); // Move to the next step
+    } catch (error) {
+      console.error("Error sending the code:", error);
+      setLocalError("Unable to send the verification code.");
+    }
+  };
+
+  // Step 2: Verify the code and update the password
+  const handleSubmitVerification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError("");
+
+    if (!verificationCode || verificationCode.length !== 4) {
+      setLocalError("Please enter a valid 4-digit code.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setLocalError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await fetch("http://localhost:8081/update-password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, newPassword, verificationCode }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update the password.");
+
+      console.log("Password updated successfully.");
+      handleClose();
+    } catch (error) {
+      console.error("Error updating password:", error);
+      setLocalError("Failed to update the password.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Modal
-      show={show}
-      onHide={handleClose}
-      centered
-      size="lg"
-      animation={true}
-      className="forget-password-modal"
-    >
+    <Modal show={show} onHide={handleClose} centered size="lg" animation={true}>
       <Modal.Header closeButton>
         <Modal.Title className="text-center w-100">
-          {step === 1 ? "Réinitialisation du mot de passe" : "Vérification du code"}
+          {step === 1 ? "Password Reset" : "Verification Code"}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {step === 1 ? (
           <Form onSubmit={handleSubmitEmail}>
             <Form.Group controlId="formEmail">
-              <Form.Label>Adresse e-mail</Form.Label>
+              <Form.Label>Email Address</Form.Label>
               <Form.Control
                 type="email"
-                placeholder="Entrez votre email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="form-control-lg pulse"
+                className="form-control-lg"
               />
             </Form.Group>
-            <Button variant="primary" type="submit" className="mt-4 w-100 btn-lg shadow-lg hover-btn">
-              Envoyer le code
+            {localError && <Alert variant="danger" className="mt-3">{localError}</Alert>}
+            <Button variant="primary" type="submit" className="mt-4 w-100 btn-lg">
+              Send Code
             </Button>
           </Form>
         ) : (
           <Form onSubmit={handleSubmitVerification}>
             <Form.Group controlId="formVerificationCode">
-              <Form.Label>Code de vérification</Form.Label>
+              <Form.Label>Verification Code</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Entrez le code de 4 chiffres"
+                placeholder="Enter the code received"
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
                 required
                 maxLength={4}
-                className="form-control-lg pulse"
+                className="form-control-lg"
               />
             </Form.Group>
-            <Form.Group controlId="formNewPassword">
-              <Form.Label>Nouveau mot de passe</Form.Label>
+            <Form.Group controlId="formNewPassword" className="mt-3">
+              <Form.Label>New Password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Entrez votre nouveau mot de passe"
+                placeholder="Enter your new password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                className="form-control-lg pulse"
+                className="form-control-lg"
               />
             </Form.Group>
-            <Form.Group controlId="formConfirmPassword">
-              <Form.Label>Confirmer le mot de passe</Form.Label>
+            <Form.Group controlId="formConfirmPassword" className="mt-3">
+              <Form.Label>Confirm Password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Confirmez votre nouveau mot de passe"
+                placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="form-control-lg pulse"
+                className="form-control-lg"
               />
             </Form.Group>
-            {error && <p className="text-danger">{error}</p>}
-            <Button variant="primary" type="submit" className="mt-4 w-100 btn-lg shadow-lg hover-btn">
-              Confirmer
+            {localError && <Alert variant="danger" className="mt-3">{localError}</Alert>}
+            {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
+            <Button variant="primary" type="submit" className="mt-4 w-100 btn-lg" disabled={isSubmitting || loading}>
+              {isSubmitting || loading ? <Spinner animation="border" size="sm" /> : "Confirm"}
             </Button>
           </Form>
         )}

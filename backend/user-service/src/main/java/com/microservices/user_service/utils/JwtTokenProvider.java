@@ -1,6 +1,8 @@
 package com.microservices.user_service.utils;
 
+import com.zaxxer.hikari.pool.HikariProxyCallableStatement;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,9 +12,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.SQLException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +28,11 @@ public class JwtTokenProvider {
 
     @Value("${keycloak.publickey}")
     private String publicKeyString; // This should be the PEM encoded public key
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration}")
+    private long jwtExpirationInMs;
 
     private final String authCookieName = "access_token"; // Your cookie name
 
@@ -98,4 +108,20 @@ public class JwtTokenProvider {
                 .collect(Collectors.toList());
 
         return new UsernamePasswordAuthenticationToken(username, null, authorities);
-    }}
+    }
+    private Key getSigningKey() throws SQLException {
+        HikariProxyCallableStatement jwtSecret = null;
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(String.valueOf(StandardCharsets.UTF_8)));
+    }
+    public String getUsernameFromToken(String token) throws SQLException {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
+
+}

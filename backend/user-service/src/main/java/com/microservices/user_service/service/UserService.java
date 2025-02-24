@@ -10,6 +10,7 @@ import com.microservices.common_models_service.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +45,7 @@ public class UserService {
 
 
 
-    public User signUp(User user) {
+    public  Map<String, Object>  signUp(User user) {
         try{
             keyCloakService.createUserKeyCloak(user.getEmail(), user.getPassword());
             Profile profile = user.getProfile();
@@ -55,7 +56,7 @@ public class UserService {
 
             Map<String, Object> token = keyCloakService.getToken(user.getEmail(), user.getPassword());
 
-            return user;
+            return token;
 
 
 
@@ -65,4 +66,10 @@ public class UserService {
 
 
     }
+    public String hashPassword(String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode(password);
+    }
+
+
 }
