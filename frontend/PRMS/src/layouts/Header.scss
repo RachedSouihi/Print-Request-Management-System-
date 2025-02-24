@@ -1,6 +1,9 @@
 // Header.scss
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
+
+
+
 :root {
   --primary-color: #4A55A2;
   --secondary-color: #7895CB;
@@ -112,7 +115,7 @@
 }
 
 // Notification styles with adjusted positioning
-.notification {
+/*.notification {
   &-wrapper {
     position: relative;
   }
@@ -245,7 +248,7 @@
       opacity: 0.6;
     }
   }
-}
+}*/
 
 
 
