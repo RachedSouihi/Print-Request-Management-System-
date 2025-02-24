@@ -1,0 +1,86 @@
+// components/PrintRequestModal.module.scss]
+@import '../../design.scss';
+
+
+/// components/PrintRequestModal.module.scss
+.print-request-modal {
+    .modal-dialog {
+        
+      max-width: 600px;
+      margin: 2rem auto;
+    }
+  
+    .modal-content {
+      border-radius: map-get($border-radius, "md");
+      box-shadow: map-get($shadow-elevation, "medium");
+      background-color: $background-light;
+      color: $dark-text;
+  
+      .modal-header {
+        background: linear-gradient(135deg, #4A55A2, #8A4FFF);
+        color: #ffff;
+
+        padding: map-get($spacing-scale, "lg");
+        border-bottom: 1px solid $border-color;
+      }
+  
+      .modal-body {
+        padding: map-get($spacing-scale, "lg");
+        .form-group {
+          margin-bottom: map-get($spacing-scale, "md");
+        }
+  
+        .form-text {
+          font-size: map-get($font-scale, "small");
+          color: $dark-text;
+          opacity: 0.7;
+        }
+  
+        .input-group {
+          .form-control {
+            border-radius: map-get($border-radius, "sm") 0 0 map-get($border-radius, "sm") !important;
+          }
+          .input-group-text {
+            border-radius: 0 map-get($border-radius, "sm") map-get($border-radius, "sm") 0 !important;
+          }
+        }
+  
+        .custom-radio {
+          .form-check-input {
+            accent-color: $primary-blue;
+            border-color: $border-color;
+            background-color: $background-light;
+  
+            &:checked {
+              background-color: $primary-blue;
+              border-color: $primary-blue;
+            }
+  
+            &:focus {
+              box-shadow: 0 0 0 0.25rem rgba(74, 85, 162, 0.25);
+            }
+          }
+        }
+      }
+  
+      .modal-footer {
+        padding: map-get($spacing-scale, "lg");
+        border-top: 1px solid $border-color;
+        text-align: right;
+        gap: map-get($spacing-scale, "md");
+
+        .submit-btn{
+          background: linear-gradient(to right, $primary-blue, $purple-accent);
+          color: $background-light;
+          border: none;
+        }
+      }
+
+  
+      button {
+        padding: map-get($spacing-scale, "sm") map-get($spacing-scale, "lg");
+        border-radius: map-get($border-radius, "md");
+        font-weight: map-get($font-weights, "semi-bold");
+      }
+    }
+  }
