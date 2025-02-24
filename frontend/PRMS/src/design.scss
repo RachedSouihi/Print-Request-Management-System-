@@ -1,0 +1,103 @@
+// design-tokens.scss
+/* 
+* Educational Platform Design System
+* Colors and Typography Specifications
+*/
+
+// ================
+// Color Palette
+// ================
+$primary-blue: #4A55A2;       // Main brand color
+$secondary-blue: #7895CB;     // Secondary brand color
+$purple-accent: #8A4FFF;      // Accent color for highlights
+$dark-text: #2D3250;          // Primary text color
+$light-text: #F8FAFC;         // Light mode text
+$background-light: #FFFFFF;   // Light mode background
+$background-dark: #1A1A1A;    // Dark mode background
+$border-color: #e2e8f0;       // Default border color
+$success-green: #4CAF50;      // Success states
+$error-red: #F44336;          // Error states
+$warning-orange: #FF9800;     // Warning states
+$hover-overlay: rgba(120, 149, 203, 0.1); // Interactive overlay
+
+// Status Colors
+$status-colors: (
+  "success": $success-green,
+  "error": $error-red,
+  "warning": $warning-orange
+);
+
+// ================
+// Typography
+// ================
+$font-family-primary: 'Montserrat', sans-serif;
+$font-family-secondary: 'Inter', sans-serif; // Fallback font
+
+$font-weights: (
+  "regular": 400,
+  "medium": 500,
+  "semi-bold": 600,
+  "bold": 700
+);
+
+$font-scale: (
+  "h1": 2.5rem,
+  "h2": 2rem,
+  "h3": 1.75rem,
+  "h4": 1.5rem,
+  "body": 1rem,
+  "small": 0.875rem,
+  "tiny": 0.75rem
+);
+
+// ================
+// Spacing & Sizing
+// ================
+$spacing-unit: 1rem;
+$spacing-scale: (
+  "xxs": $spacing-unit * 0.25,
+  "xs": $spacing-unit * 0.5,
+  "sm": $spacing-unit * 0.75,
+  "md": $spacing-unit,
+  "lg": $spacing-unit * 1.5,
+  "xl": $spacing-unit * 2,
+  "xxl": $spacing-unit * 3
+);
+
+$border-radius: (
+  "sm": 4px,
+  "md": 8px,
+  "lg": 12px,
+  "pill": 40px,
+  "circle": 50%
+);
+
+// ================
+// Shadows
+// ================
+$shadow-elevation: (
+  "low": 0 2px 4px rgba(0, 0, 0, 0.08),
+  "medium": 0 4px 12px rgba(0, 0, 0, 0.12),
+  "high": 0 8px 24px rgba(0, 0, 0, 0.16)
+);
+
+// ================
+// Component-Specific Variables
+// ================
+$sidebar-width: 250px;
+$header-height: 64px;
+$input-height: 48px;
+
+@mixin font-scale($size) {
+  font-size: map-get($font-scale, $size);
+  line-height: 1.2 * map-get($font-scale, $size);
+}
+
+/* Usage Example:
+.element {
+  color: $dark-text;
+  font-family: $font-family-primary;
+  padding: map-get($spacing-scale, "md");
+  border-radius: map-get($border-radius, "md");
+}
+*/
