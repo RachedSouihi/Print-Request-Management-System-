@@ -3,6 +3,7 @@ package com.microservices.common_models_service.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.lang.Nullable;
 
 
 @Entity
@@ -31,10 +32,8 @@ public class Document {
     private int downloads;
 
 
-    @Column(name="level", columnDefinition = "VARCHAR DEFAULT ''")
     private String level;
 
-    @Column(name="field", columnDefinition = "VARCHAR DEFAULT ''")
     private String field;
 
 

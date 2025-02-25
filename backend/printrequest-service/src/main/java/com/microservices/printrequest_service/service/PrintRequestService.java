@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PrintRequestService {
@@ -51,6 +52,8 @@ System.out.println("PrintRequests found");
 
 
     public PrintRequest savePrintRequest(PrintRequest printRequest) {
+        String request_id = UUID.randomUUID().toString();
+
 
 
         User user = userRepository.findById(printRequest.getUser().getUser_id())
@@ -65,6 +68,8 @@ System.out.println("PrintRequests found");
                 .orElseThrow(() -> new RuntimeException("PaperType not found"));
 
         // Assign existing entities
+
+        printRequest.setRequestId(request_id);
         printRequest.setUser(user);
         printRequest.setDocument(document);
         printRequest.setPaperType(paperType);

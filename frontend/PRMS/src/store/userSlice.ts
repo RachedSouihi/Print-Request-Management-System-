@@ -10,7 +10,7 @@ const loadUserProfile = (): UserState | null => {
 };
 
 const initialState: UserState = loadUserProfile() || {
-  userId: '14414',
+  user_id: '67890',
   firstName: 'Rached',
   lastName: 'Souihi',
   email: 'rached.souihi2613@istic.ucar.tn',

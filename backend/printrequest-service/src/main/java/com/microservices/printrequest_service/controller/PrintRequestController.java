@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/p-request")
+@CrossOrigin(origins = "http://localhost:5173")
 public class PrintRequestController {
     private final PrintRequestService printRequestService;
 
@@ -59,10 +60,12 @@ public class PrintRequestController {
 
 
 
-    @PostMapping
+    @PostMapping("/send-print-request")
     public ResponseEntity<?> printRequest(@RequestBody PrintRequest printRequest) {
 
         try {
+
+            //return ResponseEntity.ok(printRequest);
             return ResponseEntity.ok(printRequestService.savePrintRequest(printRequest));
 
 
