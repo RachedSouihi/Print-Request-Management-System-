@@ -2,10 +2,11 @@ package com.microservices.common_models_service.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
+import org.springframework.boot.context.properties.bind.DefaultValue;
+
 
 @Entity
 @Table(name = "documents")
-
 public class Document {
     @Id
     private String id;
@@ -18,23 +19,47 @@ public class Document {
     @Column(name = "doc_type")
     private String docType; // e.g., "PDF", "DOCX"
 
+
+
     @Lob
     private byte[] document; // Use @Lob alone
 
     private String subject;
     private String description;
 
+    @Column(name = "downloads", columnDefinition = "INT DEFAULT 0")
+    private int downloads;
 
-    public String getSubject() {
-        return subject;
+
+    @Column(name="level", columnDefinition = "VARCHAR DEFAULT ''")
+    private String level;
+
+    @Column(name="field", columnDefinition = "VARCHAR DEFAULT ''")
+    private String field;
+
+
+    public String getLevel() {
+        return level;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    public String getSubject() {
+        return subject;
     }
 
     public byte[] getDocument() {
@@ -53,8 +78,20 @@ public class Document {
         return id;
     }
 
+    public int getDownloads(){
+        return downloads;
+    }
+
+    public void setDownloads(int downloads) {
+        this.downloads = downloads;
+    }
+
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public void setDocument(byte[] document) {
@@ -72,4 +109,6 @@ public class Document {
     public void setId(String id) {
         this.id = id;
     }
+
+
 }
