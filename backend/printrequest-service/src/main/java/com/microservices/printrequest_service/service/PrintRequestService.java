@@ -1,6 +1,7 @@
 package com.microservices.printrequest_service.service;
 
 
+import com.microservices.common_models_service.dto.DocumentDTO;
 import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.PaperType;
 import com.microservices.common_models_service.model.PrintRequest;
@@ -51,10 +52,11 @@ System.out.println("PrintRequests found");
 
 
 
-    public PrintRequest savePrintRequest(PrintRequest printRequest) {
+    public String savePrintRequest(PrintRequest printRequest) {
         String request_id = UUID.randomUUID().toString();
 
 
+        String id= printRequest.getDocument().getId();
 
         User user = userRepository.findById(printRequest.getUser().getUser_id())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -71,10 +73,17 @@ System.out.println("PrintRequests found");
 
         printRequest.setRequestId(request_id);
         printRequest.setUser(user);
+
+
         printRequest.setDocument(document);
         printRequest.setPaperType(paperType);
 
-        return printRequestRepository.save(printRequest);
+        PrintRequest pr =  printRequestRepository.save(printRequest);
+
+
+        return pr.getRequestId();
+
+
 
 
 

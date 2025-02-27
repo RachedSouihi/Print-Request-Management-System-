@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/p-request")
-@CrossOrigin(origins = "http://localhost:5173")
 public class PrintRequestController {
     private final PrintRequestService printRequestService;
 
@@ -23,19 +22,6 @@ public class PrintRequestController {
     }
 
 
-
-    @GetMapping("/test")
-    public ResponseEntity<?> test() {
-
-        try {
-
-            return ResponseEntity.ok("Hello World");
-
-        }catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.ok(e.getMessage());
-        }
-    }
 
 
     @GetMapping("/all")
@@ -47,13 +33,12 @@ public class PrintRequestController {
                     System.out.println(printRequest.getRequestId());
                 }
 
-                if(l.size() > 0){
+                if(!l.isEmpty()){
                     return ResponseEntity.ok(l);
                 }
 
                 return ResponseEntity.badRequest().build();
             }catch(Exception e){
-                e.printStackTrace();
                 return ResponseEntity.badRequest().build();
             }
         }
@@ -71,15 +56,9 @@ public class PrintRequestController {
 
 
         }catch(Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
-
-
-
     }
-
-
 
 }
