@@ -2,15 +2,17 @@ package com.microservices.user_service.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microservices.api_gateway.utils.AESUtil;
+import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
 import com.microservices.user_service.service.EmailService;
 import com.microservices.user_service.service.UserService;
 import com.microservices.user_service.service.VerificationService;
-import com.microservices.user_service.utils.AESUtil;
 import com.microservices.user_service.utils.VerificationCodeUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.Response;
 import org.keycloak.jose.jwe.JWE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +32,6 @@ import java.util.*;
 
 @RestController
 @EnableJpaRepositories(basePackages = "com.microservices.common-models.repository")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequestMapping("/user")
 public class UserController {
 
@@ -130,6 +131,17 @@ public class UserController {
 
             String otp = mapper.convertValue(request.get("otp"), String.class);
 
+            System.out.println("Encrypted OTP: " + otp);
+
+            otp = AESUtil.decrypt(otp, "ch7ZwAD0MfdSebCtrn7c9Gsneg/JqNxtwY5qCaFU1T8=", ALGO);
+
+
+            System.out.println("Decrypted OTP: " + otp);
+
+
+
+
+
 
             User user = mapper.convertValue(request.get("user"), User.class);
 
@@ -143,11 +155,16 @@ public class UserController {
 
 
 
+
             Map<String, Object> otpResponse = verificationService.isOtpValid(user.getEmail() ,otp);
             if((int)otpResponse.get("status") == 200) {
                 Map<String,Object> tokens = userService.signUp(user);
 
+
+
                 System.out.println("TOKENS: " + tokens);
+
+                user.setUser_id((String) tokens.get("user_id"));
                 tokens.put("access_token", AESUtil.encrypt( (String)tokens.get("access_token"), SECRET_KEY, ALGO));
                 tokens.put("refresh_token", AESUtil.encrypt( (String)tokens.get("refresh_token"), SECRET_KEY, ALGO));
 
@@ -173,7 +190,7 @@ public class UserController {
 
 
 
-                return ResponseEntity.ok().body("Login successful");
+                return ResponseEntity.ok().body(user);
 
 
 
@@ -192,7 +209,7 @@ public class UserController {
 
             System.out.println(e.getMessage());
 
-            return ResponseEntity.ok().body(e.getMessage());
+            return ResponseEntity.status(500).body(e.getMessage());
 
         }
 
@@ -235,6 +252,29 @@ public class UserController {
 
        emailService.sendVerificationEmail(email, otp, request.get("firstname"));
         return ResponseEntity.ok("Email sent");
+    }
+
+
+    @PostMapping("/auth/resend-verif-email")
+    public ResponseEntity<?> reSendCode(@RequestBody Map<String, String> request) throws MessagingException {
+
+        try {
+            String email = request.get("email");
+
+            System.out.println("email resend: " +  email);
+
+            String otp = VerificationCodeUtil.generateVerificationCode(4);
+            verificationService.storeOtp(email, otp);
+            emailService.sendVerificationEmail(email, otp, request.get("firstname"));
+            return ResponseEntity.ok("Email sent");
+        }catch(Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+
+
+
+
     }
 
 
@@ -311,6 +351,47 @@ public class UserController {
 
         return ResponseEntity.ok().body("Document added");
     }
+
+
+    @PostMapping("/save-doc")
+    public String saveDoc(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
+
+        try{
+            System.out.println(request);
+            String userId = (String) request.get("userId");
+            String docId = (String) request.get("documentId");
+
+            userService.saveDocument(userId, docId);
+
+            return "Document saved";
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
+    }
+
+
+    @GetMapping("/saved-docs")
+    public ResponseEntity<?> getSavedDocs(@RequestParam("userId") String userId) {
+
+        try{
+             return ResponseEntity.ok(userService.getUserWithSavedDocuments(userId));
+
+
+
+        }catch (Exception e){
+
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+
+    }
+
+
+
+
+
 
 
 

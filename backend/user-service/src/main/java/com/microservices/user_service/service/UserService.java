@@ -1,15 +1,19 @@
 package com.microservices.user_service.service;
 
 
+import com.microservices.common_models_service.dto.UserDTO;
+import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
 //import com.microservices.common_models_service.repository.ProfileRepository;
 //import com.microservices.common_models_service.repository.UserRepository;
 
+import com.microservices.common_models_service.repository.DocumentRepository;
 import com.microservices.common_models_service.repository.ProfileRepository;
 import com.microservices.common_models_service.repository.UserRepository;
 import com.microservices.user_service.utils.VerificationData;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,11 +21,14 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional // Important! Ensure transactional context
 public class UserService {
 
     private final UserRepository userRepository;
@@ -31,24 +38,25 @@ public class UserService {
     private final KeyCloakService keyCloakService;
 
 
+    private final ModelMapper modelMapper; // Inject the configured ModelMapper bean
+
+
+
     @Autowired
     private static final Duration EXPIRATION = Duration.ofMinutes(10);
-
-
-
-
-
-
+    private final DocumentRepository documentRepository;
 
 
     @Autowired
-    public UserService(UserRepository userRepository, ProfileRepository profileRepository, KeyCloakService keyCloakService) {
+    public UserService(UserRepository userRepository, ProfileRepository profileRepository, KeyCloakService keyCloakService, DocumentRepository documentRepository, ModelMapper modelMapper) {
         super();
         this.userRepository = userRepository;
         this.keyCloakService = keyCloakService;
         this.profileRepository = profileRepository;
 
         //this.passwordEncoder = passwordEncoder;
+        this.documentRepository = documentRepository;
+        this.modelMapper = modelMapper;
     }
 
 
@@ -163,22 +171,26 @@ public class UserService {
 
             String user_id = UUID.randomUUID().toString();
             user.setUser_id(user_id);
-            profile.setUser_id(user_id);
 
             profile.setUser(user);
 
             userRepository.save(user);
-            profileRepository.save(profile);
+            //profileRepository.save(profile);
 
 
 
-             return keyCloakService.getToken(user.getEmail(), user.getPassword());
+             Map<String, Object> tokens =  keyCloakService.getToken(user.getEmail(), user.getPassword());
+
+             tokens.put("user_id", user_id);
+
+             return tokens;
 
 
 
 
 
         }catch (Exception e){
+            System.out.println(e.getMessage());
             return null;
         }
         
@@ -191,4 +203,52 @@ public class UserService {
 
         return new User();
     }
+
+
+
+
+
+
+    public void saveDocument(String userId, String documentId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new RuntimeException("Document not found"));
+
+        user.saveDocument(document);
+        userRepository.save(user);
+    }
+
+    public UserDTO getUserWithSavedDocuments(String userId) {
+        Optional<User> userOptional = userRepository.findUserWithDocuments(userId);
+
+        if(userOptional.isPresent()){
+            System.out.println(userOptional.get().getUser_id());
+            System.out.println(userOptional.get().getProfile().getFirstname());
+        }
+        return userOptional.map(user -> modelMapper.map(user, UserDTO.class))
+                .orElse(null);
+    }
+
+
+
+
+
+    /*public Set<Document> getSavedDocuments(String userId) {
+
+        Optional<User> user = userRepository.findById(userId);
+
+        if(user.isPresent()) {
+
+            return user.get().getSavedDocuments();
+        }else{
+
+            return null;
+        }
+
+
+
+
+    }*/
+
 }

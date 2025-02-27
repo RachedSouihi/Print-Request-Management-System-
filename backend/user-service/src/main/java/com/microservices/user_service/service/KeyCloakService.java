@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.common_models_service.model.User;
 import org.keycloak.admin.client.resource.UserResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -43,6 +44,7 @@ public class KeyCloakService {
     @Value("${keycloak.credentials.secret}")
     private String client_secret;
 
+    @Autowired
     public KeyCloakService(Keycloak keycloak) {
         this.keycloak = keycloak;
     }
