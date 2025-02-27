@@ -130,18 +130,8 @@ public class UserController {
 
 
             String otp = mapper.convertValue(request.get("otp"), String.class);
-
-            System.out.println("Encrypted OTP: " + otp);
-
+            
             otp = AESUtil.decrypt(otp, "ch7ZwAD0MfdSebCtrn7c9Gsneg/JqNxtwY5qCaFU1T8=", ALGO);
-
-
-            System.out.println("Decrypted OTP: " + otp);
-
-
-
-
-
 
             User user = mapper.convertValue(request.get("user"), User.class);
 

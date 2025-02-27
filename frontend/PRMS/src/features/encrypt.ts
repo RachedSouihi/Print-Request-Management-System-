@@ -64,6 +64,21 @@ export async function encryptData(data: string, base64SecretKey: string): Promis
   }
 }
 
+export async function encryptOTP(otp: string): Promise<string> {
+  try {
+    const encryptedOTP = await encryptData(otp, import.meta.env.VITE_OTP_SECRET_KEY);
+    return encryptedOTP
+
+  } catch (error) {
+    console.error("Error:", error);
+    return ''; // Return an empty string or handle the error appropriately
+  }
+}
+
+
+
+
+
 export async function encryptPassword(data: any): Promise<string> {
   try {
     const encryptedPassword = await encryptData(data, secretKey);
