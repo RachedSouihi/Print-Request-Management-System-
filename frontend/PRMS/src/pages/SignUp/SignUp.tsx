@@ -1,9 +1,9 @@
-import React, { useEffect, useState, FC } from "react";
+import React, { useEffect, useState, FC, act } from "react";
 import { Form, Row, Button, Col, InputGroup } from "react-bootstrap";
 import { useFormik } from "formik";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store/store';
-import { sendVerifEmail, signUpUser } from '../../store/authSlice';
+import { sendVerifEmail, signUpUser, resendVerifEmail } from '../../store/authSlice';
 import { signUpValidationSchema } from "../../validations/SignUpValidation";
 import "./SignUp.css"; // Import the SCSS file
 import CustomButton from "../../components/Button/Button";
@@ -13,19 +13,15 @@ import CustomToast from "../../common/Toast";
 import { useNavigate } from "react-router";
 import { useToast } from "../../context/ToastContext";
 
-
 const SignupForm: FC = (): React.ReactNode => {
     const dispatch = useDispatch<AppDispatch>();
-    const {  isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
     const navigate = useNavigate();
 
-    const { toast, showToast, hideToast } = useToast()
-
-    
+    const { toast, showToast, hideToast } = useToast();
 
     const [isLoading, setIsLoading] = useState<boolean>(false); // we have already loading state from slice
-
-    const [showOtpModal, setShowOtpModal] = useState<boolean>(false)
+    const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
 
     const formik = useFormik({
         initialValues: {
@@ -54,12 +50,11 @@ const SignupForm: FC = (): React.ReactNode => {
                 if (emailSent) {
                     setShowOtpModal(true);
                 } else {
-
-                    showToast("Wrong code, try again", "danger")
+                    showToast("Wrong code, try again", "danger");
                 }
             } catch (error) {
                 console.error("Error during sign-up:", error);
-                showToast("Error during sign-up", "danger")
+                showToast("Error during sign-up", "danger");
             } finally {
                 setIsLoading(false);
             }
@@ -68,27 +63,41 @@ const SignupForm: FC = (): React.ReactNode => {
 
     const signUp = async (otp: string) => {
         try {
-
-
             dispatch(signUpUser({ otp })).then((action: any) => {
+
+                console.log("ACTION SIGNUP:", action)
                 if (action.type === 'auth/signUp/fulfilled') {
+                    showToast(action.payload.message, action.payload.status === 200 ? 'success' : 'danger');
+                    if (action.payload.status === 200) {
+                        navigate('/');
+                    }
+                }else{
+                    showToast(action.payload.message, action.payload.status === 200 ? 'success' : 'danger');
+
 
                 }
-
-                showToast(action.payload.message, action.payload.status === 200 ? 'success' : 'danger');
-
-                if(action.payload.status === 200) {
-                    navigate('/');
-                }
-
-
-
-            })
-            
+            });
         } catch (error) {
-            console.error("Error during sign-up:");
+            console.error("Error during sign-up:", error);
+            showToast("Error during sign-up", "danger");
+        }
+    };
 
-            showToast("Error during sign-up", "danger")
+    const handleResendVerifEmail = async () => {
+        try {
+            const emailSent = await dispatch(resendVerifEmail({
+                email: formik.values.email,
+                firstname: formik.values.firstname
+            })).unwrap();
+
+            if (emailSent) {
+                showToast("Verification email resent successfully", "success");
+            } else {
+                showToast("Failed to resend verification email", "danger");
+            }
+        } catch (error) {
+            console.error("Error resending verification email:", error);
+            showToast("Error resending verification email", "danger");
         }
     };
 
@@ -277,6 +286,7 @@ const SignupForm: FC = (): React.ReactNode => {
                     onClose={() => setShowOtpModal(false)}
                     email={formik.values.email}
                     signUp={signUp}
+                    resendVerifEmail={handleResendVerifEmail} // Pass the resendVerifEmail function as a prop
                 />
             )}
         </>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-type ToastType = 'success' | 'danger' | 'warning';
+export type ToastType = 'success' | 'danger' | 'warning';
 
 interface ToastContextType {
   toast: {

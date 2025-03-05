@@ -18,6 +18,8 @@
   --border-color: #333333;
 }
 
+
+
 .site-header {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-color);
@@ -26,6 +28,7 @@
   top: 0;
   z-index: 1000;
   transition: all 0.3s ease;
+  
 
 
   .header-content {

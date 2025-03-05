@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 import { FiClock, FiMail } from 'react-icons/fi';
 import './OTP.scss';
+import { ToastType } from '../../context/ToastContext';
 
 interface OtpModalProps {
   show: boolean;
   onClose: () => void;
   email: string;
-  //setToast: React.Dispatch<React.SetStateAction<ToastState>>;
+  showToast: (message: string, type: ToastType) => void;
   signUp: (otp: string) => Promise<void>;
-
-  showToast: any
-
+  resendVerifEmail: () => Promise<void>; // Add the new prop
 }
 
-
-
-const OtpModal: React.FC<OtpModalProps> = ({ show, onClose, email, showToast, signUp }) => {
+const OtpModal: React.FC<OtpModalProps> = ({ show, onClose, email, showToast, signUp, resendVerifEmail }) => {
   const [otp, setOtp] = useState(['', '', '', '']);
-  const [timer, setTimer] = useState(30);
-  const [isResendDisabled, setIsResendDisabled] = useState(true);
+  const [timer, setTimer] = useState(60);
+  const [isResendDisabled, setIsResendDisabled] = useState(false);
 
   useEffect(() => {
     let interval: any;
@@ -59,15 +56,23 @@ const OtpModal: React.FC<OtpModalProps> = ({ show, onClose, email, showToast, si
     try {
       await signUp(otpCode);
     } catch (error) {
-
-
-      showToast("OTP verification failed", "danger")
+      showToast("OTP verification failed", "danger");
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setTimer(30);
     setIsResendDisabled(true);
+    await resendVerifEmail(); // Call the resendVerifEmail function
+  };
+
+  const formatTimer = (time: number) => {
+    if (time > 60) {
+      const minutes = Math.floor(time / 60);
+      const seconds = time % 60;
+      return `${minutes}m ${seconds}s`;
+    }
+    return `${time}s`;
   };
 
   return (
@@ -79,30 +84,30 @@ const OtpModal: React.FC<OtpModalProps> = ({ show, onClose, email, showToast, si
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div className="otp-instructions">
-          <p>We've sent a 4-digit code to <strong>{email}</strong></p>
-        </div>
-
-        <div className="otp-inputs">
-          {otp.map((digit, index) => (
-            <input
-              key={index}
-              id={`otp-input-${index}`}
-              type="text"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleOtpChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              className="otp-digit"
-              autoFocus={index === 0}
-            />
-          ))}
-        </div>
-
-        <div className="timer">
-          <FiClock className="clock-icon" />
-          <span>Code expires in: {timer}s</span>
-        </div>
+        <Form>
+          <Form.Group controlId="formOtp">
+            <Form.Label>Enter the 4-digit code sent to {email}</Form.Label>
+            <div className="otp-inputs">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  id={`otp-input-${index}`}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  className="otp-digit"
+                  autoFocus={index === 0}
+                />
+              ))}
+            </div>
+          </Form.Group>
+          <div className="timer">
+            <FiClock className="clock-icon" />
+            <span>Code expires in: {formatTimer(timer)}</span>
+          </div>
+        </Form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
         <Button variant="secondary" onClick={onClose}>

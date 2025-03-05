@@ -1,10 +1,9 @@
 package com.microservices.printrequest_service;
 
-import com.microservices.api_gateway.config.JwtTokenProviderConfig;
-import com.microservices.api_gateway.config.SecurityConfig;
-import com.microservices.api_gateway.config.WebConfig;
+import com.microservices.api_gateway.config.*;
 import com.microservices.api_gateway.filter.JwtTokenProvider;
 import com.microservices.common_models_service.config.JpaConfig;
+import com.microservices.common_models_service.dto.ModelMapperConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -15,7 +14,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = "com.microservices.common_models_service.repository")
 @EntityScan(basePackages = "com.microservices.common_models_service.model")
 
-@Import({SecurityConfig.class, JwtTokenProviderConfig.class, JpaConfig.class})
+//@Import({SecurityConfig.class, JwtTokenProviderConfig.class, JpaConfig.class, SecurityProperties.class})
+@Import({ModelMapperConfig.class, SecurityProperties.class, SecurityConfig.class, JwtTokenProviderConfig.class, JpaConfig.class, KeyCloakConfig.class})
+
 public class PrintrequestServiceApplication {
 
 

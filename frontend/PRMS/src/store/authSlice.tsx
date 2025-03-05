@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { SignUpFormData } from '../types/authentication';
-import { encryptPassword } from '../features/encrypt';
-import { UserState } from '../types/userTypes';
+import { encryptOTP, encryptPassword } from '../features/encrypt';
+import { User, UserState } from '../types/userTypes';
 
 interface AuthState {
   user: UserState | null;
@@ -68,10 +68,12 @@ export const loginUser = createAsyncThunk<UserState, { email: string; password: 
 );
 
 // Async thunk for sign-up
-export const signUpUser = createAsyncThunk<{ status: number; message: string; user?: UserState }, { otp: string }>(
+export const signUpUser = createAsyncThunk<{ status: number; message: string; user?: User }, { otp: string }, { rejectValue: { status: number; message: string } }>(
   'auth/signUp',
   async ({ otp }, { rejectWithValue }) => {
     try {
+
+      const encryptedOTP: string = await encryptOTP(otp)
       const data = sessionStorage.getItem('signupData');
       if (!data) {
         throw new Error("No sign-up data found in session storage");
@@ -89,8 +91,10 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
             role: "student"
           }
         },
-        otp
+        otp: encryptedOTP
       };
+
+      console.log("POST DATA: " + post_data.user.profile)
 
       const response = await axios.post(
         import.meta.env.VITE_SIGN_UP_URL,
@@ -106,7 +110,7 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
 
       console.log("response: ", response)
       if (response.status === 200) {
-        return { status: response.status, message: 'Sign-up successful', user: response.data.user as UserState };
+        return { status: response.status, message: 'Sign-up successful', user: response.data as User };
       } else {
         throw new Error('Sign-up failed');
       }
@@ -143,17 +147,13 @@ export const testAPICall = createAsyncThunk<string, void, { rejectValue: string 
   async (_, { rejectWithValue }) => {
     try {
       // Pass an empty object as data payload and the config as third argument.
-      const response = await axios.post(
+      const response = await axios.get(
         import.meta.env.VITE_TEST_API_PATH,
         {}, // Empty data payload if not needed
-        {
-          withCredentials: true, // Ensure cookies are included
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
-          }
-        }
+      
       );
+
+      console.log("Response from api test call is:", response);
 
       if (response.status === 200) {
         return "auth";
@@ -168,7 +168,6 @@ export const testAPICall = createAsyncThunk<string, void, { rejectValue: string 
     }
   }
 );
-
 
 // Async thunk for email verification
 export const sendVerifEmail = createAsyncThunk<boolean, { email: string; passwd: string; firstname: string }, { rejectValue: string }>(
@@ -198,6 +197,35 @@ export const sendVerifEmail = createAsyncThunk<boolean, { email: string; passwd:
     } catch (error) {
       console.error("Email verification failed:", error);
       return rejectWithValue("Email verification failed");
+    }
+  }
+);
+
+// Async thunk for resending verification email
+export const resendVerifEmail = createAsyncThunk<boolean, { email: string; firstname: string }, { rejectValue: string }>(
+  'auth/resendVerifEmail',
+  async ({ email, firstname }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_RESEND_VERIF_EMAIL_URL,
+        { email, firstname },
+        {
+          withCredentials: true, // Allow cookies
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error("Resend verification email failed:", error);
+      return rejectWithValue("Resend verification email failed");
     }
   }
 );
@@ -254,9 +282,11 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(signUpUser.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user?: UserState }>) => {
-        if (action.payload.user) {
-          state.user = action.payload.user;
+      .addCase(signUpUser.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user?: User }>) => {
+        if (action.payload.status === 200) {
+          if (action.payload.user) {
+            state.user = { user: action.payload.user, profile: action.payload.user.profile };
+          }
           state.isAuthenticated = true;
         }
         state.loading = false;
@@ -301,6 +331,18 @@ const authSlice = createSlice({
       })
       .addCase(testAPICall.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.error = action.payload || 'API call failed';
+        state.loading = false;
+      })
+      .addCase(resendVerifEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendVerifEmail.fulfilled, (state, action: PayloadAction<boolean>) => {
+        state.emailVerificationStatus = action.payload;
+        state.loading = false;
+      })
+      .addCase(resendVerifEmail.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.error = action.payload || 'Resend verification email failed';
         state.loading = false;
       });
   },

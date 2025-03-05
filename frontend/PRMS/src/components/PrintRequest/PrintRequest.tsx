@@ -5,13 +5,17 @@ import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 
 import './PrintRequest.scss';
-import { Document } from '../../pages/Documents/Documents';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../store/store';
+import { sendPrintRequest } from '../../store/requestSlice';
+import { Document } from '../../store/documentsSlice';
+import { useToast } from '../../context/ToastContext';
 
 interface PrintRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
   document: Document;
+  showToast: any
 }
 
 const validationSchema = Yup.object().shape({
@@ -21,17 +25,22 @@ const validationSchema = Yup.object().shape({
   printMode: Yup.string()
     .oneOf(['color', 'bw'], 'Invalid print mode')
     .required('Please select a print mode'),
-  file: Yup.mixed().required('A file is required'),
+  paperType: Yup.string()
+    .oneOf(['plain', 'glossy', 'recycled', 'A4', 'A3'], 'Invalid paper type')
+    .required('Please select a paper type'),
   notes: Yup.string().optional()
 });
 
 export const PrintRequestModal = ({
   isOpen,
   onClose,
-  onSubmit,
-  document
+  document,
+  showToast
 }: PrintRequestModalProps) => {
+
+  
   const copiesInputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     if (isOpen && copiesInputRef.current) {
@@ -40,6 +49,8 @@ export const PrintRequestModal = ({
   }, [isOpen]);
 
   return (
+
+
     <Modal
       show={isOpen}
       onHide={onClose}
@@ -55,13 +66,36 @@ export const PrintRequestModal = ({
         initialValues={{
           copies: 1,
           printMode: 'color',
+          paperType: 'A4',
           notes: '',
-          file: null
         }}
         validationSchema={validationSchema}
-        onSubmit={(values) => onSubmit({  ...values })}
+        onSubmit={(values, { setSubmitting }) => {
+          // handle form submission
+
+          dispatch(sendPrintRequest({
+            copies: values.copies,
+            color: values.printMode === 'color',
+            notes: values.notes,
+            document: document,
+            paperType: {
+              paperType:  values.paperType
+            }
+          })).then((action: any) => {
+            console.log("p-req action: ", action)
+            if(action.payload.status === 200) {
+              showToast('Print request sent successfully', 'success');
+
+            }
+
+            if (action.type === 'printRequest/sendPrintRequest/fulfilled') {
+              onClose();
+            }
+          });
+          setSubmitting(false);
+        }}
       >
-        {({ handleSubmit, isSubmitting, errors, touched, setFieldValue }) => (
+        {({ handleSubmit, isSubmitting, errors, touched }) => (
           <Form onSubmit={handleSubmit}>
             <Modal.Body>
               <Form.Group controlId="formDocumentName">
@@ -117,18 +151,19 @@ export const PrintRequestModal = ({
                 )}
               </Form.Group>
 
-              <Form.Group controlId="formFile">
-                <Form.Label>Upload File</Form.Label>
-                <input
-                  name="file"
-                  type="file"
-                  className={`form-control ${errors.file && touched.file ? 'is-invalid' : ''}`}
-                  onChange={(event) => {
-                    setFieldValue("file", event.currentTarget.files![0]);
-                  }}
-                />
+              <Form.Group controlId="formPaperType">
+                <Form.Label>Paper Type</Form.Label>
+                <Field
+                  as="select"
+                  name="paperType"
+                  className={`form-control ${errors.paperType && touched.paperType ? 'is-invalid' : ''}`}
+                >
+                  <option value="A4">A4</option>
+                  <option value="A3">A3</option>
+                  <option value="recycled">Recycled</option>
+                </Field>
                 <Form.Control.Feedback type="invalid">
-                  {errors.file}
+                  {errors.paperType}
                 </Form.Control.Feedback>
               </Form.Group>
 
@@ -148,8 +183,7 @@ export const PrintRequestModal = ({
                 Cancel
               </Button>
               <Button
-              className='submit-btn'
-                //variant=""
+                className='submit-btn'
                 type="submit"
                 disabled={isSubmitting}
               >

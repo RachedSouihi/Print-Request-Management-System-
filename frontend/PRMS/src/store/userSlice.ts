@@ -1,23 +1,28 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { UserState } from '../types/userTypes';
 import { encryptPassword } from '../features/encrypt';
+import { User } from '../types/userTypes';
+import { RootState } from './store';
 
 // Function to load user profile from local storage
-const loadUserProfile = (): UserState | null => {
+const loadUserProfile = (): User | null => {
   const userProfile = localStorage.getItem('userProfile');
   return userProfile ? JSON.parse(userProfile) : null;
 };
 
-const initialState: UserState = loadUserProfile() || {
+const initialState: User = loadUserProfile() || {
   user_id: '67890',
-  firstName: 'Rached',
-  lastName: 'Souihi',
   email: 'rached.souihi2613@istic.ucar.tn',
-  phone: '20437408',
-  educationLevel: 'Level 3',
-  role: 'student',
+  profile: {
+    firstName: 'Rached',
+    lastName: 'Souihi',
+    phone: '20437408',
+    educationLevel: 'Level 3',
+    role: 'student',
+  },
+
 };
+
 
 // Async thunk for updating profile
 export const updateProfileAsync = createAsyncThunk(
@@ -48,13 +53,19 @@ export const updateProfileAsync = createAsyncThunk(
 // Async thunk for updating password
 export const updatePasswordAsync = createAsyncThunk(
   'user/updatePasswordAsync',
-  async ({ email, oldPassword, newPassword }: { email: string, oldPassword: string; newPassword: string }, { rejectWithValue }) => {
+  async ({ email, oldPassword, newPassword }: { email: string, oldPassword: string; newPassword: string }, { getState, rejectWithValue }) => {
     try {
       const encryptedOldPassword: string = await encryptPassword(oldPassword).then(res => res);
       const encryptedNewPassword: string = await encryptPassword(newPassword).then(res => res);
 
+        const state = getState() as RootState;
+
+        const u_email = state.user.email
+      
+
+      console.log({ email, oldPassword, newPassword })
       const response = await axios.put(`${import.meta.env.VITE_UPDATE_PASSWORD_URL}`, {
-        email,
+        email: u_email,
         oldPassword: encryptedOldPassword,
         newPassword: encryptedNewPassword,
       },);

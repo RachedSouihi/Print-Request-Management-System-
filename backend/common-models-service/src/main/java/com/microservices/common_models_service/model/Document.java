@@ -1,9 +1,15 @@
 package com.microservices.common_models_service.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.lang.Nullable;
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -23,6 +29,7 @@ public class Document {
 
 
     @Lob
+    @JsonIgnore
     private byte[] document; // Use @Lob alone
 
     private String subject;
@@ -31,11 +38,41 @@ public class Document {
     @Column(name = "downloads", columnDefinition = "INT DEFAULT 0")
     private int downloads;
 
+    @Nullable
+    private Float rating;
+
 
     private String level;
 
     private String field;
 
+    private LocalDate date;
+
+    @PrePersist
+    public void onCreate() {
+        date = LocalDate.now();
+    }
+
+    @ManyToMany(mappedBy = "savedDocuments")
+    private Set<User> savedByUsers = new HashSet<>();
+
+
+    public float getRating() {
+        return (rating != null) ? rating : 0.0f;
+
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
     public String getLevel() {
         return level;
@@ -109,5 +146,12 @@ public class Document {
         this.id = id;
     }
 
+
+    public Set<User> getSavedByUsers() {
+        return savedByUsers;
+    }
+    public void setSavedByUsers(Set<User> savedByUsers) {
+        this.savedByUsers = savedByUsers;
+    }
 
 }

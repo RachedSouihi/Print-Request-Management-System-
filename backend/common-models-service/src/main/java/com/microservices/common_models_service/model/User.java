@@ -3,6 +3,10 @@ package com.microservices.common_models_service.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -21,7 +25,34 @@ public class User {
     @JsonManagedReference
     private Profile profile;
 
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "saved_documents",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "document_id")
+    )
+    private Set<Document> savedDocuments = new HashSet<>();
+
+
     // Getters and Setters
+
+    public Set<Document> getSavedDocuments() {
+        return savedDocuments;
+    }
+    public void setSavedDocuments(Set<Document> savedDocuments) {
+        this.savedDocuments = savedDocuments;
+    }
+
+
+    public void saveDocument(Document document) {
+        savedDocuments.add(document);
+    }
+
+    public void removeSavedDocument(Document document) {
+        savedDocuments.remove(document);
+    }
     public String getUser_id() {
         return user_id;
     }

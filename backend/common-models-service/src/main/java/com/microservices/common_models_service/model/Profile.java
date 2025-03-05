@@ -1,10 +1,10 @@
+// Updated Profile.java
 package com.microservices.common_models_service.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 
 @Entity
 public class Profile {
@@ -21,12 +21,29 @@ public class Profile {
     private String phone;
     private boolean agree;
 
+    // Professor-specific fields
+    private String idCard;
+    private String subject;
+
     @OneToOne(cascade = CascadeType.ALL)
-    @MapsId  // This tells Hibernate to use user_id as both PK and FK.
+    @MapsId
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference
     private User user;
+
+    @PrePersist
+    @PreUpdate
+    private void validateRole() {
+        if ("professor".equalsIgnoreCase(this.role)) {
+            if (this.idCard == null || this.subject == null) {
+                throw new IllegalStateException("Professors must have an ID card and a subject.");
+            }
+        } else {
+            this.idCard = null; // Ensure students don't have this field
+            this.subject = null;
+        }
+    }
 
     // Getters and Setters
     public String getUser_id() {
@@ -50,49 +67,57 @@ public class Profile {
     public String getRole() {
         return role;
     }
-
-
     public void setRole(String role) {
         this.role = role;
     }
-
     public String getPhone() {
         return phone;
     }
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
     public String getEducationLevel() {
         return educationLevel;
     }
-
-    public String getField() {
-        return field;
-    }
-
-    public boolean isAgree() {
-        return agree;
-    }
-
-    public void setAgree(boolean agree) {
-        this.agree = agree;
-    }
-
-    public void setField(String field) {
-        this.field = field;
-    }
-
     public void setEducationLevel(String educationLevel) {
         this.educationLevel = educationLevel;
     }
-
+    public String getField() {
+        return field;
+    }
+    public void setField(String field) {
+        this.field = field;
+    }
+    public boolean isAgree() {
+        return agree;
+    }
+    public void setAgree(boolean agree) {
+        this.agree = agree;
+    }
+    public String getIdCard() {
+        return idCard;
+    }
+    public void setIdCard(String idCard) {
+        if ("professor".equalsIgnoreCase(this.role)) {
+            this.idCard = idCard;
+        } else {
+            this.idCard = null; // Ensure students don't have this field
+        }
+    }
+    public String getSubject() {
+        return subject;
+    }
+    public void setSubject(String subject) {
+        if ("professor".equalsIgnoreCase(this.role)) {
+            this.subject = subject;
+        } else {
+            this.subject = null; // Ensure students don't have this field
+        }
+    }
     public User getUser() {
         return user;
     }
     public void setUser(User user) {
         this.user = user;
     }
-
-
 }

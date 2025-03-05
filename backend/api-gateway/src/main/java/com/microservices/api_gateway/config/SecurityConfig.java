@@ -19,10 +19,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
-    private final JwtTokenProvider jwtTokenProvider;
+    private JwtTokenProvider jwtTokenProvider;
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
+    @Autowired
+    private SecurityProperties securityProperties;
+
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider, SecurityProperties securityProperties) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.securityProperties = securityProperties;
+
     }
 
     @Bean
@@ -30,13 +35,18 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                /*.addFilterBefore(
+                        new JwtAuthenticationFilter(jwtTokenProvider, securityProperties),
+                        UsernamePasswordAuthenticationFilter.class
+                )*/
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Allow /p-request/** without authentication
-                        //.anyRequest().authenticated() // All other requests require authentication
+                        //.requestMatchers(securityProperties.getPermittedPaths().toArray(new String[0])).permitAll()
+                        .anyRequest().permitAll()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response, authException) -> response.sendError(401, "Unauthorized")));
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(
+                        (request, response, authException) -> response.sendError(401, "Unauthorized")
+                ));
 
         return http.build();
     }

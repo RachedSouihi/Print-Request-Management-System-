@@ -4,6 +4,7 @@ import './Header.scss';
 import {Notifications} from './Notification';
 
 import { Notification } from './Notification';
+import { useNavigate } from 'react-router';
 
 
 const Header = () => {
@@ -19,6 +20,8 @@ const Header = () => {
   ];
 
   const [notifications, setNotifications] = useState<Notification[]>(notifications_l)
+
+  const navigate = useNavigate()
 
 
   const handleMarkRead = (id: string) => {
@@ -42,6 +45,13 @@ const Header = () => {
     }
   };
 
+  const handleClick = (link: string) => {
+    setActiveLink(link);
+    navigate(link === 'Home' ? '/' : link.toLowerCase());
+
+
+  }
+
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -62,7 +72,7 @@ const Header = () => {
               key={link}
               href="#"
               className={`nav-link ${activeLink === link ? 'active' : ''}`}
-              onClick={() => setActiveLink(link)}
+              onClick={() => handleClick(link)}
             >
               {link}
             </a>

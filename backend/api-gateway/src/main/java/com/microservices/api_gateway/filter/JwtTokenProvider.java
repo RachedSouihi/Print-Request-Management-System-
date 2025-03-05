@@ -63,7 +63,9 @@ public class JwtTokenProvider {
                 // Decrypt the token using AES decryption.
                 token = AESUtil.decrypt(token, SECRET_KEY, ALGO);
             } catch (Exception e) {
-                throw new JwtException("Failed to decrypt JWT token", e);
+                //throw new JwtException("Failed to decrypt JWT token", e);
+
+                System.out.println(e.getMessage());
             }
         }
         return token;

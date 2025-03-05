@@ -5,7 +5,6 @@ export const signUp = async(data: any) => {
 
     //logic here
 
-
 }
 
 

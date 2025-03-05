@@ -3,11 +3,15 @@ import authReducer from './authSlice';
 import userReducer from './userSlice';
 import documentsReducer from './documentsSlice';
 
+import requestSlice from './requestSlice'
+
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
     user: userReducer,
     documents: documentsReducer,
+    printRequest: requestSlice,
   },
 });
 

@@ -3,6 +3,9 @@ package com.microservices.user_service;
 import com.microservices.api_gateway.config.JwtTokenProviderConfig;
 import com.microservices.api_gateway.config.KeyCloakConfig;
 import com.microservices.api_gateway.config.SecurityConfig;
+import com.microservices.api_gateway.config.SecurityProperties;
+import com.microservices.api_gateway.filter.JwtAuthenticationFilter;
+import com.microservices.api_gateway.filter.JwtTokenProvider;
 import com.microservices.common_models_service.config.JpaConfig;
 import com.microservices.common_models_service.dto.ModelMapperConfig;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +18,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = "com.microservices.common_models_service.repository")
 @SpringBootApplication
 @EntityScan(basePackages = "com.microservices.common_models_service.model")
-@Import({ModelMapperConfig.class,SecurityConfig.class, JwtTokenProviderConfig.class, JpaConfig.class, KeyCloakConfig.class})
+@Import({ModelMapperConfig.class, SecurityProperties.class, SecurityConfig.class, JwtTokenProviderConfig.class, JpaConfig.class, KeyCloakConfig.class})
 
 
 public class UserServiceApplication {

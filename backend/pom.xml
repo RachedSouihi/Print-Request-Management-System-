@@ -15,7 +15,7 @@
     </properties>
 
     <modules>
-        <module>api-fateway</module>
+        <module>api-gateway</module>
         <module>common-models-service</module>
         <module>user-service</module>
         <module>profile-service</module>
