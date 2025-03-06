@@ -4,40 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="60637854-d129-42f5-965f-ea47b8e07c39" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/DocumentRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/PrintRequestRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/Config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/controller/DocumentController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/service/DocumentService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/Config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/controller/PrintRequestController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/service/PrintRequestService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/PrintRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/PrintRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/document-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/DocumentServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/DocumentServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printrequest-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/PrintrequestServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/PrintrequestServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Documents/Documents.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Documents/Documents.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/RequestDetailsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/RequestDetailsModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/profrequest/ProfRequest.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/profrequest/ProfRequest.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/store.ts" afterDir="false" />
-    </list>
+    <list default="true" id="60637854-d129-42f5-965f-ea47b8e07c39" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -190,6 +157,7 @@
       <workItem from="1740831713272" duration="8973000" />
       <workItem from="1740996808987" duration="8377000" />
       <workItem from="1741170210829" duration="2445000" />
+      <workItem from="1741258617979" duration="322000" />
     </task>
     <servers />
   </component>
