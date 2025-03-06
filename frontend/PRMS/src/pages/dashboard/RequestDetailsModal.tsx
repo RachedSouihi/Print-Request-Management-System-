@@ -1,6 +1,6 @@
 import { Modal, Button, Form, Badge, Stack, ProgressBar } from 'react-bootstrap';
 import { FiX, FiPrinter, FiClock, FiAlertCircle, FiEdit, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import './RequestDetailsModal.scss';
+//import './RequestDetailsModal.scss';
 
 interface RequestDetailModalProps {
   show: boolean;

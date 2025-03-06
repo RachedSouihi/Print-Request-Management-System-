@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="60637854-d129-42f5-965f-ea47b8e07c39" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/DocumentRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/PrintRequestRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/Config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/controller/DocumentController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/service/DocumentService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/Config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/controller/PrintRequestController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/service/PrintRequestService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/PrintRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/PrintRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/DocumentServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/DocumentServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/printrequest-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/PrintrequestServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/PrintrequestServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Documents/Documents.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Documents/Documents.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/RequestDetailsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/RequestDetailsModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/profrequest/ProfRequest.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/profrequest/ProfRequest.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/store.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2tiMO86n9YJMQ5BgFRoJKNI4gwh" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.All in printrequest-service.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.CommonModelsServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.DocumentServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.PrintrequestServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;chaima&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/GIGABAYTE/projetpfe/Print-Request-Management-System-/backend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.PrintrequestServiceApplication">
+    <configuration name="All in printrequest-service" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="printrequest-service" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="api-gateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.api_gateway.ApiGatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CommonModelsServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="common-models-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.common_models_service.CommonModelsServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DocumentServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="document-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.document_service.DocumentServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NotificationServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="notification-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.notification_service.NotificationServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PrintrequestServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="printrequest-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.printrequest_service.PrintrequestServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProfileServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="profile-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.profile_service.ProfileServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="user-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.user_service.UserServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.All in printrequest-service" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.189" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.189" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="60637854-d129-42f5-965f-ea47b8e07c39" name="Changes" comment="" />
+      <created>1740830406981</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1740830406981</updated>
+      <workItem from="1740830408152" duration="181000" />
+      <workItem from="1740830594951" duration="851000" />
+      <workItem from="1740831713272" duration="8973000" />
+      <workItem from="1740996808987" duration="8377000" />
+      <workItem from="1741170210829" duration="2445000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

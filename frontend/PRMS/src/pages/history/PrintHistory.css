@@ -34,14 +34,21 @@
     font-family: "Poppins", sans-serif;
     text-align: center;
   }
+  /* Ajuster la marge du conteneur des boutons de filtrage */
+.status-filter-row {
+  margin-top: -10px; /* Réduire la marge au-dessus du conteneur */
+  margin-bottom: 20px; /* Laisser un peu d'espace en bas */
+}
+
   
-  /* Boutons de filtre d'état */
-  .status-filter-buttons .btn {
-    margin: 0.3rem;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-  
+/* Boutons de filtre d'état */
+.status-filter-buttons .btn {
+  margin: 1.3rem;  /* Garder la marge globale */
+  border-radius: 200px;
+  font-weight: 500;
+  margin-top: -10px;  /* Réduire la marge au-dessus des boutons */
+}
+
   /* Style de la barre de recherche agrandie */
   .search-bar {
     max-width: 500px;
@@ -96,4 +103,20 @@
     background-color: var(--accent-color);
     color: #fff;
   }
+  .print-history-title {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    text-align: center;
+    color: #183552;
+    font-size: 3.5rem;
+  }
+  
+  .highlight-title {
+    color: #3498db; /* Couleur bleu clair pour mettre en valeur */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Ombre pour effet 3D */
+  }
+ 
+
+  
+
   

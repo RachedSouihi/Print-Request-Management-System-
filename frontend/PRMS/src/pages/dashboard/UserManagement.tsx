@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Form, Modal, Badge, Tab, Tabs, InputGroup, Row, Col } from 'react-bootstrap';
 import { FiUserPlus, FiSearch, FiEdit, FiLock, FiActivity } from 'react-icons/fi';
-import './UserManagement.scss';
+//import './UserManagement.scss';
 import { CiExport } from 'react-icons/ci';
 
 // Updated User interface with separate fields for student/professor

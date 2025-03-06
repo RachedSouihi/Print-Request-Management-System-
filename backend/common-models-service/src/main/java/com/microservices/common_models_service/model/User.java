@@ -1,5 +1,5 @@
 package com.microservices.common_models_service.model;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -7,26 +7,22 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 @Entity
 @Table(name = "users")
 public class User {
     @Id
-    private String user_id; // No @GeneratedValue because the ID is manually assigned
+    private String user_id; // ✅ Correct si l'ID est assigné manuellement
 
     private String email;
+
+    @JsonIgnore
     private String password;
 
-   /*@OneToOne(mappedBy = "user", orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Profile profile;*/
+    private Profile profile; // ✅ Ajout du type correct
 
-
-    @OneToOne(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL) // Changed to CascadeType.ALL
-    @JsonManagedReference
-    private Profile profile;
-
-    // Getters and Setters
+    // Getters et Setters
     public String getUser_id() {
         return user_id;
     }

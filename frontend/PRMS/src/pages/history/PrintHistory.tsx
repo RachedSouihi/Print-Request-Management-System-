@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Container,
   Row,
@@ -13,84 +14,35 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./PrintHistory.css";
 import { FaSearch, FaFileExport, FaPlus } from "react-icons/fa";
 
-// Type pour chaque enregistrement d'impression
-type PrintRecord = {
-  id: number;
-  documentName: string;
-  pages: number;
-  date: string; // format "YYYY-MM-DD"
-  status: string;
-  executedBy: string;
-};
-
-const initialData: PrintRecord[] = [
-  {
-    id: 1,
-    documentName: "Report.pdf",
-    pages: 10,
-    date: "2025-02-07",
-    status: "Printed",
-    executedBy: "Olivia Rhye",
-  },
-  {
-    id: 2,
-    documentName: "Invoice.docx",
-    pages: 2,
-    date: "2025-02-06",
-    status: "Failed",
-    executedBy: "Phoenix Baker",
-  },
-  {
-    id: 3,
-    documentName: "Presentation.pptx",
-    pages: 15,
-    date: "2025-02-05",
-    status: "Pending",
-    executedBy: "Lana Steiner",
-  },
-  {
-    id: 4,
-    documentName: "Contract.pdf",
-    pages: 5,
-    date: "2025-02-04",
-    status: "Printed",
-    executedBy: "Demi Wilkinson",
-  },
-  {
-    id: 5,
-    documentName: "Budget.xlsx",
-    pages: 7,
-    date: "2025-02-03",
-    status: "Canceled",
-    executedBy: "Candice Wu",
-  },
-];
+import { AppDispatch, RootState } from "../../store/store";
+import { fetchPrintHistory } from "../../store/historySlice";
 
 const PrintHistory: React.FC = () => {
-  // État pour la liste des enregistrements
-  const [data] = useState<PrintRecord[]>(initialData);
+  const dispatch = useDispatch<AppDispatch>();
+  const data = useSelector((state: RootState) => state.history.data);
+  console.log("Données dans Redux:", data);
 
-  // États pour la recherche et le filtre d'état
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  useEffect(() => {
+    dispatch(fetchPrintHistory());
+  }, [dispatch]);
+
+  // États pour la recherche et les filtres
+  const [searchTerm, setSearchTerm] = useState<string>("");  // Recherche générale
   const [statusFilter, setStatusFilter] = useState<string>("All");
-
-  // État pour la date de début
   const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
 
-  // Calcul de la date de fin (15 jours après la date de début)
-  const computedEndDate = startDate
-    ? new Date(new Date(startDate).getTime() + 15 * 24 * 60 * 60 * 1000)
-    : null;
-  const endDateString = computedEndDate
-    ? computedEndDate.toISOString().split("T")[0]
-    : "";
-
-  // Gestion du changement de date de début
-  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Gestion du changement de la date de début
+  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setStartDate(event.target.value);
   };
 
-  // Mise à jour de la recherche
+  // Gestion du changement de la date de fin
+  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(event.target.value);
+  };
+
+  // Mise à jour de la recherche par terme
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
@@ -100,74 +52,73 @@ const PrintHistory: React.FC = () => {
     setStatusFilter(newStatus);
   };
 
-  // Filtrer les données en fonction de la recherche, du filtre d'état et de la date
-  const filteredData = data.filter((record) => {
-    const matchesSearch = record.documentName
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+  // Filtrer les données en fonction de la recherche, du filtre d'état, et des dates
+  const filteredData = (data ?? []).filter((record) => {
+    const documentName = record.document?.description || ""; // Utilisation de la description pour "Document Name"
+    const matchesSearch = documentName.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesStatus =
       statusFilter === "All" ? true : record.status === statusFilter;
 
-    // Si une date de début est sélectionnée, filtrer sur la plage de 15 jours
     let matchesDate = true;
-    if (startDate && computedEndDate) {
-      const recordDate = new Date(record.date);
+
+    // Vérifier si des dates de début et de fin ont été sélectionnées
+    if (startDate && endDate) {
+      // Convertir la date du document en date sans heure
+      const recordDate = new Date(record.createdAt);
       const start = new Date(startDate);
-      matchesDate = recordDate >= start && recordDate <= computedEndDate;
+      const end = new Date(endDate);
+
+      // Réinitialiser l'heure de chaque date pour ne comparer que la partie "date"
+      recordDate.setHours(0, 0, 0, 0); // Réinitialise l'heure de la date du document
+      start.setHours(0, 0, 0, 0); // Réinitialise l'heure de la date de début
+      end.setHours(23, 59, 59, 999); // Réinitialise l'heure de la date de fin pour inclure toute la journée
+
+      // Comparer uniquement les dates sans l'heure
+      matchesDate = recordDate >= start && recordDate <= end;
     }
+
     return matchesSearch && matchesStatus && matchesDate;
   });
 
-  // Fonctions placeholders pour l'export et l'ajout d'opération
-  const handleExport = () => {
-    alert("Exporting data (placeholder)...");
-  };
-
-  const handleAddOperation = () => {
-    alert("Adding new operation (placeholder)...");
-  };
+  console.log("filteredData", filteredData);
 
   return (
     <Container fluid className="print-history-container">
       <Card className="print-history-card">
-        {/* Titre centré */}
         <Row className="mb-4">
           <Col>
             <h1 className="print-history-title">Print History</h1>
           </Col>
         </Row>
 
-        {/* En-tête avec sélection de date, export et action */}
         <Row className="align-items-center mb-4">
           <Col xs={12} md={6}>
             <InputGroup className="date-group">
               <Form.Control
                 type="date"
                 value={startDate}
-                onChange={handleDateChange}
+                onChange={handleStartDateChange}
                 placeholder="Select start date"
               />
               <Form.Control
-                type="text"
-                value={startDate && endDateString ? `${startDate} to ${endDateString}` : ""}
-                readOnly
-                placeholder="15-day range"
+                type="date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                placeholder="Select end date"
               />
             </InputGroup>
           </Col>
           <Col xs={12} md={6} className="text-md-end mt-3 mt-md-0">
-            <Button variant="outline-light" className="me-2" onClick={handleExport}>
-              <FaFileExport className="me-1" />
-              Export
+            <Button variant="outline-light" className="me-2">
+              <FaFileExport className="me-1" /> Export
             </Button>
-            <Button variant="primary" onClick={handleAddOperation}>
-              <FaPlus className="me-1" />
-              Make an operation
+            <Button variant="primary">
+              <FaPlus className="me-1" /> Make an operation
             </Button>
           </Col>
         </Row>
 
-        {/* Boutons de filtre d'état */}
         <Row className="mb-3">
           <Col className="text-center">
             {["All", "Printed", "Failed", "Pending", "Canceled"].map((status) => (
@@ -182,7 +133,6 @@ const PrintHistory: React.FC = () => {
           </Col>
         </Row>
 
-        {/* Barre de recherche agrandie */}
         <Row className="mb-3 justify-content-center">
           <Col xs={12} md={6}>
             <InputGroup className="search-bar">
@@ -199,14 +149,14 @@ const PrintHistory: React.FC = () => {
           </Col>
         </Row>
 
-        {/* Tableau des enregistrements */}
         <Row>
           <Col>
             <Table striped bordered hover responsive className="print-history-table">
               <thead>
                 <tr>
-                  <th>Document Name</th>
-                  <th>Pages</th>
+                  <th>Document Name</th> {/* Change description here */}
+                  <th>Subject</th> {/* Nouvelle colonne Subject après Document Name */}
+                  <th>Copies</th>
                   <th>Date</th>
                   <th>Status</th>
                   <th>Executed By</th>
@@ -214,17 +164,18 @@ const PrintHistory: React.FC = () => {
               </thead>
               <tbody>
                 {filteredData.map((record) => (
-                  <tr key={record.id}>
-                    <td>{record.documentName}</td>
-                    <td>{record.pages}</td>
-                    <td>{record.date}</td>
+                  <tr key={String(record.requestId)}>
+                    <td>{record.document?.description || "N/A"}</td> {/* Afficher la description ici */}
+                    <td>{record.document?.subject || "N/A"}</td> {/* Afficher le sujet ici */}
+                    <td>{record.copies}</td>  {/* Nombre de copies */}
+                    <td>{new Date(record.createdAt).toLocaleDateString()}</td>  {/* Formater la date */}
                     <td>{record.status}</td>
-                    <td>{record.executedBy}</td>
+                    <td>{record.user?.email || "Unknown"}</td>  {/* Email de l'utilisateur */}
                   </tr>
                 ))}
                 {filteredData.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center">
+                    <td colSpan={6} className="text-center"> {/* Colspan doit être 6 maintenant avec la nouvelle colonne */}
                       No records found.
                     </td>
                   </tr>

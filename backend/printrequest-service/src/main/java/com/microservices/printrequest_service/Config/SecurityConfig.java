@@ -1,4 +1,4 @@
-package com.microservices.user_service.Config;
+package com.microservices.printrequest_service.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +17,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        // Autoriser les routes spécifiques sans authentification
-                        .requestMatchers("/user/verify-email", "/user/signup", "/auth/login").permitAll()
-                        // Autoriser la route /update-password pour les utilisateurs authentifiés
-                        .requestMatchers("/update-password").permitAll()
-                        .requestMatchers("/user/sendOtp").permitAll()
+
                         .requestMatchers("/api/print-requests").permitAll()
-                        // Toutes les autres routes nécessitent une authentification
-                        .anyRequest().authenticated()
+
+                        .anyRequest().permitAll()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Activer la configuration CORS
                 .csrf(csrf -> csrf.disable());  // Désactiver CSRF si vous avez une API REST

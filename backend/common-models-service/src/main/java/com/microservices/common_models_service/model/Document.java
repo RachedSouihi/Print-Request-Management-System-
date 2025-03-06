@@ -2,12 +2,13 @@ package com.microservices.common_models_service.model;
 
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "documents")
-
+//@JsonInclude(JsonInclude.Include.NON_NULL) // Exclut les champs null du JSON
 public class Document {
     @Id
     private String id;
@@ -25,6 +26,12 @@ public class Document {
 
     private String subject;
     private String description;
+    private String level;
+    private String section;
+    private String className; // "class" est un mot-clé réservé en Java
+    private String examDate;
+    private String printMode;
+
 
 
     public String getSubject() {
@@ -74,4 +81,44 @@ public class Document {
     public void setId(String id) {
         this.id = id;
     }
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getExamDate() {
+        return examDate;
+    }
+
+    public void setExamDate(String examDate) {
+        this.examDate = examDate;
+    }
+
+    public String getPrintMode() {
+        return printMode;
+    }
+
+    public void setPrintMode(String printMode) {
+        this.printMode = printMode;
+    }
+
 }

@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Alert, Spinner } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store/store";
+import { addDocument } from "../../store/profSlice";
 
 interface ProfRequestProps {
   show: boolean;
@@ -7,51 +10,85 @@ interface ProfRequestProps {
 }
 
 const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { status, error } = useSelector((state: RootState) => state.prof);
+
   const [formData, setFormData] = useState({
     level: "",
     section: "",
     subject: "",
     class: "",
-    documentType: "Exam",
+    docType: "Exam",
     examDate: "",
     printMode: "Black & White",
-    specialInstructions: "",
-    documentFile: null as File | null,
+    file: null as File | null,
+    description: "",
   });
 
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const levels = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
-  const sections = ["Mathematics", "Science", "Economics", "Informatics", "Literature"];
+  const sections = ["Mathematics", "Science", "Literature", "Informatics"];
   const classes = ["1", "2", "3", "4", "5", "6"];
 
-  const subjects: Record<string, string[]> = {
-    "1st Year": ["Mathematics", "Physics", "English", "French"],
-    "2nd Year": ["Mathematics", "Physics", "Chemistry"],
-    "3rd Year": ["Biology", "Geology", "History"],
-    "4th Year": ["Philosophy", "Sociology", "Geography"],
+  const subjectsBySection: Record<string, string[]> = {
+    Mathematics: ["Algebra", "Geometry", "Calculus"],
+    Science: ["Physics", "Chemistry", "Biology"],
+    Literature: ["French", "English", "Philosophy"],
+    Informatics: ["Programming", "Data Structures", "Databases"],
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFormData({ ...formData, documentFile: e.target.files[0] });
+      setFormData({ ...formData, file: e.target.files[0] });
     }
   };
 
-  const handleSubmit = () => {
-    console.log("Form Data Submitted:", formData);
-    handleClose();
+  const handleSubmit = async () => {
+    const data = new FormData();
+    data.append("level", formData.level);
+    data.append("section", formData.section);
+    data.append("subject", formData.subject);
+    data.append("class", formData.class);
+    data.append("docType", formData.docType);
+    data.append("examDate", formData.examDate);
+    data.append("printMode", formData.printMode);
+    data.append("description", formData.description);
+
+    if (formData.file) {
+      data.append("file", formData.file);
+    }
+
+    setSuccessMessage(null);
+    setErrorMessage(null);
+    console.log("Sending data:", Object.fromEntries(data.entries()));
+
+    try {
+      await dispatch(addDocument(data)).unwrap();
+      setSuccessMessage("The document has been successfully added.");
+      handleClose();
+    } catch (err) {
+      setErrorMessage("Failed to add the document. Please try again.");
+      console.error("Document submission failed:", err);
+    }
   };
+
+  const sectionSubjects = subjectsBySection[formData.section] || [];
 
   return (
     <Modal show={show} onHide={handleClose} centered size="lg">
-      <Modal.Header closeButton className="modal-header-custom">
+      <Modal.Header closeButton>
         <Modal.Title>Add a Document</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {successMessage && <Alert variant="success">{successMessage}</Alert>}
+        {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+
         <Form>
           <div className="row">
             <div className="col-md-6">
@@ -66,7 +103,7 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
               </Form.Group>
             </div>
 
-            {formData.level && formData.level !== "1st Year" && (
+            {formData.level !== "1st Year" && (
               <div className="col-md-6">
                 <Form.Group>
                   <Form.Label>Section</Form.Label>
@@ -87,15 +124,8 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
                 <Form.Label>Subject</Form.Label>
                 <Form.Select name="subject" value={formData.subject} onChange={handleChange} required>
                   <option value="">Select Subject</option>
-                  {formData.level && (Array.isArray(subjects[formData.level]) ? (
-                    subjects[formData.level as keyof typeof subjects].map((subject) => (
-                      <option key={subject} value={subject}>{subject}</option>
-                    ))
-                  ) : (
-                    formData.section &&
-                    subjects[formData.level as keyof typeof subjects][formData.section as keyof typeof subjects["2nd Year"]]?.map((subject: boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.Key | null | undefined) => (
-                      <option key={subject} value={subject}>{subject}</option>
-                    ))
+                  {sectionSubjects.map((subject) => (
+                    <option key={subject} value={subject}>{subject}</option>
                   ))}
                 </Form.Select>
               </Form.Group>
@@ -118,7 +148,7 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
             <div className="col-md-6">
               <Form.Group>
                 <Form.Label>Document Type</Form.Label>
-                <Form.Select name="documentType" value={formData.documentType} onChange={handleChange}>
+                <Form.Select name="docType" value={formData.docType} onChange={handleChange}>
                   <option>Exam</option>
                   <option>Exercise</option>
                   <option>Course</option>
@@ -127,7 +157,7 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
               </Form.Group>
             </div>
 
-            {formData.documentType === "Exam" && (
+            {formData.docType === "Exam" && (
               <div className="col-md-6">
                 <Form.Group>
                   <Form.Label>Exam Date</Form.Label>
@@ -157,15 +187,17 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
           <div className="mt-3">
             <Form.Group>
               <Form.Label>Special Instructions</Form.Label>
-              <Form.Control as="textarea" rows={3} name="specialInstructions" value={formData.specialInstructions} onChange={handleChange} />
+              <Form.Control as="textarea" rows={3} name="description" value={formData.description} onChange={handleChange} />
             </Form.Group>
           </div>
         </Form>
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>Cancel</Button>
-        <Button variant="primary" onClick={handleSubmit}>Submit Request</Button>
+        <Button variant="secondary" onClick={handleClose} disabled={status === "loading"}>Cancel</Button>
+        <Button variant="primary" onClick={handleSubmit} disabled={status === "loading"}>
+          {status === "loading" ? <Spinner animation="border" size="sm" /> : "Submit Request"}
+        </Button>
       </Modal.Footer>
     </Modal>
   );

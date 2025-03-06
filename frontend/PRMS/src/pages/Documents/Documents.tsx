@@ -63,7 +63,7 @@ const DocumentCard = ({ document, handleOpenModal }: { document: Document, handl
           variant="primary" 
           className="download-btn" 
           href={document.fileUrl} 
-          download
+          
         >
           <FiDownload className="action-icon" />
           <span className="button-text">

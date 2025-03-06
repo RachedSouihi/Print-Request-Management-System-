@@ -1,4 +1,6 @@
-package com.microservices.user_service.Config;
+package com.microservices.document_service.Config;
+
+
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,17 +19,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        // Autoriser les routes spécifiques sans authentification
-                        .requestMatchers("/user/verify-email", "/user/signup", "/auth/login").permitAll()
-                        // Autoriser la route /update-password pour les utilisateurs authentifiés
-                        .requestMatchers("/update-password").permitAll()
-                        .requestMatchers("/user/sendOtp").permitAll()
-                        .requestMatchers("/api/print-requests").permitAll()
-                        // Toutes les autres routes nécessitent une authentification
-                        .anyRequest().authenticated()
+                        .requestMatchers("/documents/add").permitAll()   // Protéger l'ajout de documents
+                        .requestMatchers("/documents/**").permitAll()  // Accès libre aux autres routes (ex: get by ID)
+                        .anyRequest().permitAll()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Activer la configuration CORS
-                .csrf(csrf -> csrf.disable());  // Désactiver CSRF si vous avez une API REST
+                .csrf(csrf -> csrf.disable()) ; // Désactiver CSRF pour les appels API REST
+                  // Authentification Basic
 
         return http.build();
     }
@@ -38,7 +36,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Frontend React
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));  // Accepte tous les headers
-        configuration.setExposedHeaders(List.of("Authorization")); // Permet d'exposer le token JWT
+        configuration.setExposedHeaders(List.of("Authorization")); // Permet d'exposer le token JWT si utilisé
         configuration.setAllowCredentials(true);  // Autorise l'envoi de cookies et d'infos d'authentification
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

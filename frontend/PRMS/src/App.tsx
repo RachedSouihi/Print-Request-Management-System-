@@ -5,6 +5,10 @@ import Login from "./pages/Login/Login";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ProtectedRoute from "./pages/Login/protectedroute";
 import Signup from "./pages/SignUp/SignUp";
+import Documents from "./pages/Documents/Documents";
+import Dashboard from "./pages/dashboard/Dashboard";
+import PrintHistory from "./pages/history/PrintHistory";
+import ProfRequest from "./pages/profrequest/ProfRequest";
 const App = () => {
   return (
     
@@ -18,6 +22,13 @@ const App = () => {
               <Home />
             </ProtectedRoute>
           }
+        />
+         <Route path="/documents" element={<Documents/>}/>
+         <Route path="/dashboard" element={<Dashboard/>}/>
+         <Route path="/history" element={<PrintHistory/>}/>
+         <Route
+          path="/prof"
+          element={<ProfRequest show={true} handleClose={() => console.log("Modal fermé")} />}
         />
       </Routes>
     
