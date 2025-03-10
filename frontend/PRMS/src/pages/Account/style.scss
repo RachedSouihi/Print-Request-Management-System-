@@ -1,0 +1,110 @@
+// PasswordModal.scss
+.password-modal {
+  .modal-header-gradient {
+    background: linear-gradient(135deg, #4A55A2, #8A4FFF);
+    height: 100px;
+    position: relative;
+    border: none;
+
+    .security-icon {
+      position: absolute;
+      left: 50%;
+      bottom: -30px;
+      transform: translateX(-50%);
+      background: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      
+      svg {
+        width: 28px;
+        height: 28px;
+        color: #4A55A2;
+      }
+    }
+
+    .close-button {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      color: white;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+
+      &:hover {
+        opacity: 1;
+        transform: rotate(90deg);
+      }
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  .modal-body {
+    padding-top: 3rem;
+
+    h2 {
+      color: #2D3250;
+      font-weight: 600;
+      font-size: 1.5rem;
+    }
+  }
+
+  .form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+    &:focus {
+      border-color: #7895CB;
+      box-shadow: 0 0 0 3px rgba(120, 149, 203, 0.2);
+    }
+  }
+
+  .progress {
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  .success-state {
+    svg {
+      color: #4CAF50;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      color: #2D3250;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .modal-header-gradient {
+      height: 80px;
+
+      .security-icon {
+        width: 50px;
+        height: 50px;
+        bottom: -25px;
+
+        svg {
+          width: 24px;
+          height: 24px;
+        }
+      }
+    }
+
+    .modal-body {
+      padding: 1.5rem 1rem;
+    }
+  }
+}

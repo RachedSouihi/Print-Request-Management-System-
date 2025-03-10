@@ -1,10 +1,44 @@
-import React from 'react'
+import React, { useEffect } from "react";
+import Header from "../../layouts/Header";
+import Footer from "../../layouts/Footer";
+import Sidebar from "../../components/SideBar/SideBar";
+import { Col, Row } from "react-bootstrap";
+import { Outlet, useLocation } from "react-router";
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../store/store';
+import { fetchDocuments } from '../../store/documentsSlice';
+import DocumentsPage from "../Documents/Documents";
+import './Home.scss'; // Import the CSS file
 
-export default function Home() {
+const Home: React.FC = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const location = useLocation();
+
+  useEffect(() => {
+    dispatch(fetchDocuments());
+  }, [dispatch]);
+
+  const isDocumentsRoute = location.pathname === '/documents';
+
   return (
-    <div>
+    <div className="d-flex gap-0">
+      {!isDocumentsRoute && (
+        <Col md={3}>
+          <Sidebar />
+        </Col>
+      )}
+
+      <Col md={isDocumentsRoute ? 12 : 9}className="transition-col" >
+        <Header />
 
 
+    
+          <Outlet />
+
+        <Footer />
+      </Col>
     </div>
-  )
-}
+  );
+};
+
+export default Home;

@@ -1,0 +1,55 @@
+
+@import '../../design.scss';
+
+
+.create-edit-user{
+    background: linear-gradient(135deg, #4A55A2, #8A4FFF);
+    color: #ffff;    }
+.user-management {
+    padding: map-get($spacing-scale, 'lg');
+
+ 
+  
+    .management-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: map-get($spacing-scale, 'xl');
+    }
+  
+    .filter-controls {
+      background: $background-light;
+      border-radius: map-get($border-radius, 'md');
+      box-shadow: map-get($shadow-elevation, 'low');
+      padding: map-get($spacing-scale, 'md');
+      margin-bottom: map-get($spacing-scale, 'lg');
+  
+      .role-tabs {
+        margin-bottom: map-get($spacing-scale, 'md');
+        .nav-link {
+          color: $dark-text;
+          &.active {
+            border-color: $primary-blue;
+            color: $primary-blue;
+          }
+        }
+      }
+  
+      .filters-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: map-get($spacing-scale, 'md');
+      }
+    }
+  
+    .users-table {
+      th {
+        background: $secondary-blue;
+        color: $light-text;
+      }
+  
+      td {
+        vertical-align: middle;
+      }
+    }
+  }

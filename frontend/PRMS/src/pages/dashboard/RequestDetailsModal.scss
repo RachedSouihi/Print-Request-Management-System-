@@ -1,0 +1,112 @@
+@import '../../design.scss';
+
+
+.request-detail-modal {
+    .modal-header {
+      background: $primary-blue;
+      color: $light-text;
+      border-bottom: none;
+      padding: map-get($spacing-scale, 'lg');
+      
+      .modal-title {
+        font-weight: map-get($font-weights, 'semi-bold');
+        font-size: map-get($font-scale, 'h3');
+      }
+      
+      .modal-subtitle {
+        font-size: map-get($font-scale, 'small');
+        opacity: 0.9;
+      }
+      
+      .close-button {
+        color: $light-text;
+        &:hover { opacity: 0.8; }
+      }
+    }
+  
+    .modal-body {
+      padding: map-get($spacing-scale, 'lg');
+      
+      .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: map-get($spacing-scale, 'xl');
+        margin-bottom: map-get($spacing-scale, 'lg');
+      }
+      
+      .detail-section {
+        background: $background-light;
+        padding: map-get($spacing-scale, 'md');
+        border-radius: map-get($border-radius, 'md');
+        box-shadow: map-get($shadow-elevation, 'low');
+      }
+      
+      .section-title {
+        font-size: map-get($font-scale, 'h4');
+        margin-bottom: map-get($spacing-scale, 'md');
+        color: $dark-text;
+        border-bottom: 2px solid $border-color;
+        padding-bottom: map-get($spacing-scale, 'xs');
+      }
+      
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: map-get($spacing-scale, 'sm');
+        
+        .detail-label {
+          color: $dark-text;
+          font-weight: map-get($font-weights, 'medium');
+        }
+        
+        .detail-value {
+          color: lighten($dark-text, 20%);
+        }
+      }
+    }
+  
+    .status-timeline {
+      margin-top: map-get($spacing-scale, 'lg');
+      
+      .timeline-steps {
+        display: flex;
+        flex-direction: column;
+        gap: map-get($spacing-scale, 'md');
+      }
+      
+      .timeline-step {
+        display: flex;
+        align-items: center;
+        position: relative;
+        
+        &.current .timeline-marker {
+          border-color: $primary-blue;
+          background: $primary-blue;
+        }
+      }
+      
+      .timeline-marker {
+        width: 16px;
+        height: 16px;
+        border: 2px solid $border-color;
+        border-radius: 50%;
+        margin-right: map-get($spacing-scale, 'md');
+        background: $background-light;
+        z-index: 1;
+      }
+      
+      .timeline-connector {
+        position: absolute;
+        left: 7px;
+        top: 16px;
+        bottom: -20px;
+        width: 2px;
+        background: $border-color;
+      }
+    }
+  
+    .modal-footer {
+      border-top: 1px solid $border-color;
+      padding: map-get($spacing-scale, 'md') map-get($spacing-scale, 'lg');
+    }
+  }

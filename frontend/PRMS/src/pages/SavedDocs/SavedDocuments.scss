@@ -1,0 +1,110 @@
+@import '../../design.scss';
+.saved-documents-page {
+    padding: map-get($spacing-scale, 'xl');
+  
+    .page-header {
+      margin-bottom: map-get($spacing-scale, 'xl');
+      border-bottom: 1px solid rgba($border-color, 0.2);
+  
+      .page-title {
+        font-size: map-get($font-scale, 'h1');
+        font-weight: map-get($font-weights, 'bold');
+        color: $dark-text;
+        margin-bottom: map-get($spacing-scale, 'lg');
+      }
+  
+      .search-bar {
+        position: relative;
+  
+        .search-icon {
+          position: absolute;
+          left: map-get($spacing-scale, 'md');
+          top: 50%;
+          transform: translateY(-50%);
+          color: $dark-text;
+          opacity: 0.6;
+        }
+  
+        .form-control {
+          padding-left: map-get($spacing-scale, 'xxl');
+          border-radius: map-get($border-radius, 'pill');
+          border: 2px solid $border-color;
+        }
+      }
+    }
+  
+    .document-card {
+      border: 1px solid rgba($border-color, 0.3);
+      border-radius: map-get($border-radius, 'lg');
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+  
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: map-get($shadow-elevation, 'medium');
+        border-color: rgba($primary-blue, 0.2);
+      }
+  
+      .file-meta {
+        display: flex;
+        align-items: center;
+        gap: map-get($spacing-scale, 'sm');
+        margin-bottom: map-get($spacing-scale, 'md');
+        color: lighten($dark-text, 20%);
+        font-size: map-get($font-scale, 'small');
+  
+        .file-icon {
+          font-size: 1.2rem;
+        }
+      }
+  
+      .document-title {
+        font-size: map-get($font-scale, 'h4');
+        font-weight: map-get($font-weights, 'semi-bold');
+        color: $dark-text;
+        margin-bottom: map-get($spacing-scale, 'sm');
+      }
+  
+      .document-preview {
+        color: lighten($dark-text, 15%);
+        font-size: map-get($font-scale, 'small');
+        line-height: 1.5;
+        margin-bottom: map-get($spacing-scale, 'lg');
+      }
+  
+      .document-meta {
+        font-size: map-get($font-scale, 'small');
+        color: lighten($dark-text, 25%);
+      }
+  
+      .document-actions {
+        background: transparent;
+        border-top: 1px solid rgba($border-color, 0.2);
+        display: flex;
+        justify-content: flex-end;
+        gap: map-get($spacing-scale, 'xs');
+  
+        .action-icon {
+          font-size: 1.2rem;
+          transition: all 0.2s ease;
+  
+          &:hover {
+            color: $primary-blue;
+            transform: scale(1.1);
+          }
+        }
+      }
+    }
+  
+    .empty-state {
+      text-align: center;
+      padding: map-get($spacing-scale, 'xxl') 0;
+      color: lighten($dark-text, 30%);
+  
+      .empty-icon {
+        font-size: 3rem;
+        margin-bottom: map-get($spacing-scale, 'md');
+        opacity: 0.5;
+      }
+    }
+  }

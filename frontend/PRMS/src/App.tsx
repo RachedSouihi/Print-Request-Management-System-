@@ -1,23 +1,67 @@
-
-import {BrowserRouter as Router, Routes, Route} from 'react-router'
+import { BrowserRouter as Router, Routes, Route } from 'react-router'
 import './App.css'
 import SignUp from './pages/SignUp/SignUp'
+import Home from './pages/Home/Home'
+import Loading from './common/Loading'
+import PrivateRoute from './PrivateRoute'
+import AccountSettings from './pages/Account/Account'
+import AuthModal from './common/Modal'
+import { useState } from 'react'
+import AccessModal from './common/Modal'
+import Dashboard from './pages/dashboard/Dashboard'
+import Header from './layouts/Header'
+import TestimonialCarousel from './components/Testimonials'
+import CoursesCarousel from './components/ExamsOverview'
+import DocumentsPage from './pages/Documents/Documents'
+import Footer from './layouts/Footer'
+import SavedDocumentsPage from './pages/SavedDocs/SavedDocs'
+import Login from './pages/Login/Login'
 
 function App() {
-
   return (
+    <div className='root-app'>
+      <Router>
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/" element={<Home />}>
+            <Route path="/account" element={<AccountSettings />} />
+            <Route path='/saved-docs' element={<SavedDocumentsPage />}/>
+            <Route path='/documents' element={<DocumentsPage />} />
 
 
-   <div>
-    <Router>
-      <Routes>
-        <Route path="/signup" element={<SignUp />} />
-      </Routes>
-    </Router>
+            <Route index element={
+              <>
+                <CoursesCarousel />
+                <TestimonialCarousel />
+              </>
+          } />
 
 
 
-   </div>
+
+          </Route>
+          <Route
+            path="/dashboard/*"
+            element={
+              <>
+                <Dashboard />
+              </>
+            }
+
+
+
+
+          />
+
+
+
+
+
+        </Routes>
+      </Router>
+    </div>
   )
 }
 

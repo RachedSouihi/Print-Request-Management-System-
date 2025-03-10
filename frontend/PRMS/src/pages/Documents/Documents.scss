@@ -1,0 +1,105 @@
+@import '../../design.scss';
+
+
+
+.documents-page {
+    padding: map-get($spacing-scale, 'xl');
+    min-height: 100vh;
+
+    .filters-sidebar {
+        background: $background-light;
+        border-right: 1px solid $border-color;
+        transition: all 0.3s ease;
+        height: calc(100vh - map-get($spacing-scale, 'xl') * 2);
+        position: sticky;
+        top: map-get($spacing-scale, 'xl');
+
+        &.collapsed {
+            width: 60px;
+            min-width: 60px;
+
+            .filter-content {
+                display: none;
+            }
+
+            .sidebar-header h3 {
+                display: none;
+            }
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: map-get($spacing-scale, 'md');
+            border-bottom: 1px solid $border-color;
+        }
+
+        .filter-group {
+            margin-bottom: map-get($spacing-scale, 'lg');
+
+            label {
+                font-weight: map-get($font-weights, 'medium');
+                color: $dark-text;
+                margin-bottom: map-get($spacing-scale, 'xs');
+            }
+
+            .form-select {
+                border-radius: map-get($border-radius, 'pill');
+            }
+        }
+
+        .clear-filters {
+            width: 100%;
+            margin-top: map-get($spacing-scale, 'lg');
+        }
+    }
+
+    .main-content {
+        padding-left: map-get($spacing-scale, 'lg');
+
+        .search-controls {
+            display: flex;
+            gap: map-get($spacing-scale, 'md');
+            margin-bottom: map-get($spacing-scale, 'xl');
+
+            .search-bar {
+                flex-grow: 1;
+
+                .form-control {
+                    border-radius: map-get($border-radius, 'pill');
+                    padding-left: map-get($spacing-scale, 'xl');
+                }
+            }
+
+            .sort-select {
+                width: 240px;
+                border-radius: map-get($border-radius, 'pill');
+            }
+        }
+
+        .documents-grid {
+            //gap: map-get($spacing-scale, '');
+            row-gap: 10px;
+   
+
+            @keyframes bounce {
+
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+
+                50% {
+                    transform: translateY(-2px);
+                }
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: map-get($spacing-scale, 'xxl') 0;
+            color: lighten($dark-text, 30%);
+        }
+    }
+}

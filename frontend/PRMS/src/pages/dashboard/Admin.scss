@@ -1,0 +1,74 @@
+// styles/AdminOverview.module.scss
+@import '../../design.scss';
+
+
+.print-requests-admin {
+  padding: map-get($spacing-scale, 'lg');
+  
+  .filters-section {
+    display: flex;
+    gap: map-get($spacing-scale, 'md');
+    margin-bottom: map-get($spacing-scale, 'lg');
+    
+    .filter-group {
+      flex: 1;
+      max-width: 200px;
+    }
+  }
+
+  .requests-table {
+    background: $background-light;
+    border-radius: map-get($border-radius, 'md');
+    box-shadow: map-get($shadow-elevation, 'low');
+    
+    th {
+      background: $primary-blue;
+      color: $light-text;
+      cursor: pointer;
+      user-select: none;
+      
+      &:hover {
+        background: darken($primary-blue, 5%);
+      }
+    }
+
+    .request-row {
+      transition: background 0.2s ease;
+      
+      &:hover {
+        background: $hover-overlay;
+      }
+      
+      &.high-priority {
+        border-left: 4px solid $error-red;
+      }
+    }
+  }
+
+  .bulk-actions-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: $background-light;
+    padding: map-get($spacing-scale, 'md');
+    box-shadow: map-get($shadow-elevation, 'medium');
+    display: flex;
+    gap: map-get($spacing-scale, 'md');
+    justify-content: center;
+  }
+
+  .urgency-indicator {
+    display: flex;
+    align-items: center;
+    gap: map-get($spacing-scale, 'xs');
+    
+    .urgency-label {
+      text-transform: capitalize;
+      
+      &.high { color: $error-red; }
+      &.medium { color: $warning-orange; }
+      &.low { color: $success-green; }
+    }
+  }
+}

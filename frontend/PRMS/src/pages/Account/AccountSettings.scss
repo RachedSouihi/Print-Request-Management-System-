@@ -1,0 +1,398 @@
+// AccountSettings.scss
+@import '../../design.scss';
+
+.account-settings {
+  min-height: 100vh;
+  background: $background-light;
+
+  // Professors List Section
+  .professors-list {
+    display: grid;
+    gap: map-get($spacing-scale, 'md');
+  }
+
+  .professor-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: map-get($spacing-scale, 'md');
+    border-radius: map-get($border-radius, 'md');
+    background: $background-light;
+    transition: all 0.3s ease;
+    border: 1px solid $border-color;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: map-get($shadow-elevation, 'low');
+    }
+
+    .professor-info {
+      display: flex;
+      align-items: center;
+      gap: map-get($spacing-scale, 'md');
+    }
+
+    .professor-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .professor-details {
+      h5 {
+        margin-bottom: map-get($spacing-scale, 'xs');
+        color: $dark-text;
+      }
+    }
+
+    .follow-btn {
+      min-width: 100px;
+      padding: map-get($spacing-scale, 'xs') map-get($spacing-scale, 'md');
+      border-width: 2px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+      }
+    }
+  }
+
+  // Sidebar Navigation
+  .settings-sidebar {
+    background: $background-light;
+    padding: 2rem;
+    border-right: 1px solid $border-color;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      color: $dark-text;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.5rem;
+      border-radius: map-get($border-radius, 'md');
+      transition: all 0.3s ease;
+
+      &:hover:not(.active) {
+        background: rgba($secondary-blue, 0.1);
+      }
+
+      &.active {
+        background: linear-gradient(135deg, $primary-blue, $purple-accent);
+        color: white;
+      }
+
+      .nav-icon {
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  // Main Content Area
+  .settings-content {
+    padding: 2rem;
+
+    .section-card {
+      background: $background-light;
+      padding: 2rem;
+      border-radius: map-get($border-radius, 'lg');
+      box-shadow: map-get($shadow-elevation, 'low');
+      margin-bottom: 1.5rem;
+
+      .section-title {
+        color: $dark-text;
+        margin-bottom: 2rem;
+        font-weight: 600;
+      }
+    }
+
+    .security-item, .notification-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid $border-color;
+
+      .change-password-btn {
+        &:hover {
+          color: #fff;
+        }
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+
+      h5 {
+        color: $dark-text;
+        margin-bottom: 0.25rem;
+      }
+
+      p {
+        color: lighten($dark-text, 20%);
+        margin: 0;
+        font-size: 0.9rem;
+      }
+    }
+
+    .save-btn {
+      background: linear-gradient(135deg, $primary-blue, $purple-accent);
+      border: none;
+      padding: 0.75rem 2rem;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: map-get($shadow-elevation, 'medium');
+      }
+    }
+  }
+
+  // Password Modal Styles
+  /*.password-modal {
+    border-radius: map-get($border-radius, 'lg');
+    overflow: hidden;
+
+    .modal-header-gradient {
+      background: linear-gradient(135deg, $primary-blue, $purple-accent);
+      height: 120px;
+      position: relative;
+
+      .security-shield {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: $background-light;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        box-shadow: map-get($shadow-elevation, 'medium');
+
+        .shield-icon {
+          font-size: 1.8rem;
+          color: $purple-accent;
+        }
+      }
+    }
+
+    .modal-title {
+      text-align: center;
+      margin: 2rem 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      color: $dark-text;
+
+      .title-icon {
+        color: $purple-accent;
+        font-size: 1.4rem;
+      }
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+
+      label {
+        display: block;
+        color: lighten($dark-text, 10%);
+        margin-bottom: 0.5rem;
+        font-weight: map-get($font-weights, 'medium');
+      }
+
+      .input-wrapper {
+        position: relative;
+
+        .input-icon {
+          position: absolute;
+          left: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: lighten($dark-text, 30%);
+        }
+
+        .error-icon {
+          position: absolute;
+          right: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: $error-red;
+        }
+      }
+
+      input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 2.75rem;
+        border: 2px solid $border-color;
+        border-radius: map-get($border-radius, 'md');
+        transition: all 0.3s ease;
+
+        &:focus {
+          border-color: $primary-blue;
+          box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+        }
+
+        &.error {
+          border-color: $error-red;
+          background: rgba($error-red, 0.03);
+        }
+      }
+
+      .error-message {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: $error-red;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+    }
+
+    .password-strength {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.75rem;
+      justify-content: center;
+
+      .strength-bar {
+        flex: 1;
+        height: 4px;
+        background: $border-color;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+
+        &.active {
+          &[data-strength="1"] { background: $error-red; }
+          &[data-strength="2"] { background: $warning-orange; }
+          &[data-strength="3"] { background: mix($warning-orange, $success-green, 50%); }
+          &[data-strength="4"] { background: $success-green; }
+        }
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+
+      button {
+        flex: 1;
+        padding: 1rem;
+        border-radius: map-get($border-radius, 'md');
+        font-weight: map-get($font-weights, 'semi-bold');
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+
+        &.btn-primary {
+          background: linear-gradient(135deg, $primary-blue, $purple-accent);
+          color: white;
+          border: none;
+
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba($purple-accent, 0.2);
+          }
+
+          .spin-icon {
+            animation: spin 1s infinite linear;
+          }
+        }
+
+        &.btn-secondary {
+          background: transparent;
+          border: 2px solid $border-color;
+          color: $dark-text;
+
+          &:hover {
+            border-color: $primary-blue;
+            color: $primary-blue;
+          }
+        }
+      }
+    }
+
+    .success-state {
+      text-align: center;
+      padding: 2rem 0;
+
+      .success-icon {
+        font-size: 3rem;
+        color: $success-green;
+        margin-bottom: 1rem;
+        animation: scaleUp 0.5s ease;
+      }
+
+      h4 {
+        color: $dark-text;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        color: lighten($dark-text, 20%);
+      }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes scaleUp {
+      0% { transform: scale(0); opacity: 0; }
+      80% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  }*/
+
+  // Responsive Styles
+  @media (max-width: 768px) {
+    .settings-sidebar {
+      height: auto;
+      position: relative;
+      border-right: none;
+      border-bottom: 1px solid $border-color;
+    }
+
+    .settings-content {
+      padding: 1rem;
+    }
+
+    .password-modal {
+      .modal-header-gradient {
+        height: 100px;
+
+        .security-shield {
+          width: 50px;
+          height: 50px;
+          bottom: -25px;
+
+          .shield-icon {
+            font-size: 1.5rem;
+          }
+        }
+      }
+
+      .modal-title {
+        margin: 1.5rem 0 1rem;
+      }
+
+      .input-group {
+        margin-bottom: 1rem;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+    }
+  }
+}
