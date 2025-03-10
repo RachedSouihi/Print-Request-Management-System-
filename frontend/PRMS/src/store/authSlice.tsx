@@ -4,6 +4,8 @@ import { SignUpFormData } from '../types/authentication';
 import { encryptOTP, encryptPassword } from '../features/encrypt';
 import { User, UserState } from '../types/userTypes';
 
+
+// Interface de l'état d'authentification
 interface AuthState {
   user: UserState | null;
   isAuthenticated: boolean;
@@ -11,22 +13,21 @@ interface AuthState {
   error: string | null;
   emailVerificationStatus: boolean | null;
   apiCallResult?: boolean;
+  token: string | null;
 }
 
-// Load initial state from localStorage
+// Chargement de l'état initial depuis localStorage
 const loadState = (): AuthState => {
   try {
     const serializedState = localStorage.getItem('authState');
-    if (serializedState === null) {
-      return {
-        user: null,
-        isAuthenticated: false,
-        loading: false,
-        error: null,
-        emailVerificationStatus: null,
-      };
-    }
-    return JSON.parse(serializedState);
+    return serializedState ? JSON.parse(serializedState) : {
+      user: null,
+      isAuthenticated: false,
+      loading: false,
+      error: null,
+      emailVerificationStatus: null,
+      token: null,
+    };
   } catch (err) {
     return {
       user: null,
@@ -34,35 +35,109 @@ const loadState = (): AuthState => {
       loading: false,
       error: null,
       emailVerificationStatus: null,
+      token: null,
     };
   }
 };
 
-// Save state to localStorage
+// Sauvegarde de l'état dans localStorage
 const saveState = (state: AuthState) => {
   try {
-    const serializedState = JSON.stringify(state);
-    localStorage.setItem('authState', serializedState);
+    localStorage.setItem('authState', JSON.stringify(state));
   } catch (err) {
-    // Ignore write errors
+    console.error('Erreur lors de la sauvegarde de l’état', err);
   }
 };
 
-// Initial state
+// Suppression du token et état utilisateur
+const clearAuthState = () => {
+  try {
+    localStorage.removeItem('authState');
+  } catch (err) {
+    console.error('Erreur lors de la suppression de l’état', err);
+  }
+};
+
+// État initial
 const initialState: AuthState = loadState();
 
+// Thunk pour la connexion
+export const loginUser = createAsyncThunk<
+  User,  // Type de retour attendu pour une réponse réussie
+  { email: string; password: string },  // Paramètres d'entrée
+  { rejectValue: string }  // Type de la valeur rejetée
+>(
 // Async thunk for login
 export const loginUser = createAsyncThunk<UserState, { email: string; password: string }, { rejectValue: string }>(
   'auth/login',
-  async (credentials, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/auth/login', credentials);
-      return response.data.user; // { id, name, email, etc. }
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data);
+      // Envoi de la requête GET pour la connexion
+      const response = await axios.get(
+        `http://127.0.0.1:8081/auth/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true, // Si ton backend utilise des cookies
+        }
+      );
+
+      console.log("Réponse serveur :", response);
+
+      // Extraction du token brut
+      const rawToken = response.data.access_token;
+      const extractedToken = rawToken.match(/access_token=([^,]*)/)?.[1] || rawToken;
+       // Extrait le token
+
+      if (!extractedToken) {
+        console.error("Échec de l'extraction du token :", rawToken);
+        return rejectWithValue("Échec de connexion. Token invalide.");
       }
-      return rejectWithValue('An unknown error occurred');
+    
+      // Sauvegarder le token directement dans le localStorage
+      localStorage.setItem("token", extractedToken);
+
+      // Décodage du JWT pour obtenir l'utilisateur
+      const parseJwt = (token: string) => {
+        try {
+          const base64Url = token.split('.')[1]; // Partie encodée du payload
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64)); // Décodage en JSON
+        } catch (error) {
+          console.error("Erreur lors du décodage du token :", error);
+          return {}; // Retourne un objet vide en cas d'erreur
+        }
+      };
+
+      const decodedToken = parseJwt(extractedToken);
+      console.log("Token décodé :", decodedToken);
+
+      if (!decodedToken.sub || !decodedToken.email) {
+        console.error("Erreur : Impossible de décoder le token ou les informations sont invalides.");
+        return rejectWithValue("Échec de connexion. Token invalide.");
+      }
+
+      // Création de l'utilisateur à partir du token décodé
+      const user: User = {
+        id: decodedToken.sub,
+        email: decodedToken.email,
+        name: decodedToken.name || '',
+        roles: decodedToken.realm_access?.roles || [], // Définit des rôles vides si non présents
+      };
+
+      // Sauvegarde dans le state
+      saveState({ 
+        ...initialState, 
+        user: user, 
+        isAuthenticated: true, 
+        token: extractedToken 
+      });
+
+      console.log("Utilisateur authentifié :", user);
+      return user; // Renvoie l'utilisateur si la connexion est réussie
+
+    } catch (error) {
+      console.error("Erreur de connexion :", error);
+      return rejectWithValue('Échec de connexion. Vérifiez vos informations.'); // Retourne une erreur si la connexion échoue
     }
   }
 );
@@ -75,13 +150,9 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
 
       const encryptedOTP: string = await encryptOTP(otp)
       const data = sessionStorage.getItem('signupData');
-      if (!data) {
-        throw new Error("No sign-up data found in session storage");
-      }
+      if (!data) throw new Error("Données d'inscription manquantes");
+
       const user_data: SignUpFormData = JSON.parse(data);
-
-      const { email, ...profile } = user_data;
-
       const post_data = {
         user: {
           email: email,
@@ -126,7 +197,8 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
   }
 );
 
-// Async thunk for checking auth status
+
+// Thunk pour la vérification de session
 export const checkAuth = createAsyncThunk<UserState, void, { rejectValue: string }>(
   'auth/check',
   async (_, { rejectWithValue }) => {
@@ -169,7 +241,7 @@ export const testAPICall = createAsyncThunk<string, void, { rejectValue: string 
   }
 );
 
-// Async thunk for email verification
+// Thunk pour l'envoi d'un email de vérification
 export const sendVerifEmail = createAsyncThunk<boolean, { email: string; passwd: string; firstname: string }, { rejectValue: string }>(
   'auth/sendVerifEmail',
   async ({ email, passwd, firstname }, { rejectWithValue }) => {
@@ -230,16 +302,17 @@ export const resendVerifEmail = createAsyncThunk<boolean, { email: string; first
   }
 );
 
-export const verifyAuth = createAsyncThunk<boolean, number, { rejectValue: string }>(
-  'auth/verifyAuth',
-  async (_, { rejectWithValue }) => {
+// Thunk pour la mise à jour du mot de passe
+export const updatePassword = createAsyncThunk<boolean, { email: string; newPassword: string }, { rejectValue: string }>(
+  'auth/updatePassword',
+  async ({ email, newPassword }, { rejectWithValue }) => {
     try {
-      const response = await axios.get('http://127.0.0.1:/user/auth/is-signed-in');
-      if (response.status === 200) {
-        return true;
-      } else {
-        return false;
-      }
+      const response = await axios.put('http://localhost:8081/update-password', { email, newPassword }, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa('admin:admin') }
+      });
+
+      return response.status === 200 && response.data === "Password updated successfully";
     } catch (error) {
       if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
         return false;
@@ -252,6 +325,7 @@ export const verifyAuth = createAsyncThunk<boolean, number, { rejectValue: strin
   }
 );
 
+// Slice Redux
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -259,7 +333,8 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      saveState(state); // Save state to localStorage on logout
+      state.token = null;
+      clearAuthState();
     },
   },
   extraReducers: (builder) => {

@@ -4,27 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec3a966d-1b43-4663-9033-3b836968fba7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/user-service/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/utils/AESUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/components/DocumentOverview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/components/DocumentOverview.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/SignUp/SignUp.module.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/types/authentication.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/types/authentication.ts" afterDir="false" />
-    </list>
+    <list default="true" id="60637854-d129-42f5-965f-ea47b8e07c39" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -33,6 +13,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -45,28 +26,30 @@
   &quot;isMigrated&quot;: true
 }</component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 5
+  &quot;associatedIndex&quot;: 3
 }</component>
-  <component name="ProjectId" id="2sp3YpcemqjfdHJVgtlxrOJsbzx" />
+  <component name="ProjectId" id="2tiMO86n9YJMQ5BgFRoJKNI4gwh" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;JUnit.All in printrequest-service.executor&quot;: &quot;Run&quot;,
     &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
     &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
     &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
     &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.CommonModelsServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.DocumentServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.PrintrequestServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;rached&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;chaima&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/backend/api-gateway&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/GIGABAYTE/projetpfe/Print-Request-Management-System-/backend&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -86,7 +69,18 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.UserServiceApplication">
+  <component name="RunManager" selected="Spring Boot.PrintrequestServiceApplication">
+    <configuration name="All in printrequest-service" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="printrequest-service" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.api_gateway.ApiGatewayApplication" />
@@ -130,86 +124,44 @@
       </method>
     </configuration>
     <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <option name="ALTERNATIVE_JRE_PATH" value="21" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <module name="user-service" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.user_service.UserServiceApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <list>
-      <item itemvalue="Spring Boot.ApiGatewayApplication" />
-      <item itemvalue="Spring Boot.CommonModelsServiceApplication" />
-      <item itemvalue="Spring Boot.DocumentServiceApplication" />
-      <item itemvalue="Spring Boot.NotificationServiceApplication" />
-      <item itemvalue="Spring Boot.PrintrequestServiceApplication" />
-      <item itemvalue="Spring Boot.ProfileServiceApplication" />
-      <item itemvalue="Spring Boot.UserServiceApplication" />
-    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.All in printrequest-service" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.153" />
-        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.153" />
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.189" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.189" />
       </set>
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="StructureViewState">
-    <option name="selectedTab" value="Logical" />
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="ec3a966d-1b43-4663-9033-3b836968fba7" name="Changes" comment="" />
-      <created>1739138738895</created>
+      <changelist id="60637854-d129-42f5-965f-ea47b8e07c39" name="Changes" comment="" />
+      <created>1740830406981</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1739138738895</updated>
-      <workItem from="1739138740031" duration="79000" />
-      <workItem from="1739138830414" duration="66000" />
-      <workItem from="1739138904261" duration="2133000" />
-      <workItem from="1739141264578" duration="239000" />
-      <workItem from="1739141513291" duration="271000" />
-      <workItem from="1739179885538" duration="456000" />
-      <workItem from="1739180355958" duration="227000" />
-      <workItem from="1739180635629" duration="746000" />
-      <workItem from="1739181396016" duration="320000" />
-      <workItem from="1739181733321" duration="293000" />
-      <workItem from="1739182037532" duration="30000" />
-      <workItem from="1739182076061" duration="344000" />
-      <workItem from="1739185441142" duration="315000" />
-      <workItem from="1739190631929" duration="1154000" />
-      <workItem from="1739191801801" duration="1193000" />
-      <workItem from="1739193015244" duration="39000" />
-      <workItem from="1739193060093" duration="16000" />
-      <workItem from="1739193102037" duration="327000" />
-      <workItem from="1739209651791" duration="6523000" />
-      <workItem from="1739221921142" duration="54000" />
-      <workItem from="1739221981181" duration="2061000" />
-      <workItem from="1739224063111" duration="11277000" />
-      <workItem from="1739267942143" duration="3211000" />
-      <workItem from="1739271190350" duration="5004000" />
-      <workItem from="1739278814580" duration="1922000" />
-      <workItem from="1739281447135" duration="5421000" />
-      <workItem from="1739443116517" duration="591000" />
-      <workItem from="1739443717441" duration="3575000" />
+      <updated>1740830406981</updated>
+      <workItem from="1740830408152" duration="181000" />
+      <workItem from="1740830594951" duration="851000" />
+      <workItem from="1740831713272" duration="8973000" />
+      <workItem from="1740996808987" duration="8377000" />
+      <workItem from="1741170210829" duration="2445000" />
+      <workItem from="1741258617979" duration="322000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
   </component>
 </project>

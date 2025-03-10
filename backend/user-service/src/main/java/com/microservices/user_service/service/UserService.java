@@ -5,10 +5,9 @@ import com.microservices.common_models_service.dto.UserDTO;
 import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
-//import com.microservices.common_models_service.repository.ProfileRepository;
-//import com.microservices.common_models_service.repository.UserRepository;
 
 import com.microservices.common_models_service.repository.DocumentRepository;
+import com.microservices.common_models_service.repository.UserRepository;
 import com.microservices.common_models_service.repository.ProfileRepository;
 import com.microservices.common_models_service.repository.UserRepository;
 import com.microservices.user_service.utils.VerificationData;
@@ -20,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -186,6 +186,7 @@ public class UserService {
              return tokens;
 
 
+            return token;
 
 
 
@@ -193,9 +194,15 @@ public class UserService {
             System.out.println(e.getMessage());
             return null;
         }
-        
+
 
     }
+    public String hashPassword(String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode(password);
+    }
+
+
 
     public User login(String username, String password) throws Exception {
 
