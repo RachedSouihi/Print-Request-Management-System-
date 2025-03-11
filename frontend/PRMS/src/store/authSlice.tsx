@@ -75,9 +75,12 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
       if (!data) throw new Error("Données d'inscription manquantes");
 
       const user_data: SignUpFormData = JSON.parse(data);
+
+      const { email, ...profile } = user_data;
+
       const post_data = {
         user: {
-          email: user_data.email,
+          email:email,
           password: "",
           profile: {
             ...,
