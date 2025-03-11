@@ -1,9 +1,8 @@
 package com.microservices.common_models_service.model;
 
-import com.microservices.common_models_service.dto.DocumentDTO;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "print_requests")
@@ -32,11 +31,22 @@ public class PrintRequest {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "ink_usage")
+    private double inkUsage = 0.5; // Default value for inkUsage
+
+    private String urgency = "low"; // Default value for urgency
+
+    @ElementCollection
+    @CollectionTable(name = "print_request_status_history", joinColumns = @JoinColumn(name = "request_id"))
+    @Column(name = "status_history")
+    private List<StatusHistoryEntry> statusHistory;
+
     @PrePersist
     public void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
+    // Getters and setters...
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -108,5 +118,51 @@ public class PrintRequest {
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    public double getInkUsage() {
+        return inkUsage;
+    }
+
+    public void setInkUsage(double inkUsage) {
+        this.inkUsage = inkUsage;
+    }
+
+    public String getUrgency() {
+        return urgency;
+    }
+
+    public void setUrgency(String urgency) {
+        this.urgency = urgency;
+    }
+
+    public List<StatusHistoryEntry> getStatusHistory() {
+        return statusHistory;
+    }
+
+    public void setStatusHistory(List<StatusHistoryEntry> statusHistory) {
+        this.statusHistory = statusHistory;
+    }
+
+    @Embeddable
+    public static class StatusHistoryEntry {
+        private String status;
+        private LocalDateTime timestamp;
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public LocalDateTime getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(LocalDateTime timestamp) {
+            this.timestamp = timestamp;
+        }
     }
 }

@@ -43,7 +43,7 @@ public class DocumentController {
             return null;
         }
         //user.getUser_id(), user.getProfile().getFirstname(), user.getProfile().getLastname(), user.getEmail()
-       // u.setUserId(user.getUser_id());
+        // u.setUserId(user.getUser_id());
         //u.setEmail(user.getEmail());
 
         ProfileDTO p = new ProfileDTO(user.getProfile().getFirstname(), user.getProfile().getLastname());
@@ -76,6 +76,48 @@ public class DocumentController {
 
 
 
+    /*@PostMapping
+    public ResponseEntity<String> createDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("doc_type") String docType,
+            @RequestParam("subject") String subject,
+            @RequestParam("user_id") String userId,
+            @RequestParam("doc_id") String docId
+
+
+
+
+    ) throws IOException {
+        Document doc = new Document();
+
+        doc.setId(docId);
+        String name = file.getOriginalFilename();
+
+        doc.setDocument(file.getBytes());
+        doc.setDocType(docType);
+
+        doc.setSubject(subject);
+        doc.setTitle(name);
+        doc.setDescription("");
+
+        Optional<User> user = userRepository.findById(userId);
+
+        user.ifPresent(doc::setUser);
+
+
+        documentService.createDocument(doc);
+
+
+        return ResponseEntity.ok("Document created");
+
+
+
+
+
+
+
+    }
+*/
 
     @PostMapping(value = "/add-doc", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadDocument(
@@ -127,16 +169,16 @@ public class DocumentController {
 
 
 
-    }catch(Exception e)
+        }catch(Exception e)
 
-    {
-        return ResponseEntity.status(500).body(e.getMessage());
+        {
+            return ResponseEntity.status(500).body(e.getMessage());
+
+
+        }
 
 
     }
-
-
-}
 
     @GetMapping("/docs-metadata")
     public ResponseEntity<List<DocumentMetadataDTO>> getAllDocumentsMetadata() {
@@ -170,7 +212,7 @@ public class DocumentController {
 
 
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<?> getAllDocuments() {
 
         Iterable<Document> docs = documentService.getAllDocs();
@@ -189,6 +231,28 @@ public class DocumentController {
 
 
     }
+
+    @GetMapping
+    public ResponseEntity<?> getDocumentById(@RequestParam("id") String id) {
+        try{
+            Document doc = documentService.getDocument(id);
+            byte[] fileContent = doc.getDocument();
+            String fileName = "fake_doc_name.pdf";
+
+            ByteArrayResource resource = new ByteArrayResource(fileContent);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                    .contentType(MediaType.parseMediaType("application/pdf")) // e.g., "application/pdf"
+                    .body(resource);
+
+
+
+        }catch ( Exception e ){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/u")
     public Optional<User> getUser(@RequestParam String user_id) {

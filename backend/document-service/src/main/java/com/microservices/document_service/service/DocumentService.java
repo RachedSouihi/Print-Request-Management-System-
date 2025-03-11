@@ -19,22 +19,34 @@ public class DocumentService {
     }
 
     public String createDocument(Document document) {
-try {
-    documentRepository.save(document);
+        try {
+            documentRepository.save(document);
 
-    return document.getId();
-
-
-
-}catch (Exception e){
-
-    return "Error creating document";
-}
+            return document.getId();
 
 
 
+        }catch (Exception e){
 
-}
+            return "Error creating document";
+        }
+
+
+
+
+    }
+
+
+    public Document getDocument(String id) {
+
+        try{
+            return documentRepository.findById(id).orElse(null);
+
+        }catch (Exception e){
+            return null;
+
+        }
+    }
 
     public Iterable<Document> getAllDocs(){
 
@@ -42,6 +54,8 @@ try {
 
 
     }
+
+
 
 
 

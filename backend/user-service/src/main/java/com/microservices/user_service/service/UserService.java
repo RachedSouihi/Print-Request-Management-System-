@@ -60,6 +60,41 @@ public class UserService {
     }
 
 
+    public List<UserDTO> getAllUsers() {
+
+        try{
+            List<User> allUsers =  userRepository.findAll();
+
+            List<UserDTO> dtos = new ArrayList<>();
+
+            for(User user : allUsers) {
+                dtos.add(
+                        new UserDTO(
+                                user.getUser_id(),
+                                user.isActive(),
+                                user.getEmail(),
+                                user.getProfile().getFirstname(),
+                                user.getProfile().getLastname(),
+                                user.getProfile().getRole(),
+                                user.getProfile().getPhone(),
+                                user.getProfile().getEducationLevel(),
+                                user.getProfile().getField()
+                        )
+                );
+            }
+
+
+            return dtos;
+
+
+        }catch (Exception e){
+
+            return null;
+
+        }
+    }
+
+
 
     public Optional<User> findById(String id) {
 
@@ -179,11 +214,11 @@ public class UserService {
 
 
 
-             Map<String, Object> tokens =  keyCloakService.getToken(user.getEmail(), user.getPassword());
+            Map<String, Object> tokens =  keyCloakService.getToken(user.getEmail(), user.getPassword());
 
-             tokens.put("user_id", user_id);
+            tokens.put("user_id", user_id);
 
-             return tokens;
+            return tokens;
 
 
 
@@ -193,15 +228,22 @@ public class UserService {
             System.out.println(e.getMessage());
             return null;
         }
-        
+
 
     }
 
-    public User login(String username, String password) throws Exception {
+    public Map<String, Object> login(String username, String password) throws Exception {
 
-        //Add login Logic here
+        try{
+            return keyCloakService.getToken(username, password);
 
-        return new User();
+        }catch(Exception e){
+
+            System.out.println(e.getMessage());
+            return null;
+        }
+
+
     }
 
 
