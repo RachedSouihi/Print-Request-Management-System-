@@ -10,6 +10,7 @@
         <module name="api-gateway" />
         <module name="printrequest-service" />
         <module name="profile-service" />
+        <module name="common-models-service" />
         <module name="document-service" />
       </profile>
     </annotationProcessing>

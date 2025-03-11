@@ -83,7 +83,7 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
           email:email,
           password: "",
           profile: {
-            ...,
+            ...profile,
             role: "student"
           }
         },
@@ -249,6 +249,86 @@ export const updatePassword = createAsyncThunk<boolean, { email: string; newPass
     }
   }
 );
+
+export const loginUser = createAsyncThunk<
+  User,  // Type de retour attendu pour une réponse réussie
+  { email: string; password: string },  // Paramètres d'entrée
+  { rejectValue: string }  // Type de la valeur rejetée
+>(
+  'auth/login',
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      // Envoi de la requête GET pour la connexion
+      const response = await axios.get(
+        `http://127.0.0.1:8081/auth/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true, // Si ton backend utilise des cookies
+        }
+      );
+
+      console.log("Réponse serveur :", response);
+
+      // Extraction du token brut
+      const rawToken = response.data.access_token;
+      const extractedToken = rawToken.match(/access_token=([^,]*)/)?.[1] || rawToken;
+       // Extrait le token
+
+      if (!extractedToken) {
+        console.error("Échec de l'extraction du token :", rawToken);
+        return rejectWithValue("Échec de connexion. Token invalide.");
+      }
+    
+      // Sauvegarder le token directement dans le localStorage
+      localStorage.setItem("token", extractedToken);
+
+      // Décodage du JWT pour obtenir l'utilisateur
+      const parseJwt = (token: string) => {
+        try {
+          const base64Url = token.split('.')[1]; // Partie encodée du payload
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64)); // Décodage en JSON
+        } catch (error) {
+          console.error("Erreur lors du décodage du token :", error);
+          return {}; // Retourne un objet vide en cas d'erreur
+        }
+      };
+
+      const decodedToken = parseJwt(extractedToken);
+      console.log("Token décodé :", decodedToken);
+
+      if (!decodedToken.sub || !decodedToken.email) {
+        console.error("Erreur : Impossible de décoder le token ou les informations sont invalides.");
+        return rejectWithValue("Échec de connexion. Token invalide.");
+      }
+
+      // Création de l'utilisateur à partir du token décodé
+      const user: User = {
+        id: decodedToken.sub,
+        email: decodedToken.email,
+        name: decodedToken.name || '',
+        roles: decodedToken.realm_access?.roles || [], // Définit des rôles vides si non présents
+      };
+
+      // Sauvegarde dans le state
+      saveState({ 
+        ...initialState, 
+        user: user, 
+        isAuthenticated: true, 
+        token: extractedToken 
+      });
+
+      console.log("Utilisateur authentifié :", user);
+      return user; // Renvoie l'utilisateur si la connexion est réussie
+
+    } catch (error) {
+      console.error("Erreur de connexion :", error);
+      return rejectWithValue('Échec de connexion. Vérifiez vos informations.'); // Retourne une erreur si la connexion échoue
+    }
+  }
+);
+
+
 
 // Slice Redux
 const authSlice = createSlice({
