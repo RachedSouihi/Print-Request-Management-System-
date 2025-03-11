@@ -28,7 +28,6 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-		<spring-cloud.version>2024.0.0</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -61,7 +60,11 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
+
 		<dependency>
+			<groupId>com.microservices</groupId>
+			<artifactId>common-models-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 			<groupId>com.microservices</groupId>
 			<artifactId>api-gateway</artifactId>
 			<version>0.0.1-SNAPSHOT</version>

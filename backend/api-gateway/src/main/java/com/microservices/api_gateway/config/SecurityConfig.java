@@ -35,12 +35,13 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                /*.addFilterBefore(
+                .addFilterBefore(
                         new JwtAuthenticationFilter(jwtTokenProvider, securityProperties),
                         UsernamePasswordAuthenticationFilter.class
-                )*/
+                )
                 .authorizeHttpRequests(auth -> auth
-                        //.requestMatchers(securityProperties.getPermittedPaths().toArray(new String[0])).permitAll()
+                        .requestMatchers(securityProperties.getPermittedPaths().toArray(new String[0])).permitAll()
+                        .requestMatchers("/ws", "/broadcast/print-request").permitAll()
                         .anyRequest().permitAll()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

@@ -29,6 +29,7 @@ const Sidebar = () => {
 
       activeTab === "home" && navigate('/')
       activeTab === 'saved' && navigate('/saved-docs')
+      activeTab === 'printing history' && navigate('/requests')
   }, [activeTab])
 
   return (

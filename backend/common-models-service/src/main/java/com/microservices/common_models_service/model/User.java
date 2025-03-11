@@ -16,9 +16,15 @@ public class User {
     private String email;
     private String password;
 
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active;
+
    /*@OneToOne(mappedBy = "user", orphanRemoval = true)
     @JsonManagedReference
     private Profile profile;*/
+
+
 
 
     @OneToOne(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL) // Changed to CascadeType.ALL
@@ -76,5 +82,13 @@ public class User {
     }
     public void setProfile(Profile profile) {
         this.profile = profile;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

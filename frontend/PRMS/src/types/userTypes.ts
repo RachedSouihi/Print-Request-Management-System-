@@ -3,17 +3,25 @@ export interface Profile{
   lastName: string;
   phone: string;
   educationLevel: string;
+  field: string;
 
-  role: 'student' | 'professor' | 'admin'
+  role: 'student' | 'professor' | 'admin';
+
+
+  subject?: string;
+  idCard?: string;
+
+
 
 }
 
 
 export interface User{
-  user_id: string,
+  userId: string,
   email: string
+  active: boolean;
 
-  profile: Profile
+  profile: Partial<Profile>
 }
 
 

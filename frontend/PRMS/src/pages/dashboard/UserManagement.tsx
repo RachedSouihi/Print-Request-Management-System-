@@ -1,84 +1,58 @@
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Table, Button, Form, Modal, Badge, Tab, Tabs, InputGroup, Row, Col } from 'react-bootstrap';
 import { FiUserPlus, FiSearch, FiEdit, FiLock, FiActivity } from 'react-icons/fi';
 import './UserManagement.scss';
 import { CiExport } from 'react-icons/ci';
-
-// Updated User interface with separate fields for student/professor
-export interface User {
-    id: number;
-    role: 'student' | 'professor' | 'admin';
-    active: boolean;
-    email: string;
-    // Common fields
-    firstName?: string;
-    lastName?: string;
-    phone?: string;
-    // Student-specific fields
-    educationLevel?: '1' | '2' | '3' | '4';
-    field?: 'Computer science' | 'experimental science' | 'technical science' | 'Math';
-    // Professor-specific fields
-    idCard?: string;
-    subject?: 'math' | 'science' | 'history';
-}
-
-// Sample users have been updated to use the new fields
-const sampleUsers: User[] = [
-    {
-        id: 1,
-        role: "student",
-        active: true,
-        email: "alice@school.com",
-        firstName: "Alice",
-        lastName: "Johnson",
-        phone: "1234567890",
-        educationLevel: '1',
-        field: "Computer science"
-    },
-    {
-        id: 2,
-        role: "professor",
-        active: true,
-        email: "mark.smith@school.com",
-        firstName: "Mark",
-        lastName: "Smith",
-        phone: "9876543210",
-        idCard: "PROF-002",
-        subject: "math"
-    },
-    // …add more sample users as needed
-];
+import { fetchAllUsersAsync } from '../../store/userSlice';
+import { AppDispatch, RootState } from '../../store/store';
+import { User } from '../../types/userTypes';
 
 const emptyUser: User = {
-    id: 0,
-    role: 'student',
+    userId: "111",
+    email: "",
     active: true,
-    email: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    educationLevel: '1',
-    field: 'Computer science'
+    profile: {
+        firstName: '',
+        lastName: '',
+        phone: '',
+        role: 'student',
+        educationLevel: '1',
+        field: 'Computer science'
+    }
 };
 
 const UserManagement: React.FC = () => {
-    const [users, setUsers] = useState<User[]>(sampleUsers);
+    const dispatch = useDispatch<AppDispatch>();
+    const allUsers = useSelector((state: RootState) => state.user.users);
+
+    const [users, setUsers] = useState<User[]>([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [filters, setFilters] = useState({
         role: 'student',
         search: '',
-        // You can remove the old filters that are not needed now
     });
+
+    useEffect(() => {
+        dispatch(fetchAllUsersAsync());
+    }, [dispatch]);
+
+    useEffect(() => {
+        setUsers(allUsers);
+        console.log("All users: ", allUsers);
+    }, [allUsers]);
 
     // Filtering logic (simple by role and search)
     const filteredUsers = users.filter(user => {
-        const matchesRole = user.role === filters.role;
-        const matchesSearch = `${user.firstName || ''} ${user.lastName || ''}`
+        const matchesRole = user.profile.role === filters.role;
+        const matchesSearch = `${user.profile.firstName || ''} ${user.profile.lastName || ''}`
             .toLowerCase()
             .includes(filters.search.toLowerCase());
         return matchesRole && matchesSearch;
     });
+
+    console.log("Filtered users: ", filteredUsers);
 
     return (
         <div className="user-management">
@@ -122,11 +96,9 @@ const UserManagement: React.FC = () => {
             </div>
 
             {/* User Table */}
-
             <div> 
                 <Button variant='outline-dark' className='d-flex align-items-center px-3 py-2'>
-                <CiExport size={22} />
-
+                    <CiExport size={22} />
                     Export
                 </Button>
             </div>
@@ -145,7 +117,7 @@ const UserManagement: React.FC = () => {
                 <tbody>
                     {filteredUsers.map(user => (
                         <UserRow
-                            key={user.id}
+                            key={user.userId}
                             user={user}
                             onEdit={() => {
                                 setSelectedUser(user);
@@ -166,13 +138,13 @@ const UserManagement: React.FC = () => {
                 }}
                 onSubmit={(userData) => {
                     // Update logic (create or edit)
-                    if (userData.id === 0) {
+                    if (userData.userId === "0") {
                         // New user creation
-                        userData.id = users.length + 1;
+                        userData.userId = (users.length + 1).toString();
                         setUsers([...users, userData]);
                     } else {
                         // Edit existing user
-                        setUsers(users.map(u => (u.id === userData.id ? userData : u)));
+                        setUsers(users.map(u => (u.userId === userData.userId ? userData : u)));
                     }
                     setShowEditModal(false);
                     setSelectedUser(null);
@@ -189,22 +161,22 @@ interface UserRowProps {
 
 const UserRow: React.FC<UserRowProps> = ({ user, onEdit }) => (
     <tr>
-        <td>{`${user.firstName || ''} ${user.lastName || ''}`.trim()}</td>
+        <td>{`${user.profile.firstName || ''} ${user.profile.lastName || ''}`.trim()}</td>
         <td>{user.email}</td>
         <td>
-            <Badge bg={roleBadgeColor(user.role)}>{user.role}</Badge>
+            {user.profile.role && <Badge bg={roleBadgeColor(user.profile.role)}>{user.profile.role}</Badge>}
         </td>
         <td>
             <StatusIndicator active={user.active} />
         </td>
-        {user.role === 'professor' && (
+        {user.profile.role === 'professor' && (
             <td>
-                {user.idCard} / {user.subject}
+                {user.profile.idCard} / {user.profile.subject}
             </td>
         )}
-        {user.role === 'student' && (
+        {user.profile.role === 'student' && (
             <td>
-                {user.educationLevel} / {user.field}
+                {user.profile.educationLevel} / {user.profile.field}
             </td>
         )}
         <td>
@@ -241,38 +213,44 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
         const newRole = e.target.value as 'student' | 'professor' | 'admin';
         if (newRole === 'student') {
             setFormData({
-                id: formData.id,
-                role: 'student',
-                active: formData.active,
+                userId: formData.userId,
                 email: formData.email,
-                firstName: formData.firstName || '',
-                lastName: formData.lastName || '',
-                phone: formData.phone || '',
-                educationLevel: '1',
-                field: 'Computer science'
+                active: formData.active,
+                profile: {
+                    firstName: formData.profile.firstName || '',
+                    lastName: formData.profile.lastName || '',
+                    phone: formData.profile.phone || '',
+                    role: 'student',
+                    educationLevel: '1',
+                    field: 'Computer science'
+                }
             });
         } else if (newRole === 'professor') {
             setFormData({
-                id: formData.id,
-                role: 'professor',
-                active: formData.active,
+                userId: formData.userId,
                 email: formData.email,
-                firstName: formData.firstName || '',
-                lastName: formData.lastName || '',
-                phone: formData.phone || '',
-                idCard: '',
-                subject: 'math'
+                active: formData.active,
+                profile: {
+                    firstName: formData.profile.firstName || '',
+                    lastName: formData.profile.lastName || '',
+                    phone: formData.profile.phone || '',
+                    role: 'professor',
+                    idCard: '',
+                    subject: 'math'
+                }
             });
         } else {
             // For admin or other roles, you can decide which fields to keep.
             setFormData({
-                id: formData.id,
-                role: 'admin',
-                active: formData.active,
+                userId: formData.userId,
                 email: formData.email,
-                firstName: formData.firstName || '',
-                lastName: formData.lastName || '',
-                phone: formData.phone || ''
+                active: formData.active,
+                profile: {
+                    firstName: formData.profile.firstName || '',
+                    lastName: formData.profile.lastName || '',
+                    phone: formData.profile.phone || '',
+                    role: 'admin'
+                }
             });
         }
     };
@@ -286,7 +264,7 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                 <Form>
                     <Form.Group className="mb-3">
                         <Form.Label>Role</Form.Label>
-                        <Form.Select value={formData.role} onChange={handleRoleChange}>
+                        <Form.Select value={formData.profile.role} onChange={handleRoleChange}>
                             <option value="student">Student</option>
                             <option value="professor">Professor</option>
                             <option value="admin">Admin</option>
@@ -294,124 +272,36 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                     </Form.Group>
 
                     {/* Conditionally render fields based on role */}
-                    {formData.role === 'student' && (
+                    {formData.profile.role === 'student' && (
                         <>
                             <Row>
-
                                 <Col>
                                     <Form.Group className="mb-3">
                                         <Form.Label>First Name</Form.Label>
                                         <Form.Control
-                                            value={formData.firstName}
-                                            onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-                                        />
-                                    </Form.Group></Col>
-
-                                <Col>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Last Name</Form.Label>
-                                        <Form.Control
-                                            value={formData.lastName}
-                                            onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                                            value={formData.profile.firstName}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, firstName: e.target.value } })}
                                         />
                                     </Form.Group>
                                 </Col>
-
-
-
-                            </Row>
-
-                            <Row>
-
-                                <Col>  <Form.Group className="mb-3">
-                                    <Form.Label>Email</Form.Label>
-                                    <Form.Control
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                    />
-                                </Form.Group></Col>
-                                <Col>   <Form.Group className="mb-3">
-                                    <Form.Label>Phone</Form.Label>
-                                    <Form.Control
-                                        value={formData.phone}
-                                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                    />
-                                </Form.Group></Col>
-                            </Row>
-
-                            <Row>
-                                <Col><Form.Group className="mb-3">
-                                    <Form.Label>Education Level</Form.Label>
-                                    <Form.Select
-                                        value={formData.educationLevel}
-                                        onChange={e =>
-                                            setFormData({
-                                                ...formData,
-                                                educationLevel: e.target.value as '1' | '2' | '3' | '4'
-                                            })
-                                        }
-                                    >
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                    </Form.Select>
-                                </Form.Group></Col>
-                                <Col><Form.Group className="mb-3">
-                                    <Form.Label>Field</Form.Label>
-                                    <Form.Select
-                                        value={formData.field}
-                                        onChange={e =>
-                                            setFormData({
-                                                ...formData,
-                                                field: e.target.value as 'Computer science' | 'experimental science' | 'technical science' | 'Math'
-                                            })
-                                        }
-                                    >
-                                        <option value="Computer science">Computer science</option>
-                                        <option value="experimental science">Experimental science</option>
-                                        <option value="technical science">Technical science</option>
-                                        <option value="Math">Math</option>
-                                    </Form.Select>
-                                </Form.Group></Col>
-                            </Row>
-
-
-
-
-
-
-                        </>
-                    )}
-
-                    {formData.role === 'professor' && (
-                        <>
-
-                            <Row>
-                                <Col>    <Form.Group className="mb-3">
-                                    <Form.Label>ID Card</Form.Label>
-                                    <Form.Control
-                                        value={formData.idCard}
-                                        onChange={e => setFormData({ ...formData, idCard: e.target.value })}
-                                    />
-                                </Form.Group></Col>
-                                <Col>  <Form.Group className="mb-3">
-                                    <Form.Label>First Name</Form.Label>
-                                    <Form.Control
-                                        value={formData.firstName}
-                                        onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-                                    />
-                                </Form.Group></Col>
-                            </Row>
-
-                            <Row>
                                 <Col>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Last Name</Form.Label>
                                         <Form.Control
-                                            value={formData.lastName}
-                                            onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                                            value={formData.profile.lastName}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, lastName: e.target.value } })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Email</Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={e => setFormData({ ...formData, email: e.target.value })}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -419,16 +309,97 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Phone</Form.Label>
                                         <Form.Control
-                                            value={formData.phone}
-                                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                            value={formData.profile.phone}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, phone: e.target.value } })}
                                         />
                                     </Form.Group>
                                 </Col>
                             </Row>
+                            <Row>
+                                <Col>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Education Level</Form.Label>
+                                        <Form.Select
+                                            value={formData.profile.educationLevel}
+                                            onChange={e =>
+                                                setFormData({
+                                                    ...formData,
+                                                    profile: { ...formData.profile, educationLevel: e.target.value as '1' | '2' | '3' | '4' }
+                                                })
+                                            }
+                                        >
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Col>
+                                <Col>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Field</Form.Label>
+                                        <Form.Select
+                                            value={formData.profile.field}
+                                            onChange={e =>
+                                                setFormData({
+                                                    ...formData,
+                                                    profile: { ...formData.profile, field: e.target.value as 'Computer science' | 'experimental science' | 'technical science' | 'Math' }
+                                                })
+                                            }
+                                        >
+                                            <option value="Computer science">Computer science</option>
+                                            <option value="experimental science">Experimental science</option>
+                                            <option value="technical science">Technical science</option>
+                                            <option value="Math">Math</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </>
+                    )}
 
-
-
-
+                    {formData.profile.role === 'professor' && (
+                        <>
+                            <Row>
+                                <Col>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>ID Card</Form.Label>
+                                        <Form.Control
+                                            value={formData.profile.idCard}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, idCard: e.target.value } })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>First Name</Form.Label>
+                                        <Form.Control
+                                            value={formData.profile.firstName}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, firstName: e.target.value } })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Last Name</Form.Label>
+                                        <Form.Control
+                                            value={formData.profile.lastName}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, lastName: e.target.value } })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Phone</Form.Label>
+                                        <Form.Control
+                                            value={formData.profile.phone}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, phone: e.target.value } })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
                             <Form.Group className="mb-3">
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control
@@ -440,8 +411,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                             <Form.Group className="mb-3">
                                 <Form.Label>Subject</Form.Label>
                                 <Form.Select
-                                    value={formData.subject}
-                                    onChange={e => setFormData({ ...formData, subject: e.target.value as 'math' | 'science' | 'history' })}
+                                    value={formData.profile.subject}
+                                    onChange={e => setFormData({ ...formData, profile: { ...formData.profile, subject: e.target.value as 'math' | 'science' | 'history' } })}
                                 >
                                     <option value="math">Mathematics</option>
                                     <option value="science">Science</option>

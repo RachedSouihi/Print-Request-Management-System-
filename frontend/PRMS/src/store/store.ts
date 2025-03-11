@@ -8,6 +8,7 @@ import requestSlice from './requestSlice'
 import historyReducer from "./historySlice";
 import profReducer from "./profSlice";
 //import profSlicereducer from "./profSlice" ;
+//import profSlicereducer from "./profSlice" ;
 const store = configureStore({
   reducer: {
     auth: authReducer,

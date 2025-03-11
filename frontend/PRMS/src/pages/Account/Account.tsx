@@ -23,7 +23,7 @@ const AccountSettings = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const userData = useSelector((state: RootState) => state.user);
+  const userData = useSelector((state: RootState) => state.user.user);
 
   const [followedProfessors, setFollowedProfessors] = useState([
     { id: 1, name: 'Dr. Michael Chen', subject: 'Computer Science', avatar: 'https://via.placeholder.com/40', isFollowing: true },
@@ -44,7 +44,12 @@ const AccountSettings = () => {
   });
 
   const formik = useFormik({
-    initialValues: userData,
+    initialValues: {
+      firstName: userData.profile.firstName,
+      lastName: userData.profile.lastName,
+      email: userData.email,
+      phone: userData.profile.phone
+    },
     validationSchema,
     onSubmit: (values) => {
 
