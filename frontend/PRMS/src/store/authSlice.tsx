@@ -84,7 +84,7 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
 
       const post_data = {
         user: {
-          email: email,
+          email:email,
           password: "",
           profile: {
             ...profile,
