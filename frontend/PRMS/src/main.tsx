@@ -6,7 +6,7 @@ import App from './App.tsx'
 
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css"
 
-import "./assets/styles/global.scss"
+//import "./assets/styles/global.scss"
 import { Provider } from 'react-redux'
 import store from './store/store.ts'
 import { ToastProvider } from './context/ToastContext.tsx'

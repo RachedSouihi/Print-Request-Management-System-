@@ -9,6 +9,7 @@ import { AppDispatch } from '../../store/store';
 import { fetchDocuments } from '../../store/documentsSlice';
 import DocumentsPage from "../Documents/Documents";
 import './Home.scss'; // Import the CSS file
+import ProfRequest from "../profrequest/ProfRequest";
 
 const Home: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();

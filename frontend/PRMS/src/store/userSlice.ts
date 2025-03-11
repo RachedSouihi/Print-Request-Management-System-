@@ -10,24 +10,31 @@ const loadUserProfile = (): User | null => {
   return userProfile ? JSON.parse(userProfile) : null;
 };
 
-const initialState: User = loadUserProfile() || {
-  user_id: '67890',
-  email: 'rached.souihi2613@istic.ucar.tn',
-  profile: {
-    firstName: 'Rached',
-    lastName: 'Souihi',
-    phone: '20437408',
-    educationLevel: 'Level 3',
-    role: 'student',
+interface UserState {
+  user: User;
+  users: User[];
+}
+
+const initialState: UserState = {
+  user: loadUserProfile() || {
+    userId: '67890',
+    email: 'rached.souihi2613@istic.ucar.tn',
+    active: true,
+    profile: {
+      firstName: 'Rached',
+      lastName: 'Souihi',
+      phone: '20437408',
+      educationLevel: 'Level 3',
+      role: 'student',
+    },
   },
-
+  users: [], // Add users state
 };
-
 
 // Async thunk for updating profile
 export const updateProfileAsync = createAsyncThunk(
   'user/updateProfileAsync',
-  async (userData: Partial<UserState>, { rejectWithValue }) => {
+  async (userData: Partial<User>, { rejectWithValue }) => {
     try {
       const response = await axios.put(`${import.meta.env.VITE_UPDATE_PROFILE_URL}`,
         userData, {
@@ -58,17 +65,15 @@ export const updatePasswordAsync = createAsyncThunk(
       const encryptedOldPassword: string = await encryptPassword(oldPassword).then(res => res);
       const encryptedNewPassword: string = await encryptPassword(newPassword).then(res => res);
 
-        const state = getState() as RootState;
+      const state = getState() as RootState;
+      const u_email = state.user.user.email;
 
-        const u_email = state.user.email
-      
-
-      console.log({ email, oldPassword, newPassword })
+      console.log({ email, oldPassword, newPassword });
       const response = await axios.put(`${import.meta.env.VITE_UPDATE_PASSWORD_URL}`, {
         email: u_email,
         oldPassword: encryptedOldPassword,
         newPassword: encryptedNewPassword,
-      },);
+      });
       return { status: response.status, message: response.data, };
     } catch (error: Error | any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -81,27 +86,57 @@ export const updatePasswordAsync = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching all users
+export const fetchAllUsersAsync = createAsyncThunk(
+  'user/fetchAllUsersAsync',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_FETCH_ALL_USERS_URL}`, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      return response.data;
+    } catch (error: Error | any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue({ status: error.response.status, message: error.response.data });
+      }
+      return rejectWithValue({ status: 500, message: 'Try again (server error)' });
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    updateProfile: (state, action: PayloadAction<Partial<UserState>>) => {
-      return { ...state, ...action.payload };
+    updateProfile: (state, action: PayloadAction<Partial<User>>) => {
+      state.user = { ...state.user, ...action.payload };
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(updateProfileAsync.fulfilled, (state, action: PayloadAction<{ status: number; message: any }>) => {
-      const updatedState = { ...state, ...action.payload };
-      localStorage.setItem('userProfile', JSON.stringify(updatedState));
-      return updatedState;
-    });
-    builder.addCase(updatePasswordAsync.fulfilled, (state, action) => {
-      // Handle successful password update
-      return { ...state, ...action.payload };
-    });
-    builder.addCase(updatePasswordAsync.rejected, (state, action) => {
-      // Handle password update error
-    });
+    builder
+      .addCase(updateProfileAsync.fulfilled, (state, action: PayloadAction<{ status: number; message: any }>) => {
+        const updatedState = { ...state.user, ...action.payload };
+        localStorage.setItem('userProfile', JSON.stringify(updatedState));
+        state.user = updatedState;
+      })
+      .addCase(updatePasswordAsync.fulfilled, (state, action) => {
+        // Handle successful password update
+        state.user = { ...state.user, ...action.payload };
+      })
+      .addCase(updatePasswordAsync.rejected, (state, action) => {
+        // Handle password update error
+      })
+      .addCase(fetchAllUsersAsync.fulfilled, (state, action) => {
+        // Handle successful fetch of all users
+        state.users = action.payload;
+      })
+      .addCase(fetchAllUsersAsync.rejected, (state, action) => {
+        // Handle fetch all users error
+      });
   },
 });
 
