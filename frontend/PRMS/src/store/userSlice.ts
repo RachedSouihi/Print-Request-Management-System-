@@ -6,7 +6,7 @@ import { RootState } from './store';
 
 // Function to load user profile from local storage
 const loadUserProfile = (): User | null => {
-  const userProfile = localStorage.getItem('userProfile');
+  const userProfile = localStorage.getItem('user_data');
   return userProfile ? JSON.parse(userProfile) : null;
 };
 
@@ -18,11 +18,11 @@ interface UserState {
 const initialState: UserState = {
   user: loadUserProfile() || {
     userId: '67890',
-    email: 'rached.souihi2613@istic.ucar.tn',
+    email: 'rached.souihi2613@istic.ucar.t',
     active: true,
     profile: {
-      firstName: 'Rached',
-      lastName: 'Souihi',
+      firstname: 'Rached',
+      lastname: 'Souihi',
       phone: '20437408',
       educationLevel: 'Level 3',
       role: 'student',
@@ -65,14 +65,19 @@ export const updatePasswordAsync = createAsyncThunk(
       const encryptedOldPassword: string = await encryptPassword(oldPassword).then(res => res);
       const encryptedNewPassword: string = await encryptPassword(newPassword).then(res => res);
 
+
       const state = getState() as RootState;
       const u_email = state.user.user.email;
 
       console.log({ email, oldPassword, newPassword });
+      console.log({ encryptedOldPassword, encryptedNewPassword });
       const response = await axios.put(`${import.meta.env.VITE_UPDATE_PASSWORD_URL}`, {
         email: u_email,
         oldPassword: encryptedOldPassword,
         newPassword: encryptedNewPassword,
+      }, {
+        withCredentials: true,
+       
       });
       return { status: response.status, message: response.data, };
     } catch (error: Error | any) {

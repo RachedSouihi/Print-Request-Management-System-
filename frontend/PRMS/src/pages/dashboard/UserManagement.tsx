@@ -217,8 +217,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                 email: formData.email,
                 active: formData.active,
                 profile: {
-                    firstName: formData.profile.firstName || '',
-                    lastName: formData.profile.lastName || '',
+                    firstname: formData.profile.firstname || '',
+                    lastname: formData.profile.lastname || '',
                     phone: formData.profile.phone || '',
                     role: 'student',
                     educationLevel: '1',
@@ -231,8 +231,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                 email: formData.email,
                 active: formData.active,
                 profile: {
-                    firstName: formData.profile.firstName || '',
-                    lastName: formData.profile.lastName || '',
+                    firstname: formData.profile.firstname || '',
+                    lastname: formData.profile.lastname || '',
                     phone: formData.profile.phone || '',
                     role: 'professor',
                     idCard: '',
@@ -246,8 +246,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                 email: formData.email,
                 active: formData.active,
                 profile: {
-                    firstName: formData.profile.firstName || '',
-                    lastName: formData.profile.lastName || '',
+                    firstname: formData.profile.firstname || '',
+                    lastname: formData.profile.lastname || '',
                     phone: formData.profile.phone || '',
                     role: 'admin'
                 }
@@ -279,8 +279,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                                     <Form.Group className="mb-3">
                                         <Form.Label>First Name</Form.Label>
                                         <Form.Control
-                                            value={formData.profile.firstName}
-                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, firstName: e.target.value } })}
+                                            value={formData.profile.firstname}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, firstname: e.target.value } })}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -288,8 +288,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Last Name</Form.Label>
                                         <Form.Control
-                                            value={formData.profile.lastName}
-                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, lastName: e.target.value } })}
+                                            value={formData.profile.lastname}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, lastname: e.target.value } })}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -374,8 +374,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                                     <Form.Group className="mb-3">
                                         <Form.Label>First Name</Form.Label>
                                         <Form.Control
-                                            value={formData.profile.firstName}
-                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, firstName: e.target.value } })}
+                                            value={formData.profile.firstname}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, firstname: e.target.value } })}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -385,8 +385,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Last Name</Form.Label>
                                         <Form.Control
-                                            value={formData.profile.lastName}
-                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, lastName: e.target.value } })}
+                                            value={formData.profile.lastname}
+                                            onChange={e => setFormData({ ...formData, profile: { ...formData.profile, lastname: e.target.value } })}
                                         />
                                     </Form.Group>
                                 </Col>

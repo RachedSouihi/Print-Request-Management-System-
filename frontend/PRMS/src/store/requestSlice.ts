@@ -34,12 +34,13 @@ const initialState: PrintRequestState = {
 // Thunk to send a print request
 export const sendPrintRequest = createAsyncThunk(
   'printRequest/sendPrintRequest',
+
   async (requestData: { copies: number; color: boolean; notes: string; paperType: any; document: Document }, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
     const printRequestPayload: PrintRequest = {
       document: requestData.document,
       user: {
-        user_id: state.user.user.userId,
+        user_id: state.auth.user?.user?.user_id ?? '',
         email: state.user.user.email,
       },
       copies: requestData.copies,
@@ -70,12 +71,13 @@ export const fetchPrintRequests = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response: AxiosResponse<PrintRequest[]> = await axios.get(import.meta.env.VITE_FETCH_PRINT_REQUESTS_URL, {
+        //withCredentials: true,
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      console.log('Fetch print requests response: ', response);
+     // console.log('Fetch print requests response: ', response);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response.data);
@@ -99,7 +101,7 @@ export const approvePrintRequest = createAsyncThunk(
       });
 
       console.log('Approve print request response: ', response);
-      return response.data;
+      return { status: response.status, message: response.data, };
     } catch (error: any) {
       return rejectWithValue(error.response.data);
     }

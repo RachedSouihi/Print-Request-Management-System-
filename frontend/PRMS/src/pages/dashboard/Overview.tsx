@@ -9,6 +9,8 @@ import sampleRequests from './data';
 import RequestDetailModal from './RequestDetailsModal';
 import { PrintRequest, addRequest, fetchPrintRequests, approvePrintRequest, updateRequestStatus } from '../../store/requestSlice';
 import { AppDispatch, RootState } from '../../store/store';
+import { useToast } from '../../context/ToastContext';
+import CustomToast from '../../common/Toast';
 
 interface Filters {
   status: string;
@@ -25,6 +27,7 @@ const PrintRequestsTable: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const requests = useSelector((state: RootState) => state.printRequest.requests);
 
+
   //const [requests, setRequests] = useState<PrintRequest[]>(sampleRequests);
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [filters, setFilters] = useState<Filters>({
@@ -38,10 +41,17 @@ const PrintRequestsTable: React.FC = () => {
   const [showBulkConfirm, setShowBulkConfirm] = useState<boolean>(false);
   const itemsPerPage = 10;
 
+
+
+    const { toast, showToast, hideToast } = useToast()
+  
+
   // Fetch print requests once when the component mounts
   useEffect(() => {
     dispatch(fetchPrintRequests());
   }, [dispatch]);
+
+
 
   // WebSocket
   useEffect(() => {
@@ -74,7 +84,13 @@ const PrintRequestsTable: React.FC = () => {
   const handleApproveRequest = (userId: string, requestId: string) => {
     if (userId && requestId) {
       dispatch(approvePrintRequest({ userId, requestId })).then((action: any) => {
-        console.log("approve actions: " + action);
+        console.log("approve actions: " + action.payload);
+
+        if (action.type === 'printRequest/approvePrintRequest/fulfilled') {
+          showToast(action.payload.message, action.payload.status === 200 ? 'success' : 'danger');
+
+
+        }
 
         // Update the request state to "approved" in the requests array
         const updatedRequests = requests.map(request =>
@@ -84,8 +100,6 @@ const PrintRequestsTable: React.FC = () => {
         const status = "APPROVED"
 
         dispatch(updateRequestStatus({ requestId, status }))
-        //dispatch({ type: 'printRequest/updateRequestStatus', payload: updatedRequests });
-
         setShowDetail(null);
       });
     }
@@ -135,7 +149,16 @@ const PrintRequestsTable: React.FC = () => {
   };
 
   return (
+
+  
     <div className="print-requests-admin">
+<CustomToast
+        show={toast.show}
+        onClose={hideToast}
+        type={toast.type}
+        message={toast.message}
+      />
+
       {/* Filters Section */}
       <div className="filters-section">
         <Form.Group className="filter-group">

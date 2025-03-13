@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, FC, act } from "react";
 import { Form, Row, Button, Col, InputGroup } from "react-bootstrap";
 import { useFormik } from "formik";
@@ -38,7 +39,7 @@ const SignupForm: FC = (): React.ReactNode => {
         onSubmit: async (values) => {
             setIsLoading(true);
             const { password, ...rest } = values;
-            sessionStorage.setItem("signupData", JSON.stringify(rest));
+            sessionStorage.setItem("user_data", JSON.stringify(rest));
 
             try {
                 const emailSent = await dispatch(sendVerifEmail({
@@ -107,11 +108,11 @@ const SignupForm: FC = (): React.ReactNode => {
         }
     }, [formik.values.educationLevel]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (isAuthenticated) {
             navigate('/'); // Redirect to login if authenticated
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, navigate]);*/
 
     return (
         <>

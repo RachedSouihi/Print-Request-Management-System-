@@ -81,7 +81,8 @@ export async function encryptOTP(otp: string): Promise<string> {
 
 export async function encryptPassword(data: any): Promise<string> {
   try {
-    const encryptedPassword = await encryptData(data, secretKey);
+    console.log("secret key to encrypt password: ", import.meta.env.VITE_SECRET_KEY)
+    const encryptedPassword = await encryptData(data, import.meta.env.VITE_SECRET_KEY);
     return encryptedPassword
 
   } catch (error) {
@@ -89,5 +90,3 @@ export async function encryptPassword(data: any): Promise<string> {
     return ''; // Return an empty string or handle the error appropriately
   }
 }
-
-

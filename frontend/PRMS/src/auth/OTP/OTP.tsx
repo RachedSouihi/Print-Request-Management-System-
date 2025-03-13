@@ -16,7 +16,7 @@ interface OtpModalProps {
 const OtpModal: React.FC<OtpModalProps> = ({ show, onClose, email, showToast, signUp, resendVerifEmail }) => {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [timer, setTimer] = useState(60);
-  const [isResendDisabled, setIsResendDisabled] = useState(false);
+  const [isResendDisabled, setIsResendDisabled] = useState(true);
 
   useEffect(() => {
     let interval: any;

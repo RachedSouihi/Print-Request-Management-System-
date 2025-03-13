@@ -36,6 +36,7 @@ const initialState: DocumentsState = {
 export const fetchDocuments = createAsyncThunk('documents/fetchDocuments', async (_, { rejectWithValue }) => {
   try {
     const response = await axios.get(import.meta.env.VITE_GET_DOCUMENTS_URL);
+    console.log("docs: ", response)
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -53,7 +54,7 @@ export const saveDocumentThunk = createAsyncThunk(
   'documents/saveDocument',
   async (documentId: string, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
-    const userId = state.user.user_id;
+    const userId = state.user.user?.user_id;
 
     console.log({ userId, documentId })
 

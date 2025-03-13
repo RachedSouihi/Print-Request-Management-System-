@@ -43,10 +43,18 @@ const Login: FC = () => {
             validationSchema={validationSchema}
             onSubmit={(values, { setSubmitting }) => {
               dispatch(loginUser(values))
-                .unwrap()
-                .then(() => {
-                  setSubmitting(false);
-                  navigate("/home"); // Redirection vers la page d'accueil après une connexion réussie
+                
+                .then((action: any) => {
+
+                  console.log("LOGIN ACTION: ", action)
+                  if (action.type === 'auth/signUp/fulfilled') {
+                    setSubmitting(false);
+
+
+                  }
+
+
+
                 })
                 .catch((err) => {
                   setSubmitting(false);

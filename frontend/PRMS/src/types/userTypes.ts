@@ -1,6 +1,6 @@
 export interface Profile{
-  firstName: string;
-  lastName: string;
+  firstname: string;
+  lastname: string;
   phone: string;
   educationLevel: string;
   field: string;
@@ -17,7 +17,7 @@ export interface Profile{
 
 
 export interface User{
-  userId: string,
+  user_id: string,
   email: string
   active: boolean;
 

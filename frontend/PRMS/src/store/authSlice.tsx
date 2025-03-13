@@ -71,16 +71,17 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
     try {
 
       const encryptedOTP: string = await encryptOTP(otp)
-      const data = sessionStorage.getItem('signupData');
-      if (!data) throw new Error("Données d'inscription manquantes");
-
+      const data = sessionStorage.getItem('user_data');
+      if (!data) {
+        throw new Error("No sign-up data found in session storage");
+      }
       const user_data: SignUpFormData = JSON.parse(data);
 
       const { email, ...profile } = user_data;
 
       const post_data = {
         user: {
-          email:email,
+          email: email,
           password: "",
           profile: {
             ...profile,
@@ -99,13 +100,14 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
           withCredentials: true, // Allow cookies
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
+            //'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
           }
         }
       );
 
       console.log("response: ", response)
       if (response.status === 200) {
+        localStorage.setItem('user_data', JSON.stringify({email, profile: {...profile}}))
         return { status: response.status, message: 'Sign-up successful', user: response.data as User };
       } else {
         throw new Error('Sign-up failed');
@@ -257,77 +259,61 @@ export const loginUser = createAsyncThunk<
 >(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
+
+    password =  await encryptPassword(JSON.stringify(password));
+
+    console.log(password)
+
     try {
-      // Envoi de la requête GET pour la connexion
-      const response = await axios.get(
-        `http://127.0.0.1:8081/auth/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+      // Envoi de la requête POST pour la connexion
+      const response = await axios.post(
+        import.meta.env.VITE_LOGIN_URL,
+        { email, password },
         {
           headers: { 'Content-Type': 'application/json' },
-          withCredentials: true, // Si ton backend utilise des cookies
+          withCredentials: true, 
         }
       );
 
       console.log("Réponse serveur :", response);
 
-      // Extraction du token brut
-      const rawToken = response.data.access_token;
-      const extractedToken = rawToken.match(/access_token=([^,]*)/)?.[1] || rawToken;
-       // Extrait le token
+      if (response.status === 200) {
+        // Sauvegarder le token directement dans le localStorage
+        localStorage.setItem("token", response.data.access_token);
 
-      if (!extractedToken) {
-        console.error("Échec de l'extraction du token :", rawToken);
-        return rejectWithValue("Échec de connexion. Token invalide.");
+        // Création de l'utilisateur à partir de la réponse
+        /*const user: User = {
+          id: response.data.user.id,
+          email: response.data.user.email,
+          name: response.data.user.name || '',
+          roles: response.data.user.roles || [], // Définit des rôles vides si non présents
+        };*/
+
+        // Sauvegarde dans le state
+       /* saveState({ 
+          ...initialState, 
+          user: user, 
+          isAuthenticated: true, 
+          token: response.data.access_token 
+        });*/
+
+       // console.log("Utilisateur authentifié :", user);
+        //return user; // Renvoie l'utilisateur si la connexion est réussie
+      } else {
+        throw new Error('Login failed');
       }
-    
-      // Sauvegarder le token directement dans le localStorage
-      localStorage.setItem("token", extractedToken);
-
-      // Décodage du JWT pour obtenir l'utilisateur
-      const parseJwt = (token: string) => {
-        try {
-          const base64Url = token.split('.')[1]; // Partie encodée du payload
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          return JSON.parse(atob(base64)); // Décodage en JSON
-        } catch (error) {
-          console.error("Erreur lors du décodage du token :", error);
-          return {}; // Retourne un objet vide en cas d'erreur
-        }
-      };
-
-      const decodedToken = parseJwt(extractedToken);
-      console.log("Token décodé :", decodedToken);
-
-      if (!decodedToken.sub || !decodedToken.email) {
-        console.error("Erreur : Impossible de décoder le token ou les informations sont invalides.");
-        return rejectWithValue("Échec de connexion. Token invalide.");
-      }
-
-      // Création de l'utilisateur à partir du token décodé
-      const user: User = {
-        id: decodedToken.sub,
-        email: decodedToken.email,
-        name: decodedToken.name || '',
-        roles: decodedToken.realm_access?.roles || [], // Définit des rôles vides si non présents
-      };
-
-      // Sauvegarde dans le state
-      saveState({ 
-        ...initialState, 
-        user: user, 
-        isAuthenticated: true, 
-        token: extractedToken 
-      });
-
-      console.log("Utilisateur authentifié :", user);
-      return user; // Renvoie l'utilisateur si la connexion est réussie
 
     } catch (error) {
-      console.error("Erreur de connexion :", error);
-      return rejectWithValue('Échec de connexion. Vérifiez vos informations.'); // Retourne une erreur si la connexion échoue
+      if (axios.isAxiosError(error) && error.response && [401, 403, 404].includes(error.response.status)) {
+        return rejectWithValue(error.response.data);
+      }
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue('An unknown error occurred');
     }
   }
 );
-
 
 
 // Slice Redux
