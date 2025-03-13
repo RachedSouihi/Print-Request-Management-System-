@@ -41,7 +41,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(securityProperties.getPermittedPaths().toArray(new String[0])).permitAll()
-                        .requestMatchers("/ws", "/broadcast/print-request").permitAll()
+                        .requestMatchers("/user/get-all-users", "/user/save-doc", "/user/saved-docs", "/doc/docs-metadata",   "/p-request/all","/p-request/send-print-request", "/p-request/approve", "/user/decode-jwt", "/user/generate-secret-key", "/user/save-access-token", "/user/update-password", "/user/get-tokens", "/user/auth/verify-email", "/user/auth/resend-verif-email","/user/auth/signup", "/user/auth/login").permitAll()
                         .anyRequest().permitAll()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

@@ -31,14 +31,33 @@ public class VerificationService {
 
 
 
+    public void saveAccessToken(String userId, String accessToken) {
+        try {
+            tokensRedisTemplate.opsForValue().set("ACCESS_TOKEN_" + userId, accessToken, OTP_EXPIRATION.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void saveTokens(String userId, String accessToken, String refreshToken, long accessExpiry, long refreshExpiry) {
-        tokensRedisTemplate.opsForValue().set(accessToken, refreshToken, accessExpiry, TimeUnit.NANOSECONDS);
-        tokensRedisTemplate.opsForValue().set("REFRESH_TOKEN_" + userId, refreshToken, refreshExpiry, TimeUnit.SECONDS);
 
+        try {
+
+            tokensRedisTemplate.opsForValue().set("ACCESS_TOKEN_" + userId, accessToken, accessExpiry, TimeUnit.SECONDS);
+
+            tokensRedisTemplate.opsForValue().set("REFRESH_TOKEN_" + userId, refreshToken, refreshExpiry, TimeUnit.SECONDS);
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+
+        }
     }
 
     public String getAccessToken(String userId) {
-        return tokensRedisTemplate.opsForValue().get("ACCESS_TOKEN_" + userId);
+        try {
+            return tokensRedisTemplate.opsForValue().get("ACCESS_TOKEN_" + userId);
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     public String getRefreshToken(String userId) {

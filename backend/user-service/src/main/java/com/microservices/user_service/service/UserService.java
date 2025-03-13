@@ -5,9 +5,10 @@ import com.microservices.common_models_service.dto.UserDTO;
 import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
+//import com.microservices.common_models_service.repository.ProfileRepository;
+//import com.microservices.common_models_service.repository.UserRepository;
 
 import com.microservices.common_models_service.repository.DocumentRepository;
-import com.microservices.common_models_service.repository.UserRepository;
 import com.microservices.common_models_service.repository.ProfileRepository;
 import com.microservices.common_models_service.repository.UserRepository;
 import com.microservices.user_service.utils.VerificationData;
@@ -19,7 +20,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +38,9 @@ public class UserService {
     private final KeyCloakService keyCloakService;
 
 
-    private final ModelMapper modelMapper; // Inject the configured ModelMapper bean
+    //private final ModelMapper modelMapper;
+    @Qualifier("adminMapper") // Inject the publicMapper bean
+    private final ModelMapper adminMapper;// Inject the configured ModelMapper bean
 
 
 
@@ -48,7 +50,7 @@ public class UserService {
 
 
     @Autowired
-    public UserService(UserRepository userRepository, ProfileRepository profileRepository, KeyCloakService keyCloakService, DocumentRepository documentRepository, ModelMapper modelMapper) {
+    public UserService(UserRepository userRepository, ProfileRepository profileRepository, KeyCloakService keyCloakService, DocumentRepository documentRepository, ModelMapper adminMapper) {
         super();
         this.userRepository = userRepository;
         this.keyCloakService = keyCloakService;
@@ -56,7 +58,7 @@ public class UserService {
 
         //this.passwordEncoder = passwordEncoder;
         this.documentRepository = documentRepository;
-        this.modelMapper = modelMapper;
+        this.adminMapper = adminMapper;
     }
 
 
@@ -88,6 +90,7 @@ public class UserService {
 
 
         }catch (Exception e){
+            System.out.println(e.getMessage());
 
             return null;
 
@@ -110,8 +113,8 @@ public class UserService {
 
     public Map<String, Object> updateProfile(Map<String, String> request) {
 
-        String firstName = request.get("firstName");
-        String lastName = request.get("lastName");
+        String firstName = request.get("firstname");
+        String lastName = request.get("lastname");
         String email =  request.get("email");
         String phone =  request.get("phone");
 
@@ -153,7 +156,7 @@ public class UserService {
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (!optionalUser.isPresent()) {
-            response.put("code", 404);
+            response.put("code", "404");
             response.put("message", "User not found");
             return response;
         }
@@ -164,15 +167,15 @@ public class UserService {
 
         System.out.println("password hashed: " + passwordEncoder.encode(user.getPassword()));
 
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            response.put("code", 400);
+       if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            response.put("code", "400");
             response.put("message", "Wrong password");
             return response;
         }
 
         // Update password in the external service (e.g., Keycloak)
-        if (false && keyCloakService.updatePassword(email, newPassword) == null) {
-            response.put("code", 500);
+        if (keyCloakService.updatePassword(email, newPassword) == null) {
+            response.put("code", "500");
             response.put("message", "Password update failed in external service");
             return response;
         }
@@ -181,7 +184,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        response.put("code", 200);
+        response.put("code", "200");
         response.put("message", "Password updated successfully");
         return response;
     }
@@ -195,11 +198,16 @@ public class UserService {
 
 
 
-    public Map<String, Object> signUp(User user) {
+    public Map<String, Object> signUp(User user, BCryptPasswordEncoder passwordEncoder) throws Exception {
         try{
+            String password = user.getPassword();
+            System.out.println("Dectypted password: " + password);
+
             keyCloakService.createUserKeyCloak(user.getEmail(), user.getPassword());
 
 
+
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
 
             Profile profile = user.getProfile();
 
@@ -214,14 +222,13 @@ public class UserService {
 
 
 
-            Map<String, Object> tokens =  keyCloakService.getToken(user.getEmail(), user.getPassword());
+            Map<String, Object> tokens =  keyCloakService.getToken(user.getEmail(), password);
 
             tokens.put("user_id", user_id);
 
             return tokens;
 
 
-            return token;
 
 
 
@@ -232,17 +239,54 @@ public class UserService {
 
 
     }
-    public String hashPassword(String password) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        return encoder.encode(password);
-    }
 
-
-
-    public Map<String, Object> login(String username, String password) throws Exception {
+    public Map<String, Object> login(String email, String password) throws Exception {
 
         try{
-            return keyCloakService.getToken(username, password);
+
+            Map<String, Object> tokens =  keyCloakService.getToken(email, password);
+            Map<String, Object> response = new HashMap<>();
+
+            System.out.println("tokens: " + tokens);
+
+
+            Optional<User> opt_user = userRepository.findByEmail(email);
+            if(opt_user.isPresent()) {
+
+                User user = opt_user.get();
+                UserDTO userDTO = new UserDTO(
+                        user.getUser_id(),
+                        user.isActive(),
+                        user.getEmail(),
+                        user.getProfile().getFirstname(),
+                        user.getProfile().getLastname(),
+                        user.getProfile().getRole(),
+                        user.getProfile().getPhone(),
+                        user.getProfile().getEducationLevel(),
+                        user.getProfile().getField()
+
+                );
+
+                response.put("data", userDTO);
+                response.put("code", "200");
+               response.put("tokens", tokens);
+
+
+
+
+
+
+            }else{
+                response.put("code", "404");
+                response.put("message", "User not found");
+
+            }
+
+            System.out.println(response);
+
+            return response;
+
+
 
         }catch(Exception e){
 
@@ -275,7 +319,7 @@ public class UserService {
             System.out.println(userOptional.get().getUser_id());
             System.out.println(userOptional.get().getProfile().getFirstname());
         }
-        return userOptional.map(user -> modelMapper.map(user, UserDTO.class))
+        return userOptional.map(user -> adminMapper.map(user, UserDTO.class))
                 .orElse(null);
     }
 

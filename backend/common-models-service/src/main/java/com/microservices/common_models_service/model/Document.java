@@ -18,6 +18,8 @@ public class Document {
     @Id
     private String id;
 
+    private String title;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -56,6 +58,14 @@ public class Document {
     @ManyToMany(mappedBy = "savedDocuments")
     private Set<User> savedByUsers = new HashSet<>();
 
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public float getRating() {
         return (rating != null) ? rating : 0.0f;

@@ -11,10 +11,12 @@ import com.microservices.user_service.utils.VerificationCodeUtil;
 import jakarta.annotation.security.PermitAll;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
+import org.bouncycastle.jcajce.provider.symmetric.AES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -72,8 +74,8 @@ public class UserController {
     }
 
     @GetMapping("/get-all-users")
-    @PreAuthorize("hasRole('ROLE_admin')")
-    public ResponseEntity<?> getAllUsers(@RequestHeader HttpHeaders headers) {
+    //@PreAuthorize("hasRole('ROLE_admin')")
+    public ResponseEntity<?> getAllUsers() {
         try{
 
             return ResponseEntity.ok(userService.getAllUsers());
@@ -99,14 +101,37 @@ public class UserController {
     }
 
 
-    @GetMapping("/login")
-
-    public ResponseEntity<?> login(@RequestParam("email") String email, @RequestParam("password") String password) {
+    @PostMapping("/auth/login")
+    public ResponseEntity<?> login(@RequestHeader HttpHeaders headers, @RequestBody Map<String, String> request, HttpServletResponse httpResponse) {
         try{
+            String email = request.get("email");
+            String password = request.get("password");
+            //System.out.println("Decrypted password: " + AESUtil.decrypt(password, SECRET_KEY, ALGO));
 
-            return ResponseEntity.ok(userService.login(email, password));
+            Map<String, Object> response =  userService.login(email, password);
+            System.out.println(response);
+
+            if(Integer.parseInt(response.get("code").toString()) == 200){
+                Map<String, Object> tokens = (Map<String, Object>) response.get("tokens");
+
+                ResponseCookie access_token_cookie = ResponseCookie.from("access_token", (String) tokens.get("access_token"))
+                        .httpOnly(true)
+                        .sameSite("LAX")
+                        .path("/")
+                        .maxAge(Duration.ofDays(2))
+                        .build();
+                httpResponse.addHeader(HttpHeaders.SET_COOKIE, access_token_cookie.toString());
+
+
+                return ResponseEntity.ok(response.get("data"));
+
+            }else{
+                return ResponseEntity.status(HttpStatusCode.valueOf((Integer) response.get("code"))).body(response.get("message"));
+
+            }
 
         }catch (Exception e){
+            System.out.println("Error: " + e.getMessage());
             return ResponseEntity.status(500).body(e.getMessage());
 
 
@@ -142,6 +167,35 @@ public class UserController {
             return ResponseEntity.status(500).body("Decryption failed");
         }
     }
+    @PostMapping("/save-access-token")
+    public ResponseEntity<?> saveAccessToken(@RequestHeader HttpHeaders headers, @RequestParam String userId ,@RequestParam String accessToken) {
+
+        try{
+            verificationService.saveAccessToken(userId, accessToken);
+
+            return ResponseEntity.ok("Success");
+
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+
+    @GetMapping("/get-tokens")
+
+    public ResponseEntity<?> getTokens(@RequestHeader HttpHeaders headers, @RequestParam String user_id) {
+
+        try{
+            String token= verificationService.getAccessToken(user_id);
+            System.out.println("access_token is :"  + token);
+            return ResponseEntity.ok(token);
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
 
     /**
      * Handles user signup.
@@ -154,16 +208,42 @@ public class UserController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String otp = mapper.convertValue(request.get("otp"), String.class);
+
+            System.out.println("encrypted otp: " + otp);
+
             otp = AESUtil.decrypt(otp, OTP_KEY, ALGO);
+
+            System.out.println("dectypted otp: " + otp);
+
+
             User user = mapper.convertValue(request.get("user"), User.class);
-            user.setPassword(verificationService.getPassword(user.getEmail()));
+
+            String decryptedJson = AESUtil.decrypt(
+                    verificationService.getPassword(user.getEmail()),
+                    SECRET_KEY,
+                    ALGO
+            );
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, String> decryptedPasswdMap = objectMapper.readValue(decryptedJson, Map.class);
+
+            String password = decryptedPasswdMap.get("passwd"); // Extracting the password
+
+
+
+
+            user.setPassword(
+                    password
+            );
             Map<String, Object> otpResponse = verificationService.isOtpValid(user.getEmail(), otp);
             if ((int) otpResponse.get("status") == 200) {
-                Map<String, Object> tokens = userService.signUp(user);
+                System.out.println("OTP valid");
+                Map<String, Object> tokens = userService.signUp(user, bCryptPasswordEncoder);
+                System.out.println(tokens);
                 user.setUser_id((String) tokens.get("user_id"));
                 tokens.put("access_token", AESUtil.encrypt((String) tokens.get("access_token"), SECRET_KEY, ALGO));
                 tokens.put("refresh_token", AESUtil.encrypt((String) tokens.get("refresh_token"), SECRET_KEY, ALGO));
-                verificationService.saveTokens(user.getUser_id(), (String) tokens.get("access_token"), (String) tokens.get("refresh_token"), 0, 4);
+                //verificationService.saveTokens(user.getUser_id(), (String) tokens.get("access_token"), (String) tokens.get("refresh_token"), 0, 4);
                 ResponseCookie access_token_cookie = ResponseCookie.from("access_token", (String) tokens.get("access_token"))
                         .httpOnly(true)
                         .sameSite("LAX")
@@ -180,17 +260,7 @@ public class UserController {
         }
     }
 
-    /**
-     * Test endpoint accessible only by admin.
-     //* @param request The request body.
-     // * @param response The HTTP response.
-     // * @return A response indicating success.
-     */
-    @PostMapping("/test")
-    @PreAuthorize("hasRole('ROLE_admin')")
-    public ResponseEntity<?> test(@RequestHeader HttpHeaders header/*@RequestBody Map<String, Object> request, HttpServletResponse response*/) {
-        return ResponseEntity.ok("Hello World");
-    }
+
 
     /**
      * Verifies an encrypted JWT token.
@@ -198,7 +268,8 @@ public class UserController {
      * @return The decrypted token.
      */
     @GetMapping("/decode-jwt")
-    public String verify(@RequestParam String encrypted_token) {
+    public String verify(@RequestHeader HttpHeaders headers ,@RequestParam String encrypted_token) {
+        System.out.println(encrypted_token);
         try {
             return AESUtil.decrypt(encrypted_token, SECRET_KEY, ALGO);
         } catch (Exception e) {
@@ -213,12 +284,12 @@ public class UserController {
      * @throws MessagingException If an error occurs during email sending.
      */
     @PostMapping("/auth/verify-email")
-    public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws MessagingException {
+    public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws Exception {
         String email = request.get("email");
         String password = request.get("password");
         String otp = VerificationCodeUtil.generateVerificationCode(4);
         verificationService.storeOtp(email, otp);
-        verificationService.storePassword(email, bCryptPasswordEncoder.encode(password));
+        verificationService.storePassword(email, password);
         emailService.sendVerificationEmail(email, otp, request.get("firstname"));
         return ResponseEntity.ok("Email sent");
     }
@@ -263,6 +334,8 @@ public class UserController {
      */
     @PutMapping("/update-profile")
     public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> request) {
+        System.out.println(request);
+
         try {
             Map<String, Object> response = userService.updateProfile(request);
             return ResponseEntity.status((int) response.get("code")).body(response.get("message"));
@@ -278,14 +351,21 @@ public class UserController {
      * @throws Exception If an error occurs during password update.
      */
     @PutMapping("/update-password")
-    public ResponseEntity<?> up(@RequestBody Map<String, String> request) throws Exception {
+    public ResponseEntity<?> up(@RequestHeader HttpHeaders headers ,@RequestBody Map<String, String> request) throws Exception {
+       try{
         String email = request.get("email");
+        System.out.println(email);
         String oldPassword = AESUtil.decrypt(request.get("oldPassword"), SECRET_KEY, ALGO);
         String newPassword = AESUtil.decrypt(request.get("newPassword"), SECRET_KEY, ALGO);
-        try {
+
+        System.out.println(oldPassword);
+        System.out.println(newPassword);
+        System.out.println(email);
+
             Map<String, Object> response = userService.updatePassword(email, oldPassword, newPassword, bCryptPasswordEncoder);
-            return ResponseEntity.status((int) response.get("code")).body(response.get("message").toString());
+            return ResponseEntity.status(Integer.parseInt((String) response.get("code"))).body(response.get("message").toString());
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
@@ -332,16 +412,6 @@ public class UserController {
         }
     }
 
-    @GetMapping("/tget")
-    public ResponseEntity<?> tget(@RequestHeader HttpHeaders header ,@RequestParam("access_token")  String access_token) {
-        try{
-            return ResponseEntity.ok(access_token);
-
-        }catch (Exception e){
-            return ResponseEntity.status(500).body(e.getMessage());
-        }
-
-    }
 
 
 

@@ -17,6 +17,10 @@ public class UserDTO {
     // Constructors
 
     public UserDTO() {}
+    public UserDTO(String user_id){
+        this.user_id = user_id;
+
+    }
 
     public UserDTO(String id, ProfileDTO profile, String email) {
         this.user_id = id;
@@ -46,6 +50,9 @@ public class UserDTO {
 
 
     // Getters and Setters
+
+    // Add this method to UserDTO
+
     public String getUserId() {
         return user_id;
     }
@@ -85,4 +92,7 @@ public class UserDTO {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+
+
 }

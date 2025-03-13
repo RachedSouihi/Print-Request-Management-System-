@@ -50,40 +50,40 @@ public class KeyCloakService {
     }
 
     public String createUserKeyCloak(String username, String password) {
-try {
-    //String email = user.getEmail();
-    // String firstname = user.getProfile().getFirstname();
-    //String lastname = user.getProfile().getLastname();
+        try {
+            //String email = user.getEmail();
+            // String firstname = user.getProfile().getFirstname();
+            //String lastname = user.getProfile().getLastname();
 
-    //String role = user.getProfile().getRole();
+            //String role = user.getProfile().getRole();
 
-    //String password = user.getPassword();
-    RealmResource realmResource = keycloak.realm(realm);
-    UsersResource usersResource = realmResource.users();
-    UserRepresentation user_rep = getUserRepresentation(username, password);
-
-
-    jakarta.ws.rs.core.Response response = usersResource.create(user_rep);
-
-    if (response.getStatus() != 201) {
-        //throw new RuntimeException("Failed to create user: " + response.getStatus());
-
-        return "Failed to create user";
-    }
-
-    String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-
-    //Set the role to the user
-    RoleRepresentation userRole = realmResource.roles().get("admin").toRepresentation();
-    usersResource.get(userId).roles().realmLevel().add(Collections.singletonList(userRole));
+            //String password = user.getPassword();
+            RealmResource realmResource = keycloak.realm(realm);
+            UsersResource usersResource = realmResource.users();
+            UserRepresentation user_rep = getUserRepresentation(username, password);
 
 
+            jakarta.ws.rs.core.Response response = usersResource.create(user_rep);
 
-    return "User created";
+            if (response.getStatus() != 201) {
+                //throw new RuntimeException("Failed to create user: " + response.getStatus());
 
-}catch (Exception e) {
-    return "Can't create user";
-}
+                return "Failed to create user";
+            }
+
+            String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+
+            //Set the role to the user
+            RoleRepresentation userRole = realmResource.roles().get("admin").toRepresentation();
+            usersResource.get(userId).roles().realmLevel().add(Collections.singletonList(userRole));
+
+
+
+            return "User created";
+
+        }catch (Exception e) {
+            return "Can't create user";
+        }
     }
 
     private static UserRepresentation getUserRepresentation(String username, String password) {
@@ -151,7 +151,7 @@ try {
 
             credential.setValue(newPassword);
 
-           UserResource userResource = usersResource.get(users.get(0).getId());
+            UserResource userResource = usersResource.get(users.get(0).getId());
             userResource.resetPassword(credential);
 
 
@@ -169,8 +169,8 @@ try {
         Map<String, Object> response = new HashMap<>();
 
         String email = (String) request.get("email");
-        String firstName = (String) request.get("firstName");
-        String lastName = (String) request.get("lastName");
+        String firstName = (String) request.get("firstname");
+        String lastName = (String) request.get("lastname");
         String phone = (String) request.get("phone");
 
         UsersResource usersResource = keycloak.realm(realm).users();
@@ -216,4 +216,3 @@ try {
         return response;
     }
 }
-

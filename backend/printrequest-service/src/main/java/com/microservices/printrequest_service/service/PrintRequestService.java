@@ -1,7 +1,5 @@
 package com.microservices.printrequest_service.service;
 
-
-import com.microservices.common_models_service.dto.DocumentDTO;
 import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.PaperType;
 import com.microservices.common_models_service.model.PrintRequest;
@@ -13,8 +11,8 @@ import com.microservices.common_models_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class PrintRequestService {
@@ -44,15 +42,49 @@ public class PrintRequestService {
             System.out.println("No PrintRequests found");
             return null;
         }
-System.out.println("PrintRequests found");
+        System.out.println("PrintRequests found");
 
         return l;
     }
 
 
+    public Map<String, String> approvePrintRequest(Map<String, String> request) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            PrintRequest printRequest = printRequestRepository.findById(request.get("requestId")).orElse(null);
+            if (printRequest == null) {
+                System.out.println("PrintRequest not found");
+                response.put("code", String.valueOf(404));
+                response.put("message", "Print request not found");
+            } else {
+                printRequest.setStatus("APPROVED");
+
+                // Create a new status history entry
+                PrintRequest.StatusHistoryEntry entry = new PrintRequest.StatusHistoryEntry();
+                entry.setStatus("APPROVED");
+                entry.setTimestamp(LocalDateTime.now());
+
+                // Initialize the list if null
+                if (printRequest.getStatusHistory() == null) {
+                    printRequest.setStatusHistory(new ArrayList<>());
+                }
+
+                // Add the entry to the history
+                printRequest.getStatusHistory().add(entry);
+
+                printRequestRepository.save(printRequest);
+                response.put("code", String.valueOf(200));
+                response.put("message", "Approved");
+            }
+            return response;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
 
-    public String savePrintRequest(PrintRequest printRequest) {
+
+    public PrintRequest savePrintRequest(PrintRequest printRequest) {
         String request_id = UUID.randomUUID().toString();
 
 
@@ -78,10 +110,10 @@ System.out.println("PrintRequests found");
         printRequest.setDocument(document);
         printRequest.setPaperType(paperType);
 
-        PrintRequest pr =  printRequestRepository.save(printRequest);
+        return  printRequestRepository.save(printRequest);
 
 
-        return pr.getRequestId();
+
 
 
 

@@ -76,7 +76,7 @@ public class DocumentController {
 
 
 
-    /*@PostMapping
+    @PostMapping
     public ResponseEntity<String> createDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam("doc_type") String docType,
@@ -117,7 +117,7 @@ public class DocumentController {
 
 
     }
-*/
+
 
     @PostMapping(value = "/add-doc", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadDocument(
