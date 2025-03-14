@@ -5,29 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6132e1f8-bbc2-483f-9596-a6aa16d5ac48" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/DocumentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/DocumentDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ModelMapperConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ModelMapperConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/UserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/UserDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/controller/DocumentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/controller/DocumentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/controller/PrintRequestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/controller/PrintRequestController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/service/PrintRequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/service/PrintRequestService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/Config/JpaConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/Config/KeycloakConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/Config/WebConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/KeyCloakService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/KeyCloakService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/VerificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/VerificationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/utils/VerificationCodeUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/utils/VerificationCodeUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/utils/VerificationData.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/utils/VerificationData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,7 +65,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.UserServiceApplication">
+  <component name="RunManager" selected="Spring Boot.ApiGatewayApplication">
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.api_gateway.ApiGatewayApplication" />
@@ -163,7 +143,7 @@
       <updated>1741736415775</updated>
       <workItem from="1741736418032" duration="18218000" />
       <workItem from="1741815722662" duration="29438000" />
-      <workItem from="1741899941445" duration="6436000" />
+      <workItem from="1741899941445" duration="8548000" />
     </task>
     <servers />
   </component>

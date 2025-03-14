@@ -29,6 +29,18 @@ public class Document {
     private String docType; // e.g., "PDF", "DOCX"
 
 
+    @Nullable
+    private String group;
+
+    @Nullable
+    private LocalDate deadline; // New attribute
+
+    @Nullable
+    private String instructions; // New attribute
+
+
+
+
 
     @Lob
     @JsonIgnore
@@ -49,6 +61,24 @@ public class Document {
     private String field;
 
     private LocalDate date;
+
+    @Nullable
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(@Nullable String group) {
+        this.group = group;
+    }
+
+    @Nullable
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(@Nullable LocalDate deadline) {
+        this.deadline = deadline;
+    }
 
     @PrePersist
     public void onCreate() {
