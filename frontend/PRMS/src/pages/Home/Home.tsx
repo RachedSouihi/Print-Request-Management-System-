@@ -10,6 +10,8 @@ import { fetchDocuments } from '../../store/documentsSlice';
 import DocumentsPage from "../Documents/Documents";
 import './Home.scss'; // Import the CSS file
 import ProfRequest from "../profrequest/ProfRequest";
+import SockJS from "sockjs-client";
+import { Client, Stomp } from "@stomp/stompjs";
 
 const Home: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -18,6 +20,25 @@ const Home: React.FC = () => {
   useEffect(() => {
     dispatch(fetchDocuments());
   }, [dispatch]);
+
+
+  useEffect(() => {
+    const username = 'rached';
+
+    var socket = new SockJS(`http://127.0.0.1:9001/ws?username=${username}`);
+      var stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame: any) {
+      console.log('Connected as: ' + username);
+
+      // Subscribe to the user-specific destination
+      stompClient.subscribe('/user/queue/notifications', function (notification) {
+        //var message = JSON.parse(notification.body);
+        console.log('Received notification:', notification.body);
+      });
+    });
+
+  })
+
 
   const isDocumentsRoute = location.pathname === '/documents';
 

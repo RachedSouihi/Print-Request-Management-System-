@@ -30,6 +30,7 @@ public class Document {
 
 
     @Nullable
+    @Column(name = "\"group\"")
     private String group;
 
     @Nullable
@@ -61,6 +62,16 @@ public class Document {
     private String field;
 
     private LocalDate date;
+
+
+    @Nullable
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(@Nullable String instructions) {
+        this.instructions = instructions;
+    }
 
     @Nullable
     public String getGroup() {
