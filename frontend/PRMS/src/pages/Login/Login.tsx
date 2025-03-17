@@ -47,8 +47,11 @@ const Login: FC = () => {
                 .then((action: any) => {
 
                   console.log("LOGIN ACTION: ", action)
-                  if (action.type === 'auth/signUp/fulfilled') {
+                  if (action.type === 'auth/login/fulfilled') {
                     setSubmitting(false);
+                    if(action.payload.status === 200) {
+                      navigate("/");
+                    }
 
 
                   }

@@ -1,6 +1,7 @@
 package com.microservices.user_service.service;
 
 
+import com.microservices.common_models_service.dto.ProfileDTO;
 import com.microservices.common_models_service.dto.UserDTO;
 import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.Profile;
@@ -135,8 +136,9 @@ public class UserService {
             p.setPhone(phone);
             user.get().setProfile(p);
 
-            userRepository.save(user.get());
-            profileRepository.save(p);
+            User u = userRepository.save(user.get());
+
+            resp.put("user", u);
 
 
 
@@ -165,8 +167,8 @@ public class UserService {
 
         // Use passwordEncoder.matches to verify the old password correctly.
 
-        System.out.println("password hashed: " + passwordEncoder.encode(user.getPassword()));
 
+        System.out.println("new password: " + newPassword);
        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             response.put("code", "400");
             response.put("message", "Wrong password");
@@ -217,16 +219,20 @@ public class UserService {
 
             profile.setUser(user);
 
-            userRepository.save(user);
+            User saved_user = userRepository.save(user);
             //profileRepository.save(profile);
 
 
 
             Map<String, Object> tokens =  keyCloakService.getToken(user.getEmail(), password);
 
+            Map<String, Object> response = new HashMap<>();
             tokens.put("user_id", user_id);
+            response.put("tokens", tokens);
+            response.put("code", "200");
+            response.put("user", saved_user);
 
-            return tokens;
+            return response;
 
 
 
@@ -243,6 +249,8 @@ public class UserService {
     public Map<String, Object> login(String email, String password) throws Exception {
 
         try{
+            System.out.println("email: " + email);
+            System.out.println("password: " + password);
 
             Map<String, Object> tokens =  keyCloakService.getToken(email, password);
             Map<String, Object> response = new HashMap<>();
@@ -256,16 +264,18 @@ public class UserService {
                 User user = opt_user.get();
                 UserDTO userDTO = new UserDTO(
                         user.getUser_id(),
-                        user.isActive(),
-                        user.getEmail(),
+                        new ProfileDTO(
                         user.getProfile().getFirstname(),
                         user.getProfile().getLastname(),
                         user.getProfile().getRole(),
                         user.getProfile().getPhone(),
                         user.getProfile().getEducationLevel(),
                         user.getProfile().getField()
+                        ),
+                        user.getEmail()
 
-                );
+
+                        );
 
                 response.put("data", userDTO);
                 response.put("code", "200");
@@ -321,6 +331,41 @@ public class UserService {
         }
         return userOptional.map(user -> adminMapper.map(user, UserDTO.class))
                 .orElse(null);
+    }
+
+    public UserDTO getUserInformations(String userId) {
+
+        try{
+
+            Optional<User> userOptional = userRepository.findById(userId);
+
+            if(userOptional.isPresent()) {
+                User user = userOptional.get();
+                return new UserDTO(
+                        user.getUser_id(),
+                        user.isActive(),
+                        user.getEmail(),
+                        user.getProfile().getFirstname(),
+                        user.getProfile().getLastname(),
+                        user.getProfile().getRole(),
+                        user.getProfile().getPhone(),
+                        user.getProfile().getEducationLevel(),
+                        user.getProfile().getField()
+                );
+
+
+
+
+
+
+            }else{
+                return null;
+            }
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
 

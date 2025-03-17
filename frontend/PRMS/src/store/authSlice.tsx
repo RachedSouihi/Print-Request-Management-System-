@@ -7,7 +7,7 @@ import { User, UserState } from '../types/userTypes';
 
 // Interface de l'état d'authentification
 interface AuthState {
-  user: UserState | null;
+  user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
@@ -42,8 +42,9 @@ const loadState = (): AuthState => {
 
 // Sauvegarde de l'état dans localStorage
 const saveState = (state: AuthState) => {
+  console.log('State: ', state)
   try {
-    localStorage.setItem('authState', JSON.stringify(state));
+    localStorage.setItem('authState', JSON.stringify(state.user));
   } catch (err) {
     console.error('Erreur lors de la sauvegarde de l’état', err);
   }
@@ -107,7 +108,7 @@ export const signUpUser = createAsyncThunk<{ status: number; message: string; us
 
       console.log("response: ", response)
       if (response.status === 200) {
-        localStorage.setItem('user_data', JSON.stringify({email, profile: {...profile}}))
+        //localStorage.setItem('user_data', JSON.stringify({ email, profile: { ...profile } }))
         return { status: response.status, message: 'Sign-up successful', user: response.data as User };
       } else {
         throw new Error('Sign-up failed');
@@ -149,7 +150,7 @@ export const testAPICall = createAsyncThunk<string, void, { rejectValue: string 
       const response = await axios.get(
         import.meta.env.VITE_TEST_API_PATH,
         {}, // Empty data payload if not needed
-      
+
       );
 
       console.log("Response from api test call is:", response);
@@ -253,14 +254,14 @@ export const updatePassword = createAsyncThunk<boolean, { email: string; newPass
 );
 
 export const loginUser = createAsyncThunk<
-  User,  // Type de retour attendu pour une réponse réussie
+  { status: number; message: string; user?: User },  // Type de retour attendu pour une réponse réussie
   { email: string; password: string },  // Paramètres d'entrée
   { rejectValue: string }  // Type de la valeur rejetée
 >(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
 
-    password =  await encryptPassword(JSON.stringify(password));
+    password = await encryptPassword(password);
 
     console.log(password)
 
@@ -271,7 +272,7 @@ export const loginUser = createAsyncThunk<
         { email, password },
         {
           headers: { 'Content-Type': 'application/json' },
-          withCredentials: true, 
+          withCredentials: true,
         }
       );
 
@@ -279,7 +280,11 @@ export const loginUser = createAsyncThunk<
 
       if (response.status === 200) {
         // Sauvegarder le token directement dans le localStorage
-        localStorage.setItem("token", response.data.access_token);
+
+
+
+        return { status: 200, message: "Logged in" };
+
 
         // Création de l'utilisateur à partir de la réponse
         /*const user: User = {
@@ -290,14 +295,14 @@ export const loginUser = createAsyncThunk<
         };*/
 
         // Sauvegarde dans le state
-       /* saveState({ 
-          ...initialState, 
-          user: user, 
-          isAuthenticated: true, 
-          token: response.data.access_token 
-        });*/
+        /* saveState({ 
+           ...initialState, 
+           user: user, 
+           isAuthenticated: true, 
+           token: response.data.access_token 
+         });*/
 
-       // console.log("Utilisateur authentifié :", user);
+        // console.log("Utilisateur authentifié :", user);
         //return user; // Renvoie l'utilisateur si la connexion est réussie
       } else {
         throw new Error('Login failed');
@@ -334,14 +339,19 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<UserState>) => {
-        state.user = action.payload;
-        state.isAuthenticated = true;
-        state.loading = false;
-        saveState(state); // Save state to localStorage on login
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user?: User }>) => {
+        console.log("action payload:" + action.payload)
+        if (action.payload.status === 200) {
+          if (action.payload.user) {
+            state.user = action.payload.user;
+          }
+          state.isAuthenticated = true;
+          state.loading = false;
+          saveState(state); // Save state to localStorage on login
+        }
       })
-      .addCase(loginUser.rejected, (state, action: PayloadAction<string | undefined>) => {
-        state.error = action.payload || 'Login failed';
+      .addCase(loginUser.rejected, (state, action) => {
+        state.error = typeof action.payload === 'string' ? action.payload : 'Login failed';
         state.loading = false;
       })
       .addCase(signUpUser.pending, (state) => {
@@ -351,7 +361,7 @@ const authSlice = createSlice({
       .addCase(signUpUser.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user?: User }>) => {
         if (action.payload.status === 200) {
           if (action.payload.user) {
-            state.user = { user: action.payload.user, profile: action.payload.user.profile };
+            state.user = action.payload.user;
           }
           state.isAuthenticated = true;
         }
@@ -387,18 +397,7 @@ const authSlice = createSlice({
         state.error = action.payload || 'Email verification failed';
         state.loading = false;
       })
-      .addCase(testAPICall.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(testAPICall.fulfilled, (state, action: PayloadAction<boolean>) => {
-        state.apiCallResult = action.payload;
-        state.loading = false;
-      })
-      .addCase(testAPICall.rejected, (state, action: PayloadAction<string | undefined>) => {
-        state.error = action.payload || 'API call failed';
-        state.loading = false;
-      })
+
       .addCase(resendVerifEmail.pending, (state) => {
         state.loading = true;
         state.error = null;

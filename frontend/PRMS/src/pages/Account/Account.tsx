@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Button, Tab, Nav, Row, Col } from 'react-bootstrap';
 import { FiUser, FiLock, FiBell, FiUsers } from 'react-icons/fi';
 import { useFormik } from 'formik';
@@ -26,6 +26,12 @@ const AccountSettings = () => {
   const userData = useSelector((state: RootState) => state.user.user);
 
 
+  useEffect(() => {
+    console.log("user data: ", userData)
+
+  }, [])
+
+
   const [followedProfessors, setFollowedProfessors] = useState([
     { id: 1, name: 'Dr. Michael Chen', subject: 'Computer Science', avatar: 'https://via.placeholder.com/40', isFollowing: true },
     { id: 2, name: 'Prof. Emma Wilson', subject: 'Mathematics', avatar: 'https://via.placeholder.com/40', isFollowing: true },
@@ -48,10 +54,10 @@ const AccountSettings = () => {
 
   const formik = useFormik({
     initialValues: {
-      firstname: userData.profile.firstname,
-      lastname: userData.profile.lastname,
-      email: userData.email,
-      phone: userData.profile.phone
+      firstname: userData.profile ? userData.profile.firstname : "",
+      lastname: userData.profile ? userData.profile.lastname : '',
+      email: userData.email ? userData.email : "",
+      phone: userData.profile ? userData.profile.phone : ""
     },
     validationSchema,
     onSubmit: (values) => {

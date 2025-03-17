@@ -2,6 +2,7 @@ package com.microservices.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.api_gateway.utils.AESUtil;
+import com.microservices.common_models_service.dto.UserDTO;
 import com.microservices.common_models_service.model.User;
 import com.microservices.user_service.service.EmailService;
 import com.microservices.user_service.service.KafkaService;
@@ -11,6 +12,7 @@ import com.microservices.user_service.utils.VerificationCodeUtil;
 import jakarta.annotation.security.PermitAll;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.PathParam;
 import org.bouncycastle.jcajce.provider.symmetric.AES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -105,14 +107,25 @@ public class UserController {
     public ResponseEntity<?> login(@RequestHeader HttpHeaders headers, @RequestBody Map<String, String> request, HttpServletResponse httpResponse) {
         try{
             String email = request.get("email");
-            String password = request.get("password");
+            String password = AESUtil.decrypt(request.get("password"), SECRET_KEY, ALGO);
             //System.out.println("Decrypted password: " + AESUtil.decrypt(password, SECRET_KEY, ALGO));
 
             Map<String, Object> response =  userService.login(email, password);
             System.out.println(response);
 
+
             if(Integer.parseInt(response.get("code").toString()) == 200){
+
+                UserDTO user = (UserDTO) response.get("data");
                 Map<String, Object> tokens = (Map<String, Object>) response.get("tokens");
+
+                String access_token =  AESUtil.encrypt((String)tokens.get("access_token"), SECRET_KEY, ALGO);
+
+                String refresh_token = AESUtil.encrypt((String) tokens.get("refresh_token"), SECRET_KEY, ALGO);
+
+
+                verificationService.saveTokens(user.getUserId(), access_token, refresh_token, 432000, 777600);
+
 
                 ResponseCookie access_token_cookie = ResponseCookie.from("access_token", (String) tokens.get("access_token"))
                         .httpOnly(true)
@@ -123,7 +136,9 @@ public class UserController {
                 httpResponse.addHeader(HttpHeaders.SET_COOKIE, access_token_cookie.toString());
 
 
-                return ResponseEntity.ok(response.get("data"));
+                System.out.println("Response is ready");
+
+                return ResponseEntity.ok(user);
 
             }else{
                 return ResponseEntity.status(HttpStatusCode.valueOf((Integer) response.get("code"))).body(response.get("message"));
@@ -167,6 +182,20 @@ public class UserController {
             return ResponseEntity.status(500).body("Decryption failed");
         }
     }
+
+    @GetMapping("/get-access-token")
+    public ResponseEntity<?> getAccessToken(@RequestHeader HttpHeaders headers, @RequestParam String userId) {
+
+
+        return ResponseEntity.ok(verificationService.getAccessToken(userId));
+    }
+    @GetMapping("/get-refresh-token")
+    public ResponseEntity<?> getRefreshToken(@RequestHeader HttpHeaders headers, @RequestParam String userId) {
+
+
+        return ResponseEntity.ok(verificationService.getRefreshToken(userId));
+    }
+
     @PostMapping("/save-access-token")
     public ResponseEntity<?> saveAccessToken(@RequestHeader HttpHeaders headers, @RequestParam String userId ,@RequestParam String accessToken) {
 
@@ -200,11 +229,11 @@ public class UserController {
     /**
      * Handles user signup.
      * @param request The signup request containing user details and OTP.
-     * @param response The HTTP response.
+     * @param httpResponse The HTTP response.
      * @return A response indicating the result of the signup process.
      */
     @PostMapping("/auth/signup")
-    public ResponseEntity<?> signup(@RequestBody Map<String, Object> request, HttpServletResponse response) {
+    public ResponseEntity<?> signup(@RequestBody Map<String, Object> request, HttpServletResponse httpResponse) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String otp = mapper.convertValue(request.get("otp"), String.class);
@@ -238,19 +267,25 @@ public class UserController {
             Map<String, Object> otpResponse = verificationService.isOtpValid(user.getEmail(), otp);
             if ((int) otpResponse.get("status") == 200) {
                 System.out.println("OTP valid");
-                Map<String, Object> tokens = userService.signUp(user, bCryptPasswordEncoder);
-                System.out.println(tokens);
-                user.setUser_id((String) tokens.get("user_id"));
-                tokens.put("access_token", AESUtil.encrypt((String) tokens.get("access_token"), SECRET_KEY, ALGO));
-                tokens.put("refresh_token", AESUtil.encrypt((String) tokens.get("refresh_token"), SECRET_KEY, ALGO));
-                //verificationService.saveTokens(user.getUser_id(), (String) tokens.get("access_token"), (String) tokens.get("refresh_token"), 0, 4);
+                Map<String, Object> response = userService.signUp(user, bCryptPasswordEncoder);
+                System.out.println(response);
+
+                Map<String, Object> tokens = (Map<String, Object>) response.get("tokens");
+
+                String access_token = (String) tokens.get("access_token");
+
+
+                user = mapper.convertValue(response.get("user"), User.class);
+                tokens.put("access_token", AESUtil.encrypt(access_token, SECRET_KEY, ALGO));
+                //tokens.put("refresh_token", AESUtil.encrypt((String) tokens.get("refresh_token"), SECRET_KEY, ALGO));
+                verificationService.saveTokens(user.getUser_id(), (String) tokens.get("access_token"), (String) tokens.get("refresh_token"), 432000, 777600);
                 ResponseCookie access_token_cookie = ResponseCookie.from("access_token", (String) tokens.get("access_token"))
                         .httpOnly(true)
                         .sameSite("LAX")
                         .path("/")
                         .maxAge(Duration.ofDays(2))
                         .build();
-                response.addHeader(HttpHeaders.SET_COOKIE, access_token_cookie.toString());
+                httpResponse.addHeader(HttpHeaders.SET_COOKIE, access_token_cookie.toString());
                 return ResponseEntity.ok().body(user);
             }
             return ResponseEntity.status((int) otpResponse.get("status")).body(otpResponse.get("message"));
@@ -338,7 +373,7 @@ public class UserController {
 
         try {
             Map<String, Object> response = userService.updateProfile(request);
-            return ResponseEntity.status((int) response.get("code")).body(response.get("message"));
+            return ResponseEntity.status((int) response.get("code")).body(response.get("user"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
@@ -410,6 +445,24 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
+    }
+
+
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<?> getProfile(@RequestHeader HttpHeaders headers, @PathVariable("userId") String userId) {
+
+        System.out.println("USer id: " + userId);
+        try{
+
+            return ResponseEntity.ok(
+                    userService.getUserInformations(userId)
+            );
+
+        }catch (Exception e) {
+
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
     }
 
 
