@@ -1,23 +1,23 @@
-// main.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App.tsx';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './assets/styles/global.scss';
-import { ToastProvider } from './context/ToastContext';
-import { Provider } from 'react-redux';
-import store from './store/store';
-import { BrowserRouter } from 'react-router-dom';
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css"
+
+//import "./assets/styles/global.scss"
+import { Provider } from 'react-redux'
+import store from './store/store.ts'
+import { ToastProvider } from './context/ToastContext.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <ToastProvider>
-          <App />
-        </ToastProvider>
-      </BrowserRouter>
+      <ToastProvider>
+        <App />
+
+      </ToastProvider>
     </Provider>
-  </React.StrictMode>,
-);
+  </StrictMode>,
+)

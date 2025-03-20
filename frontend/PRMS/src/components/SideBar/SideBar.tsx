@@ -1,22 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Nav } from 'react-bootstrap';
 import { 
   FiHome, FiMail, FiBookOpen, FiCheckSquare, 
-  FiUsers, FiUserPlus, FiSettings, FiLogOut
+  FiUsers, FiUserPlus, FiSettings, FiLogOut,
+  FiBookmark
 } from 'react-icons/fi';
 
 import { VscHistory } from "react-icons/vsc";
 
 import './SideBar.scss';
+import { useNavigate } from 'react-router';
 
 const Sidebar = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('home');
   const [collapsed, setCollapsed] = useState(false);
+
+  const navigate = useNavigate();
+
   const mentors = [
     { id: 1, name: "Prof. Smith", avatar: "https://via.placeholder.com/40" },
     { id: 2, name: "Prof. Johnson", avatar: "https://via.placeholder.com/40" },
     { id: 3, name: "Prof. Williams", avatar: "https://via.placeholder.com/40" }
   ];
+
+
+  useEffect(() => {
+
+
+      activeTab === "home" && navigate('/')
+      activeTab === 'saved' && navigate('/saved-docs')
+      activeTab === 'printing history' && navigate('/requests')
+  }, [activeTab])
 
   return (
     <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -33,9 +47,10 @@ const Sidebar = () => {
 
       <Nav className="sidebar-nav d-block">
         {[
-          { id: 'dashboard', icon: <FiHome />, label: 'Dashboard' },
+          { id: 'home', icon: <FiHome />, label: 'Home' },
+          { id: 'saved', icon: <FiBookmark />, label: 'Saved' },
+
           { id: 'printing history', icon: <VscHistory />, label: 'Printing history' },
-          { id: 'lessons', icon: <FiBookOpen />, label: 'Lessons' },
           { id: 'tasks', icon: <FiCheckSquare />, label: 'Tasks' },
           { id: 'groups', icon: <FiUsers />, label: 'Groups' },
           { id: 'friends', icon: <FiUserPlus />, label: 'Friends' }
@@ -67,7 +82,10 @@ const Sidebar = () => {
       </div>
 
       <div className="sidebar-footer">
-        <Nav.Link className="settings-link">
+        <Nav.Link className="settings-link" onClick={() => {
+          setActiveTab("");
+          
+          navigate('account')}}>
           <FiSettings className="nav-icon" />
           {!collapsed && 'Settings'}
         </Nav.Link>

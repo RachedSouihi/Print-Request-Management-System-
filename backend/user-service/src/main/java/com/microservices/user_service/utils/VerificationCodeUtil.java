@@ -1,25 +1,23 @@
 package com.microservices.user_service.utils;
 
-
-
 import java.security.SecureRandom;
 
 public class VerificationCodeUtil {
-
-    private static final String DIGITS = "0123456789";
-    private static final SecureRandom random = new SecureRandom();
+    // Define the characters you want to include in your verification code.
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
-     * Génère un code de vérification composé uniquement de chiffres.
+     * Generates a secure random verification code.
      *
-     * @param length La longueur souhaitée du code.
-     * @return Le code de vérification généré.
+     * @param length The desired length of the code.
+     * @return A randomly generated code.
      */
     public static String generateVerificationCode(int length) {
         StringBuilder code = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
-            int index = random.nextInt(DIGITS.length());
-            code.append(DIGITS.charAt(index));
+            int index = RANDOM.nextInt(CHARACTERS.length());
+            code.append(CHARACTERS.charAt(index));
         }
         return code.toString();
     }

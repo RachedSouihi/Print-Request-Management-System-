@@ -2,27 +2,15 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { ReactNode } from "react";
 import { Key } from "readline";
+import { PrintRequest } from "./requestSlice";
 
-export interface PrintRequest {
-  copies: ReactNode;
-  createdAt: string | number | Date;
-  user: any;
-  requestId: Key | null | undefined;
-  document: any;
-  someProperty: any;
-  id?: number;
-  documentName: string;
-  pages: number;
-  date: string;
-  status: string;
-  executedBy: string;
-}
+
 
 // Récupérer toutes les impressions
 export const fetchPrintHistory = createAsyncThunk(
     "history/fetchPrintHistory",
     async () => {
-      const response = await axios.get("http://localhost:8081/api/print-requests");
+      const response = await axios.get(import.meta.env.VITE_FETCH_PRINT_REQUESTS_URL);
       console.log("API Response:", response.data); // Ajout pour debug
       return response.data;
     }

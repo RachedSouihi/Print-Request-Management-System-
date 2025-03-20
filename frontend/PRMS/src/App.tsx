@@ -1,38 +1,71 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from "./pages/Home/Home";
-import Login from "./pages/Login/Login";
-import "bootstrap/dist/css/bootstrap.min.css";
-import ProtectedRoute from "./pages/Login/protectedroute";
-import Signup from "./pages/SignUp/SignUp";
-import Documents from "./pages/Documents/Documents";
-import Dashboard from "./pages/dashboard/Dashboard";
-import PrintHistory from "./pages/history/PrintHistory";
-import ProfRequest from "./pages/profrequest/ProfRequest";
-const App = () => {
-  return (
-    
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />}/>
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-         <Route path="/documents" element={<Documents/>}/>
-         <Route path="/dashboard" element={<Dashboard/>}/>
-         <Route path="/history" element={<PrintHistory/>}/>
-         <Route
-          path="/prof"
-          element={<ProfRequest show={true} handleClose={() => console.log("Modal fermé")} />}
-        />
-      </Routes>
-    
-  );
-};
+import { BrowserRouter as Router, Routes, Route } from 'react-router'
+import './App.css'
+import SignUp from './pages/SignUp/SignUp'
+import Home from './pages/Home/Home'
+import Loading from './common/Loading'
+import PrivateRoute from './PrivateRoute'
+import AccountSettings from './pages/Account/Account'
+import AuthModal from './common/Modal'
+import { useState } from 'react'
+import AccessModal from './common/Modal'
+import Dashboard from './pages/dashboard/Dashboard'
+import Header from './layouts/Header'
+import TestimonialCarousel from './components/Testimonials'
+import CoursesCarousel from './components/ExamsOverview'
+import DocumentsPage from './pages/Documents/Documents'
+import Footer from './layouts/Footer'
+import SavedDocumentsPage from './pages/SavedDocs/SavedDocs'
+import Login from './pages/Login/Login'
+import PrintHistory from './pages/history/PrintHistory'
 
-export default App;
+function App() {
+  return (
+    <div className='root-app'>
+      <Router>
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/" element={<Home />}>
+            <Route path="/account" element={<AccountSettings />} />
+            <Route path='/saved-docs' element={<SavedDocumentsPage />}/>
+            <Route path='/documents' element={<DocumentsPage />} />
+            <Route path='/requests' element={<PrintHistory />} />
+
+
+
+            <Route index element={
+              <>
+                <CoursesCarousel />
+                <TestimonialCarousel />
+              </>
+          } />
+
+
+
+
+          </Route>
+          <Route
+            path="/dashboard/*"
+            element={
+              <>
+                <Dashboard />
+              </>
+            }
+
+
+
+
+          />
+
+
+
+
+
+        </Routes>
+      </Router>
+    </div>
+  )
+}
+
+export default App

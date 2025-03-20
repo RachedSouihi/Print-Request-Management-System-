@@ -1,7 +1,7 @@
+// Updated Profile.java
 package com.microservices.common_models_service.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.microservices.common_models_service.model.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -9,7 +9,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 public class Profile {
     @Id
-    private String user_id; // ✅ Nécessaire si vous utilisez @MapsId
+    private String user_id;
 
     private String firstname;
     private String lastname;
@@ -21,14 +21,31 @@ public class Profile {
     private String phone;
     private boolean agree;
 
-    @OneToOne
-    @MapsId // ✅ L'ID de Profile sera le même que l'ID de User
+    // Professor-specific fields
+    private String idCard;
+    private String subject;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @MapsId
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference
     private User user;
 
-    // Getters et Setters
+    @PrePersist
+    @PreUpdate
+    private void validateRole() {
+        if ("professor".equalsIgnoreCase(this.role)) {
+            if (this.idCard == null || this.subject == null) {
+                throw new IllegalStateException("Professors must have an ID card and a subject.");
+            }
+        } else {
+            this.idCard = null; // Ensure students don't have this field
+            this.subject = null;
+        }
+    }
+
+    // Getters and Setters
     public String getUser_id() {
         return user_id;
     }
@@ -77,6 +94,26 @@ public class Profile {
     public void setAgree(boolean agree) {
         this.agree = agree;
     }
+    public String getIdCard() {
+        return idCard;
+    }
+    public void setIdCard(String idCard) {
+        if ("professor".equalsIgnoreCase(this.role)) {
+            this.idCard = idCard;
+        } else {
+            this.idCard = null; // Ensure students don't have this field
+        }
+    }
+    public String getSubject() {
+        return subject;
+    }
+    public void setSubject(String subject) {
+        if ("professor".equalsIgnoreCase(this.role)) {
+            this.subject = subject;
+        } else {
+            this.subject = null; // Ensure students don't have this field
+        }
+    }
     public User getUser() {
         return user;
     }
@@ -84,4 +121,3 @@ public class Profile {
         this.user = user;
     }
 }
-

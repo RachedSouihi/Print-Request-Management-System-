@@ -1,11 +1,18 @@
-import React from 'react'
+import React from 'react';
+import './Button.css';
 
-import './Button.css'
-
-const  Button: React.FC<{text: string, type:string,width:number}> = ({text, type="button",width }: any): React.ReactNode =>  {
-  return (
-    <button  style={{width :`${width }px`}}  type={type} className='custom-btn'>{text}</button>
-  )
+interface ButtonProps {
+  text: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
 }
+
+const Button: React.FC<ButtonProps> = ({ text, type = 'button', disabled=false }) => {
+  return (
+    <button type={type} disabled={disabled} className='custom-btn'>
+      {text}
+    </button>
+  );
+};
 
 export default Button;

@@ -1,6 +1,9 @@
 // Header.scss
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
+
+@import "../design.scss";
+
 :root {
   --primary-color: #4A55A2;
   --secondary-color: #7895CB;
@@ -15,6 +18,8 @@
   --border-color: #333333;
 }
 
+
+
 .site-header {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-color);
@@ -23,6 +28,7 @@
   top: 0;
   z-index: 1000;
   transition: all 0.3s ease;
+  
 
 
   .header-content {
@@ -112,7 +118,7 @@
 }
 
 // Notification styles with adjusted positioning
-.notification {
+/*.notification {
   &-wrapper {
     position: relative;
   }
@@ -245,7 +251,7 @@
       opacity: 0.6;
     }
   }
-}
+}*/
 
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Button, Tab, Nav, Row, Col } from 'react-bootstrap';
 import { FiUser, FiLock, FiBell, FiUsers } from 'react-icons/fi';
 import { useFormik } from 'formik';
@@ -23,7 +23,14 @@ const AccountSettings = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const userData = useSelector((state: RootState) => state.user);
+  const userData = useSelector((state: RootState) => state.user.user);
+
+
+  useEffect(() => {
+    console.log("user data: ", userData)
+
+  }, [])
+
 
   const [followedProfessors, setFollowedProfessors] = useState([
     { id: 1, name: 'Dr. Michael Chen', subject: 'Computer Science', avatar: 'https://via.placeholder.com/40', isFollowing: true },
@@ -38,13 +45,20 @@ const AccountSettings = () => {
   };
 
   const validationSchema = Yup.object({
-    firstName: Yup.string().required('First Name is required'),
-    lastName: Yup.string().required('Last Name is required'),
+    firstname: Yup.string().required('First Name is required'),
+    lastname: Yup.string().required('Last Name is required'),
     phone: Yup.string().required('Phone Number is required').matches(/^\+?[1-9]\d{1,14}$/, 'Phone number is not valid'),
   });
 
+
+
   const formik = useFormik({
-    initialValues: userData,
+    initialValues: {
+      firstname: userData.profile ? userData.profile.firstname : "",
+      lastname: userData.profile ? userData.profile.lastname : '',
+      email: userData.email ? userData.email : "",
+      phone: userData.profile ? userData.profile.phone : ""
+    },
     validationSchema,
     onSubmit: (values) => {
 
@@ -54,6 +68,7 @@ const AccountSettings = () => {
 
 
           setSuccess(true);
+
         } else {
           setSuccess(false)
         }
@@ -68,10 +83,13 @@ const AccountSettings = () => {
   });
 
   const handlePasswordChange = (oldPassword: string, newPassword: string) => {
-    dispatch(updatePasswordAsync({ email: "jane.doe@example.com" /*userData.email*/, oldPassword, newPassword })).then((action: any) => {
+    dispatch(updatePasswordAsync({ email: userData.email, oldPassword, newPassword })).then((action: any) => {
       if (action.type === 'user/updatePasswordAsync/fulfilled') {
-        setPasswordError(null);
-        //setShowPasswordModal(false);
+
+        if(action.payload.status === 200){
+          setPasswordError(null);
+          setShowPasswordModal(false);
+        }
       } else if (action.payload) {
         setPasswordError(action.payload);
         console.log('error passwor change', action.payload);
@@ -138,11 +156,11 @@ const AccountSettings = () => {
                           <Form.Label>First Name</Form.Label>
                           <Form.Control
                             type="text"
-                            {...formik.getFieldProps('firstName')}
-                            isInvalid={formik.touched.firstName && !!formik.errors.firstName}
+                            {...formik.getFieldProps('firstname')}
+                            isInvalid={formik.touched.firstname && !!formik.errors.firstname}
                           />
                           <Form.Control.Feedback type="invalid">
-                            {formik.errors.firstName}
+                            {formik.errors.firstname}
                           </Form.Control.Feedback>
                         </Form.Group>
                       </Col>
@@ -151,11 +169,11 @@ const AccountSettings = () => {
                           <Form.Label>Last Name</Form.Label>
                           <Form.Control
                             type="text"
-                            {...formik.getFieldProps('lastName')}
-                            isInvalid={formik.touched.lastName && !!formik.errors.lastName}
+                            {...formik.getFieldProps('lastname')}
+                            isInvalid={formik.touched.lastname && !!formik.errors.lastname}
                           />
                           <Form.Control.Feedback type="invalid">
-                            {formik.errors.lastName}
+                            {formik.errors.lastname}
                           </Form.Control.Feedback>
                         </Form.Group>
                       </Col>

@@ -1,58 +1,35 @@
 import CryptoJS from "crypto-js";
 
-// Base64 secret key
-const secretKey = "a2P1MfLtUss3joijeGzYLPXcPhsySuYAb9MSg5mWkdg=";
-const nonceExpirationMinutes = 1; // Expiration time for nonce
 
-
+//Base 64 secret key
+const secretKey = import.meta.env.VITE_SECRET_KEY;
+const nonceExpirationMinutes = 1; // Set the expiration time for the nonce
 
 export default function hashPassword(password: string): string {
-  const timestamp = Date.now();
+  const timestamp = new Date().getTime();
   const dataToEncrypt = JSON.stringify({ password, timestamp });
-
-  if (!secretKey) {
-    throw new Error("Secret key is not defined");
-  }
-
-  return CryptoJS.AES.encrypt(dataToEncrypt, CryptoJS.enc.Utf8.parse(secretKey)).toString();
+  return CryptoJS.AES.encrypt(dataToEncrypt, secretKey).toString();
 }
 
 export function verifyPassword(encryptedData: string): boolean {
-  if (!secretKey) {
-    throw new Error("Secret key is not defined");
+  const decryptedData = CryptoJS.AES.decrypt(encryptedData, secretKey).toString(CryptoJS.enc.Utf8);
+  const { password, timestamp } = JSON.parse(decryptedData);
+
+  const currentTime = new Date().getTime();
+  const expirationTime = timestamp + nonceExpirationMinutes * 60 * 1000;
+
+  if (currentTime > expirationTime) {
+    return false; // Nonce has expired
   }
 
-  try {
-    const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, CryptoJS.enc.Utf8.parse(secretKey));
-    const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
-
-    if (!decryptedData) {
-      return false; // Decryption failed
-    }
-
-    const { timestamp } = JSON.parse(decryptedData);
-    const currentTime = Date.now();
-    const expirationTime = timestamp + nonceExpirationMinutes * 60 * 1000;
-
-    return currentTime <= expirationTime; // Check expiration
-  } catch (error) {
-    console.error("Decryption error:", error);
-    return false;
-  }
+  // Add your password verification logic here
+  return true;
 }
 
 export async function encryptData(data: string, base64SecretKey: string): Promise<string> {
   try {
-    if (!base64SecretKey) {
-      throw new Error("Base64 secret key is missing");
-    }
-
-    // Decode Base64 key safely
-    const secretKeyBytes = new Uint8Array(
-      atob(base64SecretKey)
-        .split("")
-        .map((char) => char.charCodeAt(0))
-    );
+    // Decode the Base64 secret key to raw bytes
+    const secretKeyBytes = Uint8Array.from(atob(base64SecretKey), c => c.charCodeAt(0));
 
     // Import the secret key
     const key = await crypto.subtle.importKey(
@@ -76,26 +53,40 @@ export async function encryptData(data: string, base64SecretKey: string): Promis
     // Combine IV and encrypted data
     const encryptedBytes = new Uint8Array([...iv, ...new Uint8Array(encrypted)]);
 
-    // Convert to Base64
+    // Convert to URL-safe Base64 (replace '+' with '-', '/' with '_', and remove padding)
     return btoa(String.fromCharCode(...encryptedBytes))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, ""); // URL-safe Base64
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
   } catch (error) {
     console.error("Encryption failed:", error);
     throw error;
   }
 }
 
-export async function encryptPassword(password: string): Promise<string> {
+export async function encryptOTP(otp: string): Promise<string> {
   try {
-    if (!secretKey) {
-      throw new Error("Secret key is not defined");
-    }
+    const encryptedOTP = await encryptData(otp, import.meta.env.VITE_OTP_SECRET_KEY);
+    return encryptedOTP
 
-    return await encryptData(password, secretKey);
   } catch (error) {
     console.error("Error:", error);
-    return ""; // Return empty string on failure
+    return ''; // Return an empty string or handle the error appropriately
+  }
+}
+
+
+
+
+
+export async function encryptPassword(data: any): Promise<string> {
+  try {
+    console.log("secret key to encrypt password: ", import.meta.env.VITE_SECRET_KEY)
+    const encryptedPassword = await encryptData(data, import.meta.env.VITE_SECRET_KEY);
+    return encryptedPassword
+
+  } catch (error) {
+    console.error("Error:", error);
+    return ''; // Return an empty string or handle the error appropriately
   }
 }

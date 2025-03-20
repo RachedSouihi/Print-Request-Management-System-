@@ -40,6 +40,7 @@ const CustomToast: React.FC<CustomToastProps> = ({ show, onClose, type, message 
     <ToastContainer position="top-end" className="toast-container">
       <Toast
         show={show}
+
         onClose={onClose}
         autohide={type === 'success'}
         delay={5000}

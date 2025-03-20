@@ -1,40 +1,19 @@
 import { Modal, Button, Form, Badge, Stack, ProgressBar } from 'react-bootstrap';
 import { FiX, FiPrinter, FiClock, FiAlertCircle, FiEdit, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-//import './RequestDetailsModal.scss';
+import './RequestDetailsModal.scss';
+import { PrintRequest } from '../../store/requestSlice';
 
 interface RequestDetailModalProps {
   show: boolean;
   request: PrintRequest | null;
   onHide: () => void;
+  onApprove: any
 }
 
-interface PrintRequest {
-  id: string;
-  title: string;
-  user: string;
-  date: string;
-  copies: number;
-  paperType: string;
-  inkUsage: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  urgency: 'low' | 'medium' | 'high';
-  statusHistory?: { status: string; timestamp: string }[];
-}
 
-const defaultRequest: PrintRequest = {
-  id: '0',
-  title: 'Default Title',
-  user: 'default@user.com',
-  date: '2023-01-01',
-  copies: 1,
-  paperType: 'A4',
-  inkUsage: '0.00',
-  status: 'pending',
-  urgency: 'low',
-  statusHistory: [],
-};
 
-const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ show, request = defaultRequest, onHide }) => {
+const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ show, request , onHide, onApprove }) => {
+
   return (
     <Modal
       show={show}
@@ -47,7 +26,7 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ show, request =
         <Stack direction="horizontal" gap={3} className="w-100">
           <div className="flex-grow-1">
             <Modal.Title className="modal-title">
-              {request?.title || 'Print Request Details'}
+              {request?.document.title || 'Print Request Details'}
               {request?.urgency === 'high' && (
                 <Badge bg="danger" className="ms-2">
                   <FiAlertCircle className="me-1" /> High Priority
@@ -55,7 +34,7 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ show, request =
               )}
             </Modal.Title>
             <div className="text-muted modal-subtitle">
-              Submitted by {request?.user} on {request?.date}
+              Submitted by {request?.user.email} on {request?.date}
             </div>
           </div>
           <Button variant="link" onClick={onHide} className="close-button">
@@ -69,8 +48,8 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ show, request =
           {/* Left Column */}
           <div className="detail-section">
             <h5 className="section-title">Request Details</h5>
-            <DetailItem label="Document Title" value={request?.title} />
-            <DetailItem label="Submitted By" value={request?.user} />
+            <DetailItem label="Document Title" value={request?.document.title} />
+            <DetailItem label="Submitted By" value={request?.user.email} />
             <DetailItem label="Submission Date" value={request?.date} />
             <DetailItem label="Current Status">
               <StatusIndicator status={request?.status} />
@@ -104,17 +83,17 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ show, request =
 
       <Modal.Footer className="modal-footer">
         <Stack direction="horizontal" gap={3} className="w-100 justify-content-between">
-          <Button variant="outline-secondary" onClick={onHide}>
+          <Button variant="outline-secondary" onClick={onHide} disabled={request?.status === 'completed'}>
             Close
           </Button>
           <Stack direction="horizontal" gap={2}>
-            <Button variant="outline-primary">
+            <Button variant="outline-primary" disabled={request?.status === 'completed'}>
               <FiEdit className="me-2" /> Reassign
             </Button>
             <Button variant="danger">
               <FiXCircle className="me-2" /> Reject
             </Button>
-            <Button variant="success">
+            <Button variant="success" disabled={request?.status === 'completed'} onClick={() => onApprove(request?.user.userId, request?.requestId)}>
               <FiCheckCircle className="me-2" /> Approve
             </Button>
           </Stack>

@@ -1,17 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { SignUpFormData } from '../types/authentication';
-import { encryptPassword } from '../features/encrypt';
-
-
-
-// Interface utilisateur
-interface User {
-  id: string;  // Assure-toi que `id` est de type string ou le type approprié
-  email: string;
-  name: string;
-  roles: string[];
-}
+import { encryptOTP, encryptPassword } from '../features/encrypt';
+import { User, UserState } from '../types/userTypes';
 
 
 // Interface de l'état d'authentification
@@ -21,6 +12,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   emailVerificationStatus: boolean | null;
+  apiCallResult?: boolean;
   token: string | null;
 }
 
@@ -50,8 +42,9 @@ const loadState = (): AuthState => {
 
 // Sauvegarde de l'état dans localStorage
 const saveState = (state: AuthState) => {
+  console.log('State: ', state)
   try {
-    localStorage.setItem('authState', JSON.stringify(state));
+    localStorage.setItem('authState', JSON.stringify(state.user));
   } catch (err) {
     console.error('Erreur lors de la sauvegarde de l’état', err);
   }
@@ -69,124 +62,109 @@ const clearAuthState = () => {
 // État initial
 const initialState: AuthState = loadState();
 
-// Thunk pour la connexion
-export const loginUser = createAsyncThunk<
-  User,  // Type de retour attendu pour une réponse réussie
-  { email: string; password: string },  // Paramètres d'entrée
-  { rejectValue: string }  // Type de la valeur rejetée
->(
-  'auth/login',
-  async ({ email, password }, { rejectWithValue }) => {
-    try {
-      // Envoi de la requête GET pour la connexion
-      const response = await axios.get(
-        `http://127.0.0.1:8081/auth/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true, // Si ton backend utilise des cookies
-        }
-      );
-
-      console.log("Réponse serveur :", response);
-
-      // Extraction du token brut
-      const rawToken = response.data.access_token;
-      const extractedToken = rawToken.match(/access_token=([^,]*)/)?.[1] || rawToken;
-       // Extrait le token
-
-      if (!extractedToken) {
-        console.error("Échec de l'extraction du token :", rawToken);
-        return rejectWithValue("Échec de connexion. Token invalide.");
-      }
-    
-      // Sauvegarder le token directement dans le localStorage
-      localStorage.setItem("token", extractedToken);
-
-      // Décodage du JWT pour obtenir l'utilisateur
-      const parseJwt = (token: string) => {
-        try {
-          const base64Url = token.split('.')[1]; // Partie encodée du payload
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          return JSON.parse(atob(base64)); // Décodage en JSON
-        } catch (error) {
-          console.error("Erreur lors du décodage du token :", error);
-          return {}; // Retourne un objet vide en cas d'erreur
-        }
-      };
-
-      const decodedToken = parseJwt(extractedToken);
-      console.log("Token décodé :", decodedToken);
-
-      if (!decodedToken.sub || !decodedToken.email) {
-        console.error("Erreur : Impossible de décoder le token ou les informations sont invalides.");
-        return rejectWithValue("Échec de connexion. Token invalide.");
-      }
-
-      // Création de l'utilisateur à partir du token décodé
-      const user: User = {
-        id: decodedToken.sub,
-        email: decodedToken.email,
-        name: decodedToken.name || '',
-        roles: decodedToken.realm_access?.roles || [], // Définit des rôles vides si non présents
-      };
-
-      // Sauvegarde dans le state
-      saveState({ 
-        ...initialState, 
-        user: user, 
-        isAuthenticated: true, 
-        token: extractedToken 
-      });
-
-      console.log("Utilisateur authentifié :", user);
-      return user; // Renvoie l'utilisateur si la connexion est réussie
-
-    } catch (error) {
-      console.error("Erreur de connexion :", error);
-      return rejectWithValue('Échec de connexion. Vérifiez vos informations.'); // Retourne une erreur si la connexion échoue
-    }
-  }
-);
 
 
-      
 
-
-export const signUpUser = createAsyncThunk<boolean, { otp: string }, { rejectValue: string }>(
+// Async thunk for sign-up
+export const signUpUser = createAsyncThunk<{ status: number; message: string; user?: User }, { otp: string }, { rejectValue: { status: number; message: string } }>(
   'auth/signUp',
   async ({ otp }, { rejectWithValue }) => {
     try {
-      const data = sessionStorage.getItem('signupData');
-      if (!data) throw new Error("Données d'inscription manquantes");
 
+      const encryptedOTP: string = await encryptOTP(otp)
+      const data = sessionStorage.getItem('user_data');
+      if (!data) {
+        throw new Error("No sign-up data found in session storage");
+      }
       const user_data: SignUpFormData = JSON.parse(data);
+
+      const { email, ...profile } = user_data;
+
       const post_data = {
-        user: { ...user_data, password: "" },  // Retirer le rôle ici
-        otp
+        user: {
+          email: email,
+          password: "",
+          profile: {
+            ...profile,
+            role: "student"
+          }
+        },
+        otp: encryptedOTP
       };
 
-      const response = await axios.post('http://localhost:8081/user/signup', post_data, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa('admin:admin') }
-      });
+      console.log("POST DATA: " + post_data.user.profile)
 
-      return response.status === 200;
+      const response = await axios.post(
+        import.meta.env.VITE_SIGN_UP_URL,
+        post_data,
+        {
+          withCredentials: true, // Allow cookies
+          headers: {
+            'Content-Type': 'application/json',
+            //'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
+          }
+        }
+      );
+
+      console.log("response: ", response)
+      if (response.status === 200) {
+        //localStorage.setItem('user_data', JSON.stringify({ email, profile: { ...profile } }))
+        return { status: response.status, message: 'Sign-up successful', user: response.data as User };
+      } else {
+        throw new Error('Sign-up failed');
+      }
     } catch (error) {
-      return rejectWithValue('Échec de l’inscription');
+      if (axios.isAxiosError(error) && error.response && [401, 403].includes(error.response.status)) {
+        return rejectWithValue({ status: error.response.status, message: error.response.data });
+      }
+      if (error instanceof Error) {
+        return rejectWithValue({ status: 500, message: error.message });
+      }
+      return rejectWithValue({ status: 500, message: 'An unknown error occurred' });
     }
   }
 );
 
 
 // Thunk pour la vérification de session
-export const checkAuth = createAsyncThunk<User, void, { rejectValue: string }>(
+export const checkAuth = createAsyncThunk<UserState, void, { rejectValue: string }>(
   'auth/check',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get('/api/auth/me');
       return response.data;
     } catch (error) {
-      return rejectWithValue('Session expirée, veuillez vous reconnecter.');
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+);
+
+export const testAPICall = createAsyncThunk<string, void, { rejectValue: string }>(
+  '/testAPICall',
+  async (_, { rejectWithValue }) => {
+    try {
+      // Pass an empty object as data payload and the config as third argument.
+      const response = await axios.get(
+        import.meta.env.VITE_TEST_API_PATH,
+        {}, // Empty data payload if not needed
+
+      );
+
+      console.log("Response from api test call is:", response);
+
+      if (response.status === 200) {
+        return "auth";
+      } else {
+        return rejectWithValue("API call failed");
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
+        return "unauthorized user";
+      }
+      return rejectWithValue("API call failed");
     }
   }
 );
@@ -196,15 +174,58 @@ export const sendVerifEmail = createAsyncThunk<boolean, { email: string; passwd:
   'auth/sendVerifEmail',
   async ({ email, passwd, firstname }, { rejectWithValue }) => {
     try {
-      const password: string = await encryptPassword(JSON.stringify({ passwd, timestamp: Date.now() }));
-      const response = await axios.post('http://localhost:8081/user/verify-email', { email, password, firstname }, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa('admin:admin') }
-      });
+      const timestamp = new Date().getTime();
+      const password: string = await encryptPassword(JSON.stringify({ passwd, timestamp }));
 
-      return response.status === 200;
+      const response = await axios.post(
+        import.meta.env.VITE_VERIF_EMAIL_URL,
+        { email, password, firstname },
+        {
+          withCredentials: true, // Allow cookies
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (error) {
-      return rejectWithValue('Échec de la vérification de l’email');
+      console.error("Email verification failed:", error);
+      return rejectWithValue("Email verification failed");
+    }
+  }
+);
+
+// Async thunk for resending verification email
+export const resendVerifEmail = createAsyncThunk<boolean, { email: string; firstname: string }, { rejectValue: string }>(
+  'auth/resendVerifEmail',
+  async ({ email, firstname }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_RESEND_VERIF_EMAIL_URL,
+        { email, firstname },
+        {
+          withCredentials: true, // Allow cookies
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`)
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error("Resend verification email failed:", error);
+      return rejectWithValue("Resend verification email failed");
     }
   }
 );
@@ -221,10 +242,84 @@ export const updatePassword = createAsyncThunk<boolean, { email: string; newPass
 
       return response.status === 200 && response.data === "Password updated successfully";
     } catch (error) {
-      return rejectWithValue('Échec de la mise à jour du mot de passe');
+      if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
+        return false;
+      }
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue('An unknown error occurred');
     }
   }
 );
+
+export const loginUser = createAsyncThunk<
+  { status: number; message: string; user?: User },  // Type de retour attendu pour une réponse réussie
+  { email: string; password: string },  // Paramètres d'entrée
+  { rejectValue: string }  // Type de la valeur rejetée
+>(
+  'auth/login',
+  async ({ email, password }, { rejectWithValue }) => {
+
+    password = await encryptPassword(password);
+
+    console.log(password)
+
+    try {
+      // Envoi de la requête POST pour la connexion
+      const response = await axios.post(
+        import.meta.env.VITE_LOGIN_URL,
+        { email, password },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        }
+      );
+
+      console.log("Réponse serveur :", response);
+
+      if (response.status === 200) {
+        // Sauvegarder le token directement dans le localStorage
+
+
+
+        return { status: 200, message: "Logged in" };
+
+
+        // Création de l'utilisateur à partir de la réponse
+        /*const user: User = {
+          id: response.data.user.id,
+          email: response.data.user.email,
+          name: response.data.user.name || '',
+          roles: response.data.user.roles || [], // Définit des rôles vides si non présents
+        };*/
+
+        // Sauvegarde dans le state
+        /* saveState({ 
+           ...initialState, 
+           user: user, 
+           isAuthenticated: true, 
+           token: response.data.access_token 
+         });*/
+
+        // console.log("Utilisateur authentifié :", user);
+        //return user; // Renvoie l'utilisateur si la connexion est réussie
+      } else {
+        throw new Error('Login failed');
+      }
+
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response && [401, 403, 404].includes(error.response.status)) {
+        return rejectWithValue(error.response.data);
+      }
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+);
+
 
 // Slice Redux
 const authSlice = createSlice({
@@ -240,28 +335,81 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user?: User }>) => {
+        console.log("action payload:" + action.payload)
+        if (action.payload.status === 200) {
+          if (action.payload.user) {
+            state.user = action.payload.user;
+          }
+          state.isAuthenticated = true;
+          state.loading = false;
+          saveState(state); // Save state to localStorage on login
+        }
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.error = typeof action.payload === 'string' ? action.payload : 'Login failed';
+        state.loading = false;
+      })
+      .addCase(signUpUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signUpUser.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user?: User }>) => {
+        if (action.payload.status === 200) {
+          if (action.payload.user) {
+            state.user = action.payload.user;
+          }
+          state.isAuthenticated = true;
+        }
+        state.loading = false;
+        saveState(state); // Save state to localStorage on sign-up
+      })
+      .addCase(signUpUser.rejected, (state, action) => {
+        state.error = typeof action.payload === 'string' ? action.payload : 'Sign-up failed';
+        state.loading = false;
+      })
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action: PayloadAction<UserState>) => {
         state.user = action.payload;
         state.isAuthenticated = true;
         state.loading = false;
-        state.token = localStorage.getItem('authState') ? JSON.parse(localStorage.getItem('authState')!).token : null;
+        saveState(state); // Save state to localStorage on auth check
       })
-      .addCase(loginUser.rejected, (state, action) => { state.error = action.payload || 'Échec de connexion'; state.loading = false; })
-      
-      .addCase(signUpUser.pending, (state) => { state.loading = true; })
-      .addCase(signUpUser.fulfilled, (state, action) => { state.isAuthenticated = action.payload; state.loading = false; })
-      .addCase(signUpUser.rejected, (state, action) => { state.error = action.payload || 'Inscription échouée'; state.loading = false; })
+      .addCase(checkAuth.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.error = action.payload || 'Authentication check failed';
+        state.loading = false;
+      })
+      .addCase(sendVerifEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendVerifEmail.fulfilled, (state, action: PayloadAction<boolean>) => {
+        state.emailVerificationStatus = action.payload;
+        state.loading = false;
+      })
+      .addCase(sendVerifEmail.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.error = action.payload || 'Email verification failed';
+        state.loading = false;
+      })
 
-      .addCase(checkAuth.pending, (state) => { state.loading = true; })
-      .addCase(checkAuth.fulfilled, (state, action) => { state.user = action.payload; state.isAuthenticated = true; state.loading = false; })
-      .addCase(checkAuth.rejected, (state, action) => { state.error = action.payload || 'Session expirée'; state.loading = false; })
-      
-      .addCase(sendVerifEmail.fulfilled, (state, action) => { state.emailVerificationStatus = action.payload; })
-      .addCase(sendVerifEmail.rejected, (state, action) => { state.error = action.payload || 'Échec de la vérification de l’email'; })
-
-      .addCase(updatePassword.fulfilled, (state) => { state.loading = false; })
-      .addCase(updatePassword.rejected, (state, action) => { state.error = action.payload || 'Erreur lors de la mise à jour du mot de passe'; state.loading = false; });
+      .addCase(resendVerifEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendVerifEmail.fulfilled, (state, action: PayloadAction<boolean>) => {
+        state.emailVerificationStatus = action.payload;
+        state.loading = false;
+      })
+      .addCase(resendVerifEmail.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.error = action.payload || 'Resend verification email failed';
+        state.loading = false;
+      });
   },
 });
 

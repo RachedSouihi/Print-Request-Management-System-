@@ -1,23 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Table, Button, Form, Pagination, Modal, Badge } from 'react-bootstrap';
 import { FiFilter, FiAlertTriangle, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import './Admin.scss';
-
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 import sampleRequests from './data';
 import RequestDetailModal from './RequestDetailsModal';
-
-interface PrintRequest {
-  id: string;
-  title: string;
-  user: string;
-  date: string;
-  copies: number;
-  paperType: string;
-  inkUsage: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  urgency: 'low' | 'medium' | 'high';
-  statusHistory?: { status: string; timestamp: string }[];
-}
+import { PrintRequest, addRequest, fetchPrintRequests, approvePrintRequest, updateRequestStatus } from '../../store/requestSlice';
+import { AppDispatch, RootState } from '../../store/store';
+import { useToast } from '../../context/ToastContext';
+import CustomToast from '../../common/Toast';
 
 interface Filters {
   status: string;
@@ -31,7 +24,11 @@ interface SortConfig {
 }
 
 const PrintRequestsTable: React.FC = () => {
-  const [requests, setRequests] = useState<PrintRequest[]>(sampleRequests);
+  const dispatch = useDispatch<AppDispatch>();
+  const requests = useSelector((state: RootState) => state.printRequest.requests);
+
+
+  //const [requests, setRequests] = useState<PrintRequest[]>(sampleRequests);
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [filters, setFilters] = useState<Filters>({
     status: '',
@@ -43,6 +40,70 @@ const PrintRequestsTable: React.FC = () => {
   const [showDetail, setShowDetail] = useState<PrintRequest | null>(null);
   const [showBulkConfirm, setShowBulkConfirm] = useState<boolean>(false);
   const itemsPerPage = 10;
+
+
+
+    const { toast, showToast, hideToast } = useToast()
+  
+
+  // Fetch print requests once when the component mounts
+  useEffect(() => {
+    dispatch(fetchPrintRequests());
+  }, [dispatch]);
+
+
+
+  // WebSocket
+  useEffect(() => {
+    const socket = new SockJS('http://localhost:9001/ws');
+    const stompClient = new Client({
+      webSocketFactory: () => socket,
+      debug: (str) => console.log(str),
+      onConnect: () => {
+        console.log('Connected to WebSocket');
+        stompClient.subscribe('/topic/printRequests', (message) => {
+          const updatedRequest = JSON.parse(message.body);
+          console.log('Incoming request:', updatedRequest); // Log each incoming request
+          dispatch(addRequest(updatedRequest)); // Dispatch action to add the new request to the Redux store
+        });
+      },
+      onStompError: (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+      },
+    });
+
+    stompClient.activate();
+
+    return () => {
+      stompClient.deactivate();
+    };
+  }, [dispatch]);
+
+  // Function to approve a print request
+  const handleApproveRequest = (userId: string, requestId: string) => {
+    if (userId && requestId) {
+      dispatch(approvePrintRequest({ userId, requestId })).then((action: any) => {
+        console.log("approve actions: " + action.payload);
+
+        if (action.type === 'printRequest/approvePrintRequest/fulfilled') {
+          showToast(action.payload.message, action.payload.status === 200 ? 'success' : 'danger');
+
+
+        }
+
+        // Update the request state to "approved" in the requests array
+        const updatedRequests = requests.map(request =>
+          request.requestId === requestId ? { ...request, status: 'APPROVED' } : request
+        );
+
+        const status = "APPROVED"
+
+        dispatch(updateRequestStatus({ requestId, status }))
+        setShowDetail(null);
+      });
+    }
+  };
 
   // Filtering and sorting logic
   const filteredRequests = requests.filter(request => {
@@ -61,7 +122,11 @@ const PrintRequestsTable: React.FC = () => {
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredRequests.slice(indexOfFirstItem, indexOfLastItem);
+  const [currentItems, setCurrentItems] = useState<PrintRequest[]>(filteredRequests.slice(indexOfFirstItem, indexOfLastItem));
+
+  useEffect(() => {
+    setCurrentItems(filteredRequests.slice(indexOfFirstItem, indexOfLastItem));
+  }, [requests, filters, sortConfig, currentPage]);
 
   const handleSort = (key: keyof PrintRequest) => {
     setSortConfig(prev => ({
@@ -79,11 +144,21 @@ const PrintRequestsTable: React.FC = () => {
     // Prevent modal from opening if the checkbox is clicked
     if ((event.target as HTMLElement).tagName !== 'INPUT') {
       setShowDetail(request);
+      console.log("clicked request: ", request)
     }
   };
 
   return (
+
+  
     <div className="print-requests-admin">
+<CustomToast
+        show={toast.show}
+        onClose={hideToast}
+        type={toast.type}
+        message={toast.message}
+      />
+
       {/* Filters Section */}
       <div className="filters-section">
         <Form.Group className="filter-group">
@@ -123,7 +198,7 @@ const PrintRequestsTable: React.FC = () => {
               <Form.Check
                 type="checkbox"
                 onChange={e => {
-                  const allIds = currentItems.map(item => item.id);
+                  const allIds = currentItems.map(item => item.requestId).filter((id): id is string => id !== undefined);
                   setSelectedRequests(e.target.checked ? allIds : []);
                 }}
               />
@@ -143,33 +218,33 @@ const PrintRequestsTable: React.FC = () => {
         <tbody>
           {currentItems.map(request => (
             <tr
-              key={request.id}
+              key={request.requestId}
               className={`request-row ${request.urgency === 'high' ? 'high-priority' : ''}`}
               onClick={(event) => handleRowClick(event, request)}
             >
               <td>
                 <Form.Check
                   type="checkbox"
-                  checked={selectedRequests.includes(request.id)}
+                  checked={selectedRequests.includes(request.requestId ?? '')}
                   onChange={e => {
                     setSelectedRequests(prev =>
                       e.target.checked
-                        ? [...prev, request.id]
-                        : prev.filter(id => id !== request.id)
+                        ? [...prev, ...(request.requestId ? [request.requestId] : [])]
+                        : prev.filter(id => id !== request.requestId)
                     );
                   }}
                 />
               </td>
-              <td>{request.title}</td>
-              <td>{request.user}</td>
-              <td>{request.date}</td>
+              <td>{request.document.title}</td>
+              <td>{request.user.email}</td>
+              <td>{formatDateTime(request.date ?? '')}</td>
               <td>{request.copies}</td>
               <td>{request.paperType}</td>
               <td>
-                <StatusBadge status={request.status} />
+                {request.status && <StatusBadge status={request.status} />}
               </td>
               <td>
-                <UrgencyIndicator urgency={request.urgency} />
+                <UrgencyIndicator urgency={request.urgency ?? ''} />
               </td>
             </tr>
           ))}
@@ -206,18 +281,25 @@ const PrintRequestsTable: React.FC = () => {
         show={!!showDetail}
         request={showDetail}
         onHide={() => setShowDetail(null)}
+        onApprove={handleApproveRequest} // Pass the approve function to the modal
       />
     </div>
   );
 };
 
 // Helper Components
-const StatusBadge: React.FC<{ status: 'pending' | 'in-progress' | 'completed' }> = ({ status }) => {
-  const statusConfig: Record<'pending' | 'in-progress' | 'completed', { label: string; variant: string }> = {
+const StatusBadge: React.FC<{ status: 'pending' | 'in-progress' | 'completed' | 'APPROVED'}> = ({ status }) => {
+  const statusConfig: Record<'pending' | 'in-progress' | 'completed'| 'APPROVED', { label: string; variant: string }> = {
     pending: { label: 'Pending', variant: 'warning' },
     'in-progress': { label: 'In Progress', variant: 'primary' },
     completed: { label: 'Completed', variant: 'success' },
+    APPROVED: { label: 'Approved', variant: 'success' },
   };
+
+  if (!statusConfig[status]) {
+    return null; // Return null if the status is not valid
+  }
+
   return <Badge bg={statusConfig[status].variant}>{statusConfig[status].label}</Badge>;
 };
 
@@ -228,6 +310,16 @@ const UrgencyIndicator: React.FC<{ urgency: string }> = ({ urgency }) => {
       <span className={`urgency-label ${urgency}`}>{urgency}</span>
     </div>
   );
+};
+
+const formatDateTime = (dateTime: string) => {
+  const date = new Date(dateTime);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
 };
 
 export default PrintRequestsTable;

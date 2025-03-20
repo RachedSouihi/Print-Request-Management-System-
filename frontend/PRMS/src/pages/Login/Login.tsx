@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Button, Spinner, Alert } from "react-bootstrap";
@@ -6,13 +6,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../store/authSlice";
-import ForgetPassword from "../forget/ForgetPassword";
 import styles from "./Login.module.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AppDispatch, RootState } from "../../store/store";
 import { Form as BootstrapForm } from "react-bootstrap";
+import ForgetPassword from "../../components/ForgetPassword/ForgetPassword";
 
-const Login = () => {
+const Login: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { loading, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -43,10 +43,21 @@ const Login = () => {
             validationSchema={validationSchema}
             onSubmit={(values, { setSubmitting }) => {
               dispatch(loginUser(values))
-                .unwrap()
-                .then(() => {
-                  setSubmitting(false);
-                  navigate("/home"); // Redirection vers la page d'accueil après une connexion réussie
+                
+                .then((action: any) => {
+
+                  console.log("LOGIN ACTION: ", action)
+                  if (action.type === 'auth/login/fulfilled') {
+                    setSubmitting(false);
+                    if(action.payload.status === 200) {
+                      navigate("/");
+                    }
+
+
+                  }
+
+
+
                 })
                 .catch((err) => {
                   setSubmitting(false);
@@ -97,7 +108,6 @@ const Login = () => {
 
           <p className="mt-3">
             Don't you have an account?{" "}
-            {/* Remplacer par un lien ou bouton de navigation pour l'inscription */}
             <Button variant="link" className={styles.signUp}onClick={() => navigate("/signup")}>
               Sign up
             </Button>

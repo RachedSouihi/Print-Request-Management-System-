@@ -12,22 +12,27 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
+
     @Bean
-    public RedisTemplate<String, VerificationData> redisTemplate(
-            RedisConnectionFactory connectionFactory,
-            ObjectMapper objectMapper) {
-
-        RedisTemplate<String, VerificationData> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-
-        // Key serializer
-        template.setKeySerializer(new StringRedisSerializer());
-
-        // Value serializer (JSON)
-        Jackson2JsonRedisSerializer<VerificationData> serializer =
-                new Jackson2JsonRedisSerializer<>(objectMapper, VerificationData.class);
-        template.setValueSerializer(serializer);
-
+    public RedisTemplate<String, String> otpRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
         return template;
     }
+
+    @Bean
+    public RedisTemplate<String, String> passwordRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, String> tokensRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+
+
 }

@@ -16,10 +16,13 @@ import { FaSearch, FaFileExport, FaPlus } from "react-icons/fa";
 
 import { AppDispatch, RootState } from "../../store/store";
 import { fetchPrintHistory } from "../../store/historySlice";
+import { PrintRequest } from "../../store/requestSlice";
+
+
 
 const PrintHistory: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const data = useSelector((state: RootState) => state.history.data);
+  const data = useSelector((state: RootState) => state.history.data as PrintRequest[]);
   console.log("Données dans Redux:", data);
 
   useEffect(() => {
@@ -65,7 +68,7 @@ const PrintHistory: React.FC = () => {
     // Vérifier si des dates de début et de fin ont été sélectionnées
     if (startDate && endDate) {
       // Convertir la date du document en date sans heure
-      const recordDate = new Date(record.createdAt);
+      const recordDate = new Date(record.date || "");
       const start = new Date(startDate);
       const end = new Date(endDate);
 
@@ -121,7 +124,7 @@ const PrintHistory: React.FC = () => {
 
         <Row className="mb-3">
           <Col className="text-center">
-            {["All", "Printed", "Failed", "Pending", "Canceled"].map((status) => (
+            {["All", "pending", "in-progress", "completed", "APPROVED"].map((status) => (
               <Button
                 key={status}
                 variant={statusFilter === status ? "secondary" : "outline-secondary"}
@@ -168,7 +171,7 @@ const PrintHistory: React.FC = () => {
                     <td>{record.document?.description || "N/A"}</td> {/* Afficher la description ici */}
                     <td>{record.document?.subject || "N/A"}</td> {/* Afficher le sujet ici */}
                     <td>{record.copies}</td>  {/* Nombre de copies */}
-                    <td>{new Date(record.createdAt).toLocaleDateString()}</td>  {/* Formater la date */}
+                    <td>{new Date(record.date || "").toLocaleDateString()}</td>  {/* Formater la date */}
                     <td>{record.status}</td>
                     <td>{record.user?.email || "Unknown"}</td>  {/* Email de l'utilisateur */}
                   </tr>

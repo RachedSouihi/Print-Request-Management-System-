@@ -1,53 +1,119 @@
 package com.microservices.user_service.service;
 
-import com.microservices.user_service.utils.VerificationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class VerificationService {
 
+
+
+
+
+
     @Autowired
-    private RedisTemplate<String, VerificationData> redisTemplate;
+    private RedisTemplate<String, String> otpRedisTemplate;
 
-    private static final Duration EXPIRATION = Duration.ofMinutes(10);  // Expiration de 10 minutes pour l'OTP
+    @Autowired
+    private RedisTemplate<String, String> passwordRedisTemplate;
 
-    // Stocker les données de vérification dans Redis
-    public void storeVerificationData(String email, VerificationData data) {
-        String key = "verification:" + email;
-        redisTemplate.opsForValue().set(key, data, EXPIRATION);  // Stockage avec expiration
-        System.out.println("✅ Données de vérification stockées pour l'email : " + email);
-    }
+    @Autowired
+    private RedisTemplate<String, String> tokensRedisTemplate;
 
-    // Récupérer les données de vérification depuis Redis
-    public VerificationData getVerificationData(String email) {
-        String key = "verification:" + email;
-        VerificationData data = redisTemplate.opsForValue().get(key);
 
-        if (data == null) {
-            System.out.println("❌ Aucune donnée trouvée dans Redis pour cet email.");
+    private static final Duration OTP_EXPIRATION = Duration.ofMinutes(1);
+
+
+
+    public void saveAccessToken(String userId, String accessToken) {
+        try {
+            tokensRedisTemplate.opsForValue().set("ACCESS_TOKEN_" + userId, accessToken, OTP_EXPIRATION.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return data;
+    }
+    public void saveTokens(String userId, String accessToken, String refreshToken, long accessExpiry, long refreshExpiry) {
+
+        try {
+
+            tokensRedisTemplate.opsForValue().set("ACCESS_TOKEN_" + userId, accessToken, accessExpiry, TimeUnit.SECONDS);
+
+            tokensRedisTemplate.opsForValue().set("REFRESH_TOKEN_" + userId, refreshToken, refreshExpiry, TimeUnit.SECONDS);
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+
+        }
     }
 
-    // Générer et stocker un OTP dans Redis
-    public void generateAndStoreOtp(String email, String password) {
-        // Générer un OTP aléatoire de 4 chiffres
-        String generatedOtp = String.format("%04d", (int)(Math.random() * 10000));
+    public String getAccessToken(String userId) {
+        try {
+            return tokensRedisTemplate.opsForValue().get("ACCESS_TOKEN_" + userId);
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
 
-        // Hacher le mot de passe
-        String hashedPassword = password; // Vous pouvez ajouter un algorithme de hachage comme BCrypt ici.
+    public String getRefreshToken(String userId) {
+        return tokensRedisTemplate.opsForValue().get("REFRESH_TOKEN_" + userId);
+    }
 
-        // Créer un objet VerificationData
-        VerificationData data = new VerificationData();
-        data.setCode(generatedOtp);
-        data.setHashedPassword(hashedPassword);
+    public void deleteTokens(String userId) {
+        tokensRedisTemplate.delete("ACCESS_TOKEN_" + userId);
+        tokensRedisTemplate.delete("REFRESH_TOKEN_" + userId);
+    }
 
-        // Stocker l'OTP et les autres données de vérification
-        storeVerificationData(email, data);
-        System.out.println("✅ OTP généré et stocké pour l'email : " + email);
+
+    public void storeOtp(String email, String otp) {
+        otpRedisTemplate.opsForValue().set("otp:" + email, otp, OTP_EXPIRATION);
+    }
+
+
+    public void storePassword(String email, String password) {
+        passwordRedisTemplate.opsForValue().set(
+                "verification:" + email,
+                password
+        );
+    }
+
+    public String getPassword(String email) {
+        return passwordRedisTemplate.opsForValue().get("verification:" + email);
+    }
+
+    public String getOtp(String email) {
+        return otpRedisTemplate.opsForValue().get("otp:" + email);
+    }
+
+
+
+
+
+    public Map<String, Object> isOtpValid(String email, String otp) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        String storedOtp = getOtp(email);
+
+        if(storedOtp == null) {
+
+            response.put("status", 401);
+            response.put("message", "OTP not valid");
+
+
+        }else if(storedOtp.equals(otp)){
+            response.put("status", 200);
+        }else{
+            response.put("status", 403);
+            response.put("message", "Wrong OTP");
+        }
+
+
+        return response;
     }
 }

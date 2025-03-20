@@ -1,0 +1,124 @@
+// AuthModal.scss
+@import '../../node_modules/bootstrap/scss/bootstrap.scss';
+
+@import '../design.scss';
+
+
+.auth-modal {
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba($background-dark, 0.95);
+    z-index: 1040;
+  }
+
+  .modal-content {
+    position: relative;
+    z-index: 1050;
+    border: none;
+    border-radius: map-get($border-radius, 'lg');
+    box-shadow: map-get($shadow-elevation, 'high');
+    padding: map-get($spacing-scale, 'xl');
+    background: $background-light;
+    max-width: 440px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: map-get($spacing-scale, 'xl');
+
+    .header-icon {
+      font-size: 1.8rem;
+      color: $purple-accent;
+      margin-right: map-get($spacing-scale, 'sm');
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      padding: map-get($spacing-scale, 'xs');
+      color: lighten($dark-text, 20%);
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: $primary-blue;
+        transform: rotate(90deg);
+      }
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+  }
+
+  .modal-body {
+    text-align: center;
+
+    h2 {
+      color: $dark-text;
+      font-weight: map-get($font-weights, 'bold');
+      margin-bottom: map-get($spacing-scale, 'md');
+      @include font-scale('h3');
+    }
+
+    .modal-description {
+      color: lighten($dark-text, 20%);
+      margin-bottom: map-get($spacing-scale, 'xl');
+      line-height: 1.6;
+      @include font-scale('body');
+    }
+  }
+
+  .auth-actions {
+    display: grid;
+    gap: map-get($spacing-scale, 'md');
+    
+    .action-btn {
+      width: 100%;
+      padding: map-get($spacing-scale, 'md');
+      border-radius: map-get($border-radius, 'md');
+      font-weight: map-get($font-weights, 'semi-bold');
+      transition: all 0.3s ease;
+
+      &.login-btn {
+        background: linear-gradient(135deg, $primary-blue, $purple-accent);
+        border: none;
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba($purple-accent, 0.2);
+        }
+      }
+
+      &.signup-btn {
+        border: 2px solid $primary-blue;
+        color: $primary-blue;
+        
+        &:hover {
+          background: rgba($primary-blue, 0.05);
+          border-color: $purple-accent;
+          color: $purple-accent;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .modal-content {
+      margin: map-get($spacing-scale, 'md');
+      padding: map-get($spacing-scale, 'lg');
+    }
+
+    h2 {
+      @include font-scale('h4');
+    }
+  }
+}
