@@ -6,12 +6,10 @@ import numpy as np
 DB_CONFIG = {
     "dbname": "prms",
     "user": "postgres",
-    "password": "",
+    "password": "242619",
     "host": "localhost",
     "port": 5432
 }
-
-# Connect to PostgreSQL
 
 # Connect to PostgreSQL Database
 try:
@@ -20,6 +18,7 @@ try:
 except Exception as e:
     print(f"Error connecting to database: {e}")
     exit()
+
 # Fetch raw print request data
 query = """
 SELECT 
@@ -28,10 +27,8 @@ FROM print_requests;
 """
 df = pd.read_sql(query, conn)
 
-# Convert timestamps to datetime
-df['created_at'] = pd.to_datetime(df['created_at'])
 
-# Extract date-related features
+df['created_at'] = pd.to_datetime(df['created_at'])
 df['date'] = df['created_at'].dt.date
 df['day_of_week'] = df['created_at'].dt.dayofweek  # 0=Monday, 6=Sunday
 
@@ -42,82 +39,156 @@ df['exam_period'] = df['date'].apply(lambda x: 1 if pd.to_datetime(x) in exam_da
 holiday_dates = pd.to_datetime(["2025-01-01", "2025-12-25"])  # Example holidays
 df['holidays'] = df['date'].apply(lambda x: 1 if pd.to_datetime(x) in holiday_dates else 0)
 
-# Aggregate daily print volume
-daily_prints = df.groupby('date').agg(
-    total_pages=('copies', 'sum'),
+# Fetch profile data with the "field" attribute
+profile_query = """
+SELECT user_id, role, field
+FROM Profile;
+"""
+profiles = pd.read_sql(profile_query, conn)
+
+# Merge profiles with print request data
+df = df.merge(profiles, on='user_id', how='left')
+df['date'] = pd.to_datetime(df['date'])  # ensure proper datetime format
+
+# Compute total copies for all print requests per date
+total_copies_df = df.groupby('date')['copies'].sum().reset_index()
+total_copies_df.rename(columns={'copies': 'total_copies'}, inplace=True)
+
+# Filter for student prints only (since we're grouping by student "field")
+student_df = df.copy() #df[df['role'] == 'student'].copy()
+
+# Aggregate student prints by date and field
+student_daily = student_df.groupby(['date', 'field']).agg(
+    student_prints=('copies', 'sum'),
     total_color_pages=('color', 'sum'),
     ink_usage=('ink_usage', 'sum'),
     total_requests=('request_id', 'count')
 ).reset_index()
 
-# Compute lagged features (previous day/week print volume)
-daily_prints['prev_day_print_volume'] = daily_prints['total_pages'].shift(1)
-daily_prints['prev_week_print_volume'] = daily_prints['total_pages'].shift(7)
 
-# Compute moving averages (last 7 and 30 days)
-# Compute moving averages with min_periods to reduce NaNs
-daily_prints['moving_avg_7'] = daily_prints['total_pages'].rolling(7, min_periods=1).mean()
-daily_prints['moving_avg_30'] = daily_prints['total_pages'].rolling(30, min_periods=1).mean()
 
-# Alternatively, forward-fill NaN values
-daily_prints['moving_avg_7'] = daily_prints['moving_avg_7'].fillna(method='ffill')
-daily_prints['moving_avg_30'] = daily_prints['moving_avg_30'].fillna(method='ffill')
+# Sort the data by field and date for time series operations
+student_daily = student_daily.sort_values(['date'], ascending=True)
 
-# Or use interpolation
-daily_prints['moving_avg_7'] = daily_prints['moving_avg_7'].interpolate()
-daily_prints['moving_avg_30'] = daily_prints['moving_avg_30'].interpolate()
-# Add student and professor statistics
-profile_query = """
-SELECT user_id, role
-FROM Profile;
-"""
-profiles = pd.read_sql(profile_query, conn)
+# Compute previous day and week dates
+#student_daily['prev_day_date'] = student_daily['date'] - pd.DateOffset(days=1)
 
-# Merge profiles with the main dataframe
-df = df.merge(profiles, on='user_id', how='left')
-
-# Ensure 'date' column is in datetime format for merging
-df['date'] = pd.to_datetime(df['date'])
-daily_prints['date'] = pd.to_datetime(daily_prints['date'])
-
-# Filter student and professor prints
-student_prints = df[df['role'] == 'student']
-professor_prints = df[df['role'] == 'professor']
+# Merge previous day's data
+#prev_day = student_daily[['date', 'field', 'student_prints']].copy()
+#prev_day.rename(columns={'date': 'prev_day_date', 'student_prints': 'prev_day_print_volume'}, inplace=True)
+#student_daily = student_daily.merge(prev_day, on=['prev_day_date', 'field'], how='left')
 
 
 
-# Aggregate student and professor prints by date
-student_daily_prints = student_prints.groupby('date')['copies'].sum().reset_index()
-professor_daily_prints = professor_prints.groupby('date').agg({'copies': 'sum'}).reset_index()
 
-# Ensure 'date' column is in datetime format for merging
-student_daily_prints['date'] = pd.to_datetime(student_daily_prints['date'])
-professor_daily_prints['date'] = pd.to_datetime(professor_daily_prints['date'])
 
-# Rename columns for clarity
-student_daily_prints.rename(columns={'copies': 'student_prints_30'}, inplace=True)
-professor_daily_prints.rename(columns={'copies': 'professor_print_volume_7'}, inplace=True)
+# Compute rolling sum for the last 7 days for prev_week_print_volume
 
-# Merge with daily_prints
-daily_prints = daily_prints.merge(student_daily_prints, on='date', how='left')
-daily_prints = daily_prints.merge(professor_daily_prints, on='date', how='left')
+'''student_daily['prev_week_print_volume'] = (
+    student_daily
+    .set_index('date')  # Set date as index for time-based window
+    .groupby('field')['student_prints']
+    .rolling('7D', closed='left')  # 7-day window, exclude current date
+    .sum()
+    .reset_index()
+    .sort_values(['field', 'date'])
+    ['student_prints']
+)'''
 
-# Fill NaN values with 0
-daily_prints['student_prints_30'] = daily_prints['student_prints_30'].fillna(0)
-daily_prints['professor_print_volume_7'] = daily_prints['professor_print_volume_7'].fillna(0)
+daily_total = student_daily.groupby('date', as_index=False)['student_prints'].sum()
 
-# Compute student to professor print ratio
-daily_prints['student_professor_ratio'] = daily_prints['student_prints_30'] / daily_prints['professor_print_volume_7'] if daily_prints['professor_print_volume_7'].all() != 0 else 0
+daily_total['prev_day_total'] = (
+    daily_total.set_index('date')['student_prints']
+    .rolling('1D', closed='left')  # 7-day window up to previous day
+    .sum()
+    .reset_index(drop=True)
+)
 
-# Handle printer errors (Assuming 'errors' table exists with 'date' and 'error_count' columns)
-'''printer_errors_query = "SELECT date, COUNT(*) as error_count FROM printer_errors GROUP BY date"
-printer_errors = pd.read_sql(printer_errors_query, conn)
 
-daily_prints = daily_prints.merge(printer_errors, on='date', how='left')'''
-daily_prints['printer_errors'] = 0 #daily_prints['printer_errors'].fillna(0)
 
-# Save dataset to CSV
-daily_prints.to_csv("training_dataset.csv", index=False)
+# Calculate rolling 7-day sum (date-based, closed='left' excludes current date)
+daily_total['prev_week_total'] = (
+    daily_total.set_index('date')['student_prints']
+    .rolling('7D', closed='left')  # 7-day window up to previous day
+    .sum()
+    .reset_index(drop=True)
+)
+
+# Merge the aggregated total back into the original DataFrame
+
+student_daily = student_daily.merge(
+    daily_total[['date',  'prev_day_total','prev_week_total']], 
+    on='date', 
+    how='left'
+)
+
+
+
+# Rename the column to match your target
+student_daily.rename(columns={'prev_week_total': 'prev_week_print_volume'}, inplace=True)
+
+student_daily.rename(columns={'prev_day_total': 'prev_day_print_volume'}, inplace=True)
+
+
+# Optionally fill NaN values (using forward fill here; alternatives: interpolation or fillna(0))
+student_daily['prev_day_print_volume'] = student_daily['prev_day_print_volume'].fillna(method='ffill')
+student_daily['prev_week_print_volume'] = student_daily['prev_week_print_volume'].fillna(method='ffill')
+
+
+#student_daily = student_daily.drop(columns=['prev_day_date'])
+
+#student_daily['moving_avg_7'] = student_daily.groupby('field')['student_prints']\
+    #.rolling(7, min_periods=1).mean().reset_index(level=0, drop=True)
+
+daily_total = student_daily.groupby('date', as_index=False)['student_prints'].mean()
+
+
+daily_total['moving_avg_7'] = (
+    daily_total.set_index('date')['student_prints']
+    .rolling('7D', closed='left')  # 7-day window up to previous day
+    .mean()
+    .reset_index(drop=True)
+)
+
+#student_daily['moving_avg_30'] = student_daily.groupby('field')['student_prints']\
+ #   .rolling(30, min_periods=1).mean().reset_index(level=0, drop=True)
+
+
+daily_total['moving_avg_30'] = (
+    daily_total.set_index('date')['student_prints']
+    .rolling('30D', closed='left')  # 7-day window up to previous day
+    .mean()
+    .reset_index(drop=True)
+)
+
+
+
+student_daily = student_daily.merge(
+    daily_total[['date',  'moving_avg_7','moving_avg_30']], 
+    on='date', 
+    how='left'
+)
+
+student_daily['moving_avg_7'] = student_daily['moving_avg_7'].fillna(value=0)
+student_daily['moving_avg_30'] = student_daily['moving_avg_30'].fillna(value=0)
+print(student_daily.head(30)[["date", "student_prints", "moving_avg_7", "moving_avg_30"]])
+
+
+
+
+#print(student_daily.head(25)[["date", "student_prints", "moving_avg_7", "moving_avg_30"]])
+# Create a calendar dataframe for exam_period and holidays (per date)
+calendar = df[['date', 'exam_period', 'holidays']].drop_duplicates()
+
+# Merge calendar and total_copies into the student prints data
+training_dataset = student_daily.merge(calendar, on='date', how='left')
+training_dataset = training_dataset.merge(total_copies_df, on='date', how='left')
+
+# Sort the final training dataset by date in ascending order
+training_dataset = training_dataset.sort_values(by='date')
+
+# Save the final training dataset to CSV
+training_dataset.to_csv("training_dataset.csv", index=False)
 print("Dataset saved successfully! ✅")
 
 conn.close()
