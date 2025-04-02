@@ -7,10 +7,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="api-gateway" />
         <module name="printrequest-service" />
-        <module name="profile-service" />
         <module name="common-models-service" />
+        <module name="api-gateway" />
+        <module name="profile-service" />
+        <module name="user-service" />
+        <module name="notification-service" />
         <module name="document-service" />
       </profile>
     </annotationProcessing>

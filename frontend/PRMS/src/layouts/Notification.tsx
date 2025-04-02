@@ -9,7 +9,7 @@ type NotificationType = 'assignment' | 'announcement' | 'grade';
 
 export interface Notification {
     id: string;
-    type: string;
+    type: NotificationType;
     title: string;
     message: string;
     timestamp: Date;

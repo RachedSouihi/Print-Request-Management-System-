@@ -18,7 +18,7 @@ public class JpaConfig {
         return DataSourceBuilder.create()
                 .url("jdbc:postgresql://localhost:5432/prms")
                 .username("postgres")
-                .password("242619")
+                .password("root")
                 .driverClassName("org.postgresql.Driver")
                 .build();
     }

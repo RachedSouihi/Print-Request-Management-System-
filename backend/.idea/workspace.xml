@@ -5,12 +5,32 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6132e1f8-bbc2-483f-9596-a6aa16d5ac48" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../AI/docs.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AI/src/create_dataset.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AI/src/cs_docs.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AI/src/embeddings.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AI/src/eng_docs.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AI/src/profile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/Print-Request-Management-System-.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/config/JpaConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/config/JpaConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/KafkaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/KafkaService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/layouts/Notification.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/layouts/Notification.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +67,7 @@
     &quot;Spring Boot.NotificationServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.PrintrequestServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Merging chaima&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -55,6 +75,7 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;DockerRegistry&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -131,8 +152,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.153" />
-        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.153" />
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.189" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.189" />
       </set>
     </attachedChunks>
   </component>
@@ -148,6 +169,10 @@
       <workItem from="1741815722662" duration="29438000" />
       <workItem from="1741899941445" duration="8548000" />
       <workItem from="1741917665268" duration="1965000" />
+      <workItem from="1742473948975" duration="3134000" />
+      <workItem from="1742479583085" duration="851000" />
+      <workItem from="1742480447474" duration="6211000" />
+      <workItem from="1742940896404" duration="663000" />
     </task>
     <servers />
   </component>

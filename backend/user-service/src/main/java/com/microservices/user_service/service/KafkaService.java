@@ -4,6 +4,8 @@ package com.microservices.user_service.service;
 
 import com.microservices.user_service.utils.KafkaEvent;
 import org.springframework.kafka.core.KafkaTemplate;
+
+
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

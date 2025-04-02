@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="dataSourceStorageLocal" created-in="IU-243.23654.153">
+  <component name="dataSourceStorageLocal" created-in="IU-243.23654.189">
     <data-source name="prms@localhost" uuid="76b08076-0ac9-4636-8876-24297d119f6a">
       <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="POSTGRES" />
       <user-name>postgres</user-name>
+      <schema-mapping />
+    </data-source>
+    <data-source name="0@localhost" uuid="4020f278-e185-4563-8917-eea5894a2a2d">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="REDIS" />
       <schema-mapping />
     </data-source>
   </component>
