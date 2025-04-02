@@ -18,6 +18,13 @@ import time
 from confluent_kafka import Producer
 
 
+from pyflink.datastream.functions import KeyedProcessFunction, RuntimeContext
+from pyflink.datastream.state import ValueStateDescriptor
+from pyflink.common.time import Time
+
+import uuid
+
+
 from src.profile import updateUserProfile
 
 # Suppress Apache Beam type hint warnings
@@ -63,30 +70,27 @@ def consume_messages():
 
 
 def transform_message(row):
+    
+    
     user_id = getattr(row, 'user_id', None)
     doc_id = getattr(row, 'doc_id', None)
-    event = {
-        "title": row.title if getattr(row, 'title', None) else "no title",
-        "text": row.text if getattr(row, 'text', None) else "no text",
-        "timestamp": row.timestamp if getattr(row, 'timestamp', None) else "no timestamp",
-    }
-
+    
+    id = getattr(row, 'id', str(uuid.uuid4()))
+   
     #updateUserProfile(user_id,  {"interaction_type": "share"}, doc_id)
 
-    # Serialize the event dict to a JSON string
-    event_json = json.dumps(event)
 
     return Row(
+        id=id,
         user_id=str(user_id),  # Ensure all fields are strings
-        event=event_json,      # Use JSON string instead of dict
+        event="share",      # Use JSON string instead of dict
         doc_id=str(doc_id),
-        title=event["title"].upper(),
-        text=event["text"].upper(),
-        timestamp=event["timestamp"],
+        
+        timestamp=str(time.time()),
     )
 
 
-def log_and_transform_message(row):
+def log_and_update_user_profile(row):
     """
     Log the read event, save it to a CSV file, and transform the message.
     """
@@ -96,6 +100,17 @@ def log_and_transform_message(row):
     csv_file_path = os.path.join(os.path.dirname(__file__), "events_log.csv")
     file_exists = os.path.exists(csv_file_path)  # Check if the file already exists
 
+
+    user_id = getattr(row, 'user_id', None)
+    doc_id = getattr(row, 'doc_id', None)
+    
+    event = {
+        "interaction_type": getattr(row, 'event', None),
+    }
+
+    # Call the updateUserProfile function with the user_id, event, and doc_id
+    updateUserProfile(user_id, event, doc_id)
+    
     with open(csv_file_path, mode="a", newline="") as csv_file:
         csv_writer = csv.writer(csv_file)
         # Write the header if the file does not exist
@@ -120,11 +135,11 @@ def send_event_to_user_interactions():
 
     # Test event to send
     event = {
-        "user_id": 242619,
+        "id": str(uuid.uuid4()),  # Generate a unique ID for the event
+        "user_id": "242619",
         "doc_id": "6d9afcfa-815c-4a2d-ad15-085b989b8a50",
         "event": "share",
-        "title": "Sample Title",
-        "text": "Sample Text",
+    
         "timestamp": "2025-03-31T12:00:00Z"
     }
 
@@ -134,9 +149,25 @@ def send_event_to_user_interactions():
     logger.info("Test event sent to 'user_interactions' topic.")
 
 
+
+
+class DeduplicateEvents(KeyedProcessFunction):
+    def open(self, runtime_context: RuntimeContext):
+        # Create a ValueState to track if an event with this key has been seen.
+        state_descriptor = ValueStateDescriptor("seen", Types.BOOLEAN())
+        self.seen_state = runtime_context.get_state(state_descriptor)
+
+    def process_element(self, value, ctx: 'KeyedProcessFunction.Context'):
+        # Check if we've seen this event already.
+        seen = self.seen_state.value()
+        if seen is None:
+            # Not seen: mark it as seen and emit the event.
+            self.seen_state.update(True)
+            yield value
+        # Else, skip the event. You can also log or handle duplicates here.
+
+
 def main():
-    # Send a test event to the 'user_interactions' topic
-    send_event_to_user_interactions()
 
     # Initialize the Flink StreamExecutionEnvironment
     env = StreamExecutionEnvironment.get_execution_environment()
@@ -144,19 +175,14 @@ def main():
     # Set the Python executable path correctly
     env.set_python_executable("/usr/bin/python3")
     
-    '''env.add_jars(
-        "file:///opt/flink/lib/flink-connector-kafka-3.4.0-1.20.jar",
-        "file:///opt/flink/lib/flink-sql-connector-kafka-3.3.0-1.20.jar",
-        "file:///opt/flink/lib/kafka-clients-3.9.0.jar"
-    )'''
 
     # Configure Kafka Source with JSON deserialization
     deserialization_schema = (
         JsonRowDeserializationSchema.builder()
         .type_info(
             Types.ROW_NAMED(
-                ["user_id", "doc_id", "event", "title", "text", "timestamp"],
-                [Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING()],
+                ["id" ,"user_id", "doc_id", "event", "timestamp"],
+                [Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING()],
             )
         )
         .build()
@@ -178,8 +204,8 @@ def main():
         JsonRowSerializationSchema.builder()
         .with_type_info(
             Types.ROW_NAMED(
-                ["user_id", "doc_id", "event", "title", "text", "timestamp"],
-                [Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING()],
+                ['id', "user_id", "doc_id", "event", "timestamp"],
+                [Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING()],
             )
         )
         .build()
@@ -198,16 +224,21 @@ def main():
 
     # Define the output type explicitly as a ROW
     output_type = Types.ROW_NAMED(
-        ["user_id", "doc_id", "event", "title", "text", "timestamp"],
-        [Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING()],
+        ['id', "user_id", "doc_id", "event", "timestamp"],
+        [Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING(), Types.STRING()],
     )
 
     # Simplified processing pipeline
-    (
-        env.add_source(kafka_source)
-        .map(log_and_transform_message, output_type=output_type)
-        .add_sink(kafka_sink)
-    )
+    transformed = env.add_source(kafka_source)
+    transformed.map(log_and_update_user_profile, output_type=output_type)
+        #.add_sink(kafka_sink)
+    
+    
+    
+    deduplicated = transformed.key_by(lambda row: row.id) \
+                              .process(DeduplicateEvents(), output_type=output_type)
+    
+    deduplicated.add_sink(kafka_sink)
 
     try:
         env.execute("Kafka JSON Transformation Job")
@@ -217,6 +248,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # Uncomment to consume messages after job execution
-    # consume_messages()
-

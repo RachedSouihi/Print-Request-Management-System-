@@ -4,14 +4,14 @@ import redis
 import faiss
 
 # Connect to Redis
-r = redis.Redis(host="localhost", port=6379, db=0)
+r = redis.Redis(host="redis", port=6379, db=0)
 
 def save_docs():
     r.flushdb()
 
     # Load data
     base_url = (
-        "C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/AI"
+        '/opt/flink/src'
     )
 
     df = pd.read_csv(f"{base_url}/docs.csv")
@@ -109,7 +109,11 @@ def get_filtered_embeddings(subject=None, level=None, type=None):
             pipe.hget(f"doc:{doc_id}", "embedding")
         embeddings = [np.frombuffer(emb, dtype=np.float32) for emb in pipe.execute()]
 
-    return np.vstack(embeddings), doc_ids
+
+    if(embeddings != []):
+        return np.vstack(embeddings), doc_ids
+    
+    return np.array([]), []
 
 
 def get_doc_metadata(doc_id):
@@ -163,5 +167,61 @@ def save_faiss_index(index_path="doc_embeddings.index"):
     faiss.write_index(index, index_path)
     print(f"FAISS index saved to {index_path}")
 
-# Example usage
-#save_faiss_index("doc_embeddings.index")
+
+'''def get_doc_ids(subject=None, level=None, type=None):
+    
+    print("subjects: ", subject)
+    embeddings, doc_ids = get_filtered_embeddings(subject=subject, level=level, type=type)
+    if not doc_ids:
+        return []
+
+    docs = []
+    for doc_id in doc_ids:
+        metadata = get_doc_metadata(doc_id)
+        if metadata:
+            docs.append(metadata)
+
+    return docs
+'''
+
+def get_doc_ids_by(subject=None, level=None, type=None):
+    def get_filter_set(filter_list, filter_type):
+        pipe = r.pipeline()
+        for filter_value in filter_list:
+            pipe.smembers(f"{filter_type}:{filter_value}")
+        return [set(r.decode() for r in res) for res in pipe.execute() if res]
+
+    results = []
+    if subject:
+        results.append(get_filter_set(subject, "subject"))
+    if level:
+        results.append(get_filter_set(level, "level"))
+    if type:
+        results.append(get_filter_set(type, "type"))
+        
+        
+
+    # Intersect filters
+    doc_ids = list(set.intersection(*results[0])) if results else []
+    
+    return doc_ids
+
+    # Batch get embeddings and metadata
+    docs_ids = []
+    with r.pipeline() as pipe:
+        for doc_id in doc_ids:
+            pipe.hgetall(f"doc:{doc_id}")
+        results = pipe.execute()
+
+    for res in results:
+        metadata = {
+            "doc_id": res[b"doc_id"].decode(),
+            "subject": res[b"subject"].decode(),
+            "level": res[b"level"].decode(),
+            "type": res[b"type"].decode(),
+        }
+        docs_ids.append(metadata.get("doc_id"))
+
+    return docs_ids
+
+
