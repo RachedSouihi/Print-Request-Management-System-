@@ -1,0 +1,44 @@
+version: '3.7'
+services:
+  flink-jobmanager:
+    image: custom-flink-img:latest
+    ports:
+      - "8081:8081"
+      - "6123:6123"
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    networks:
+      - prms-network  # Use the common network
+    volumes:
+      - ./flink-scripts:/opt/flink/user-code
+      - ./src:/opt/flink/src   # Mount the src directory (excluding .csv files)
+
+  flink-taskmanager:
+    image: custom-flink-img:latest
+    depends_on:
+      - flink-jobmanager
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    ports:
+      - "6121:6121"
+      - "6122:6122"
+      - "6124:6124"
+    networks:
+      - prms-network  # Use the common network
+    volumes:
+      - ./flink-scripts:/opt/flink/user-code
+      - ./src:/opt/flink/src   # Mount the src directory (excluding .csv files)
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"  # Expose Redis port on the host (optional, but useful for debugging)
+    networks:
+      - prms-network  # Add Redis to the common network
+
+networks:
+  prms-network:
+    driver: bridge
+    name: prms-network
