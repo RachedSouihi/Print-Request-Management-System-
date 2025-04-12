@@ -38,6 +38,17 @@ services:
     networks:
       - prms-network  # Add Redis to the common network
 
+  fastapi:
+    image: fastapi-app:latest  # Replace with the name of your FastAPI Docker image
+    build:
+      context: ./app  # Path to the directory containing the FastAPI Dockerfile
+    ports:
+      - "8000:8000"  # Map FastAPI's port to the host
+    depends_on:
+      - redis  # Ensure Redis is started before FastAPI
+    networks:
+      - prms-network  # Add FastAPI to the common network
+
 networks:
   prms-network:
     driver: bridge
