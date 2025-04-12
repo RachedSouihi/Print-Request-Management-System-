@@ -23,9 +23,9 @@ const Home: React.FC = () => {
 
 
   useEffect(() => {
-    const username = 'rached';
+    const username = ' chaima';
 
-    var socket = new SockJS(`http://127.0.0.1:9001/ws?username=${username}`);
+    var socket = new SockJS(`http://127.0.0.1:8089/ws?username=${username}`);
       var stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame: any) {
       console.log('Connected as: ' + username);

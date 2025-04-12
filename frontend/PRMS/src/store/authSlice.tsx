@@ -235,7 +235,7 @@ export const updatePassword = createAsyncThunk<boolean, { email: string; newPass
   'auth/updatePassword',
   async ({ email, newPassword }, { rejectWithValue }) => {
     try {
-      const response = await axios.put('http://localhost:8081/update-password', { email, newPassword }, {
+      const response = await axios.put('http://localhost:8089/update-password', { email, newPassword }, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa('admin:admin') }
       });

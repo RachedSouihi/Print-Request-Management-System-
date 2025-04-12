@@ -20,7 +20,7 @@ export const addDocument = createAsyncThunk(
   "documents/addDocument",
   async (formData: FormData, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://localhost:8081/documents/add", {
+      const response = await fetch("http://localhost:8082/documents/add", {
         method: "POST",
         body: formData,
       });
