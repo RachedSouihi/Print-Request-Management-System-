@@ -45,7 +45,7 @@ logging.getLogger("org.apache.kafka").setLevel(logging.DEBUG)
 
 def send_test_message():
     # Configure the Kafka producer
-    producer_conf = {"bootstrap.servers": "kafka:29092"}
+    producer_conf = {"bootstrap.servers": "kafka:9092"}
     producer = Producer(producer_conf)
 
     # Test event to send
@@ -74,7 +74,6 @@ def transform_message(row):
     
     user_id = getattr(row, 'user_id', None)
     doc_id = getattr(row, 'doc_id', None)
-    
     id = getattr(row, 'id', str(uuid.uuid4()))
    
     #updateUserProfile(user_id,  {"interaction_type": "share"}, doc_id)
@@ -109,15 +108,15 @@ def log_and_update_user_profile(row):
     }
 
     # Call the updateUserProfile function with the user_id, event, and doc_id
-    updateUserProfile(user_id, event, doc_id)
+    #updateUserProfile(user_id, event, doc_id)
     
     with open(csv_file_path, mode="a", newline="") as csv_file:
         csv_writer = csv.writer(csv_file)
         # Write the header if the file does not exist
         if not file_exists:
-            csv_writer.writerow(["user_id", "doc_id", "timestamp"])
+            csv_writer.writerow(["event", "user_id", "doc_id", "timestamp"])
         # Write the event data
-        csv_writer.writerow([row.user_id, row.doc_id, row.timestamp])
+        csv_writer.writerow([event.get('interaction_type'), user_id, doc_id, row.timestamp])
 
     # Transform the message
     transformed_row = transform_message(row)
@@ -172,9 +171,6 @@ def main():
     # Initialize the Flink StreamExecutionEnvironment
     env = StreamExecutionEnvironment.get_execution_environment()
     
-    # Set the Python executable path correctly
-    env.set_python_executable("/usr/bin/python3")
-    
 
     # Configure Kafka Source with JSON deserialization
     deserialization_schema = (
@@ -187,7 +183,9 @@ def main():
         )
         .build()
     )
-
+    
+    
+    
     kafka_source = FlinkKafkaConsumer(
         topics="inputtopic",
         deserialization_schema=deserialization_schema,
@@ -232,6 +230,9 @@ def main():
     transformed = env.add_source(kafka_source)
     transformed.map(log_and_update_user_profile, output_type=output_type)
         #.add_sink(kafka_sink)
+        
+        
+    
     
     
     
