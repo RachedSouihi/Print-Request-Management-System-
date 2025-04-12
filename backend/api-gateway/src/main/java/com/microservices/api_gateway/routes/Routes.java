@@ -17,7 +17,7 @@ public class Routes {
     public RouterFunction<ServerResponse> studentServiceRouter() {
         return GatewayRouterFunctions.route("user_service")
                 .route(RequestPredicates.path("/user/**"),
-                        HandlerFunctions.http("http://localhost:8081"))
+                        HandlerFunctions.http("http://localhost:8082"))
                 .filter((request, next) -> {
                     // Extract the Authorization header from the original request
                     String authHeader = request.headers().firstHeader("Authorization");

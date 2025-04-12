@@ -21,8 +21,10 @@ const DocumentCard = ({ document, handleOpenModal }: { document: Document, handl
 
     <Card.Body className="card-body">
       <h3 className="document-title">{
-      document.title ||
-      document.field + " " + document.level + " " + document.subject 
+      //document.title ||
+      //document.field + " " + document.level + " " + document.subject  + 
+
+      document.description
       
       }</h3>
 
