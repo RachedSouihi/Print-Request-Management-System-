@@ -13,6 +13,10 @@ import ProfRequest from "../profrequest/ProfRequest";
 import SockJS from "sockjs-client";
 import { Client, Stomp } from "@stomp/stompjs";
 
+import { HiDocumentAdd } from "react-icons/hi";
+
+
+
 const Home: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const location = useLocation();
@@ -43,7 +47,7 @@ const Home: React.FC = () => {
   const isDocumentsRoute = location.pathname === '/documents';
 
   return (
-    <div className="d-flex gap-0">
+    <div className="d-flex gap-0 home">
       {!isDocumentsRoute && (
         <Col md={3}>
           <Sidebar />
@@ -56,6 +60,27 @@ const Home: React.FC = () => {
 
     
           <Outlet />
+
+          <div style={{
+            width: '100%',
+            border: '1px solid red',
+            position: 'relative'
+
+          }}>
+
+          <HiDocumentAdd   size={100} style={{
+                position: 'fixed',
+                zIndex: 1001,
+                bottom: 0,
+                right: 0,
+
+                transform: 'translateX(-100%)',
+
+                  
+                  
+                }} />
+
+                </div>
 
         <Footer />
       </Col>

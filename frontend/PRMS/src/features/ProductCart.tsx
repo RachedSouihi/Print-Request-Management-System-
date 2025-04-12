@@ -14,17 +14,32 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ document }) => {
   return (
-    <Card className="custom-card shadow-lg border-0">
+   
+
+
+
+<Card className="custom-card shadow-lg border-0 h-100 d-flex flex-column">
+      {" "}
       <div className="image-container">
-        <Card.Img variant="top" src={document.image} alt={document.title} className="card-img" />
+        <Card.Img
+          variant="top"
+          src={document.image}
+          alt={document.title}
+          className="card-img"
+          style={{
+            padding: "5px",
+          }}
+          height="200px"
+        />
       </div>
-      <Card.Body className="d-flex flex-column">
+      <Card.Body className="d-flex flex-column flex-grow-1">
+        {" "}
         <Card.Title className="fw-bold">{document.title}</Card.Title>
         <Card.Text className="text-muted">{document.description}</Card.Text>
         <div className="mt-auto d-flex justify-content-between">
           <Button variant="outline-primary">Preview</Button>
           <CustomButton type ="button" width = {150} text="Download"/>
-          
+
         </div>
       </Card.Body>
     </Card>

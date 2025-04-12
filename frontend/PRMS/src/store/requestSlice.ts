@@ -37,10 +37,12 @@ export const sendPrintRequest = createAsyncThunk(
 
   async (requestData: { copies: number; color: boolean; notes: string; paperType: any; document: Document }, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
+
+
     const printRequestPayload: PrintRequest = {
       document: requestData.document,
       user: {
-        user_id: state.auth.user?.user?.user_id ?? '',
+        user_id: state.user.user?.userId ?? '',
         email: state.user.user.email,
       },
       copies: requestData.copies,

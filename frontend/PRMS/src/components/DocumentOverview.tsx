@@ -50,9 +50,10 @@ const DocumentOverview: React.FC = () => {
       <h2 className="text-center fw-bold mb-5">📚 Document Overview</h2>
       <Row xs={1} md={2} lg={3} className="g-4">
         {documents.map((doc, index) => (
-          <Col key={index}>
-            <ProductCard document={doc} />
-          </Col>
+         // Update the Col component rendering
+<Col key={index} className="d-flex">
+  <ProductCard document={doc} />
+</Col>
         ))}
       </Row>
     </Container>

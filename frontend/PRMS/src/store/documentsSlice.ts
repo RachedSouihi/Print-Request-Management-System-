@@ -35,8 +35,8 @@ const initialState: DocumentsState = {
 // Thunk to fetch documents
 export const fetchDocuments = createAsyncThunk('documents/fetchDocuments', async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get(import.meta.env.VITE_GET_DOCUMENTS_URL);
-    console.log("docs: ", response)
+    const response = await axios.get(`${import.meta.env.VITE_GET_DOCUMENTS_URL}?user_id=${242619}`);
+
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -56,10 +56,14 @@ export const saveDocumentThunk = createAsyncThunk(
     const state = getState() as RootState;
     const userId = state.user.user?.user_id;
 
-    console.log({ userId, documentId })
+
+    const now: Date = new Date();
+    const date_milliseconds: number = now.getTime();
+
+    
 
     try {
-      const response = await axios.post(import.meta.env.VITE_SAVE_DOCUMENT_URL, { userId, documentId });
+      const response = await axios.post(import.meta.env.VITE_SAVE_DOCUMENT_URL, { userId, documentId, date_milliseconds });
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -68,6 +72,30 @@ export const saveDocumentThunk = createAsyncThunk(
       } else {
         // Return a generic error message
         return rejectWithValue('Failed to save document');
+      }
+    }
+  }
+);
+
+export const trackDocumentClickThunk = createAsyncThunk(
+  'documents/trackDocumentClick',
+  async (documentId: string, { getState, rejectWithValue }) => {
+    const state = getState() as RootState;
+    const userId = state.user.user?.user_id;
+
+    try {
+      const response = await axios.post(import.meta.env.VITE_TRACK_DOC_CLICK_URL, { userId, documentId });
+      return {
+        status: response.status,
+        message: response.data.message,
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        // Return a custom error message from the server response
+        return rejectWithValue(error.response.data.message);
+      } else {
+        // Return a generic error message
+        return rejectWithValue('Failed to track document click');
       }
     }
   }

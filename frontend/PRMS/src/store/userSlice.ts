@@ -5,36 +5,56 @@ import { User } from '../types/userTypes';
 import { RootState } from './store';
 import { profile } from 'console';
 
+// Define a type guard for User
+const isUser = (obj: any): obj is User => {
+  return obj && typeof obj === 'object' && 'id' in obj && 'email' in obj; // Add more checks as needed
+};
+
 // Function to load user profile from local storage
 const loadUserProfile = async (): Promise<User | null> => {
   const userProfile = localStorage.getItem('authState');
 
-    
-    const user = userProfile ? JSON.parse(userProfile).user : null;
-    const userId = '6ee9f2b6-a155-41ac-ab00-5e16509314cf'
+  console.log("userprofile: ", userProfile);
 
+  let user: User | null = null;
 
-    
-    if (user === null || Object.keys(user).length === 0) {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_FETCH_USER_PROFILE_URL}/${userId}`, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          }
-        });
-
-        localStorage.setItem("authState", JSON.stringify({user: response.data as User}));
-
-        console.log("user info: " + response.data)
-        return response.data;
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-        return null;
+  if (userProfile) {
+    try {
+      const parsedProfile = JSON.parse(userProfile);
+      if (isUser(parsedProfile)) {
+        user = parsedProfile;
+      } else {
+        console.warn("Invalid user profile format in local storage.");
       }
+    } catch (error) {
+      console.error("Error parsing user profile:", error);
     }
-    return user;
+  }
 
+  if (!user) {
+    alert('null')
+    const user_id = '9c912fa9-998f-4c02-a6aa-d9397fa21b89';
+
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_FETCH_USER_PROFILE_URL}/${user_id}`, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      user = response.data as User;
+
+      console.log("Fetched user: ", user);
+      localStorage.setItem("authState", JSON.stringify({ user }));
+      console.log("Fetched user info: ", response.data);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  }
+
+  return user;
 };
 
 interface UserState {

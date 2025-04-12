@@ -17,6 +17,8 @@ import Footer from './layouts/Footer'
 import SavedDocumentsPage from './pages/SavedDocs/SavedDocs'
 import Login from './pages/Login/Login'
 import PrintHistory from './pages/history/PrintHistory'
+import DocumentOverview from './components/DocumentOverview'
+
 
 function App() {
   return (
@@ -36,10 +38,15 @@ function App() {
 
             <Route index element={
               <>
+              <DocumentOverview />
                 <CoursesCarousel />
+                
                 <TestimonialCarousel />
+
+              
               </>
           } />
+
 
 
 
