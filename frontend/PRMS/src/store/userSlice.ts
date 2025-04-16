@@ -32,7 +32,6 @@ const loadUserProfile = async (): Promise<User | null> => {
   }
 
   if (!user) {
-    alert('null')
     const user_id = '9c912fa9-998f-4c02-a6aa-d9397fa21b89';
 
     try {

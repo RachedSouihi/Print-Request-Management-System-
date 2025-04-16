@@ -7,6 +7,11 @@
     height: 100%;
     background: $background-light;
 
+    min-height: 100%; // Base height constraint
+    display: flex;
+    flex-direction: column;
+  
+
     &:hover {
         transform: translateY(-4px);
         box-shadow: map-get($shadow-elevation, 'medium');
@@ -14,6 +19,8 @@
     }
 
     .card-header {
+      flex: 0 0 auto; // Prevent header growth
+      min-height: 90px;
         padding: map-get($spacing-scale, 'md');
         border-bottom: 1px solid rgba($border-color, 0.2);
         background: linear-gradient(15deg, rgba($primary-blue, 0.03), transparent);
@@ -42,6 +49,9 @@
 
     .card-body {
         padding: map-get($spacing-scale, 'md');
+        flex: 1 1 auto; // Allow body to grow
+        overflow: hidden; // Contain content
+       
 
         .document-title {
             font-size: map-get($font-scale, 'h4');
@@ -90,6 +100,7 @@
     }
 
     .card-footer {
+      
         background: transparent;
         border-top: 1px solid rgba($border-color, 0.2);
         padding: map-get($spacing-scale, 'md');

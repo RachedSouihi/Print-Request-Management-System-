@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
 import axios from "axios"; // Pour récupérer les documents d'une API
-import ProductCard from "../features/ProductCart";
+import CourseCard from "../features/CourseCart";
 
 const DocumentOverview: React.FC = () => {
   const [documents, setDocuments] = useState<{ title: string; description: string; image: string }[]>([]);
@@ -50,10 +50,10 @@ const DocumentOverview: React.FC = () => {
       <h2 className="text-center fw-bold mb-5">📚 Document Overview</h2>
       <Row xs={1} md={2} lg={3} className="g-4">
         {documents.map((doc, index) => (
-         // Update the Col component rendering
-<Col key={index} className="d-flex">
-  <ProductCard document={doc} />
-</Col>
+          // Update the Col component rendering
+          <Col key={index} className="d-flex">
+            <CourseCard document={doc} />
+          </Col>
         ))}
       </Row>
     </Container>

@@ -1,0 +1,196 @@
+@import 'C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/frontend/PRMS/src/design.scss';
+
+
+// Add to design.scss
+.subject-modal {
+    .modal-content {
+      background-color: $background-light;
+      border-radius: map-get($border-radius, "lg");
+      box-shadow: map-get($shadow-elevation, "high");
+      border: none;
+    }
+  
+    .modal-header {
+      border-bottom-color: $border-color;
+      .modal-title {
+        @include font-scale(h4);
+        color: $dark-text;
+        display: flex;
+        align-items: center;
+      }
+      .badge {
+        @include font-scale(tiny);
+        font-weight: map-get($font-weights, "bold");
+        padding: map-get($spacing-scale, "xxs") map-get($spacing-scale, "sm");
+        background-color: $secondary-blue !important;
+      }
+    }
+  
+    .select-all-btn {
+      border-radius: map-get($border-radius, "pill");
+      padding: map-get($spacing-scale, "xxs") map-get($spacing-scale, "sm");
+      @include font-scale(tiny);
+      font-weight: map-get($font-weights, "semi-bold");
+      border: 1px solid $border-color;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: $hover-overlay;
+      }
+    }
+  
+    .subject-chip {
+      position: relative;
+      margin: 0;
+      
+      .form-check-input {
+        position: absolute;
+        opacity: 0;
+        height: 0;
+        width: 0;
+        
+        &:focus-visible + .form-check-label {
+          box-shadow: 0 0 0 2px $purple-accent;
+        }
+        
+        &:checked + .form-check-label {
+          background-color: $primary-blue;
+          color: $light-text;
+          border-color: $primary-blue;
+          box-shadow: map-get($shadow-elevation, "medium");
+          
+          .checkmark {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      }
+  
+      .form-check-label {
+        display: flex;
+        align-items: center;
+        padding: map-get($spacing-scale, "xs") map-get($spacing-scale, "md");
+        border: 2px solid $border-color;
+        border-radius: map-get($border-radius, "pill");
+        @include font-scale(small);
+        font-weight: map-get($font-weights, "semi-bold");
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: $background-light;
+        box-shadow: map-get($shadow-elevation, "low");
+        
+        &:hover {
+          background-color: $hover-overlay;
+          transform: translateY(-2px);
+          box-shadow: map-get($shadow-elevation, "medium");
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      }
+  
+      .checkmark {
+        width: 1rem;
+        height: 1rem;
+        margin-left: map-get($spacing-scale, "xs");
+        opacity: 0;
+        transition: all 0.2s ease;
+        transform: scale(0.8);
+        fill: currentColor;
+      }
+    }
+  
+    .modal-footer {
+      border-top-color: $border-color;
+      .selected-count {
+        @include font-scale(small);
+        color: $dark-text;
+      }
+    }
+  
+    .btn {
+      padding: map-get($spacing-scale, "sm") map-get($spacing-scale, "lg");
+      border-radius: map-get($border-radius, "pill");
+      font-weight: map-get($font-weights, "semi-bold");
+      transition: all 0.2s ease;
+      border: none;
+      
+      &-primary {
+        background-color: $primary-blue;
+        border-color: $primary-blue;
+        
+        &:hover, &:focus {
+          background-color: darken($primary-blue, 10%);
+          transform: translateY(-1px);
+          box-shadow: map-get($shadow-elevation, "low");
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+        
+        &:disabled {
+          background-color: lighten($primary-blue, 30%);
+          transform: none;
+          box-shadow: none;
+        }
+      }
+      
+      &-secondary {
+        background-color: transparent;
+        border: 1px solid $border-color;
+        color: $dark-text;
+        
+        &:hover, &:focus {
+          background-color: $hover-overlay;
+          transform: translateY(-1px);
+          box-shadow: map-get($shadow-elevation, "low");
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+  
+  // Dark mode support
+  @media (prefers-color-scheme: dark) {
+    .subject-modal {
+      .modal-content {
+        background-color: $background-dark;
+        color: $light-text;
+      }
+      
+      .modal-header {
+        .modal-title {
+          color: $light-text;
+        }
+        .badge {
+          background-color: darken($secondary-blue, 20%) !important;
+        }
+      }
+      
+      .subject-chip {
+        .form-check-label {
+          background-color: lighten($background-dark, 5%);
+          color: $light-text;
+          border-color: lighten($background-dark, 15%);
+        }
+      }
+      
+      .btn-secondary {
+        background-color: lighten($background-dark, 10%);
+        color: $light-text;
+        border-color: lighten($background-dark, 20%);
+      }
+    }
+  }
+
+
+
+
+
+
+

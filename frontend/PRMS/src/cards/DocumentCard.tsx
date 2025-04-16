@@ -2,14 +2,29 @@ import { Badge, Button, Card } from "react-bootstrap";
 import { FiDownload, FiPrinter, FiStar } from "react-icons/fi";
 import { Document } from "../store/documentsSlice";
 
-import './DocumentCard.scss';
-const DocumentCard = ({ document, handleOpenModal }: { document: Document, handleOpenModal: any }) => (
-  <Card className="document-card" onClick={() => handleOpenModal(document)}>
+import "./DocumentCard.scss";
+const DocumentCard = ({
+  document,
+  handleOpenModal,
+}: {
+  document: Document;
+  handleOpenModal: any;
+}) => (
+  // Update the Card component
+  <Card
+    className="document-card h-100 d-flex flex-column"
+    onClick={() => handleOpenModal(document)}
+  >
+    {" "}
     <div className="card-header">
-      <Badge bg={document.docType === 'exam' ? "dark" : ""} style={{
-        color: document.docType === 'serie' ? "#000" : '',
-        border: document.docType === 'serie' ? '1px solid #000' : ''
-      }} className="type-label">
+      <Badge
+        bg={document.docType === "exam" ? "dark" : ""}
+        style={{
+          color: document.docType === "serie" ? "#000" : "",
+          border: document.docType === "serie" ? "1px solid #000" : "",
+        }}
+        className="type-label"
+      >
         {document.docType}
       </Badge>
       <div className="document-meta">
@@ -18,29 +33,26 @@ const DocumentCard = ({ document, handleOpenModal }: { document: Document, handl
         <span className="level">Grade {document.level}</span>
       </div>
     </div>
-
     <Card.Body className="card-body">
-      <h3 className="document-title">{
-      //document.title ||
-      //document.field + " " + document.level + " " + document.subject  + 
+      <h3 className="document-title">
+        {
+          //document.title ||
+          //document.field + " " + document.level + " " + document.subject  +
 
-      document.description
-      
-      }</h3>
-
-      
+          document.description
+        }
+      </h3>
 
       <div className="rating-container">
         {[...Array(5)].map((_, index) => (
           <FiStar
             key={index}
-            className={`star ${index < document.rating ? 'filled' : ''}`}
+            className={`star ${index < document.rating ? "filled" : ""}`}
           />
         ))}
         <span className="rating-text">({document.rating}/5)</span>
       </div>
     </Card.Body>
-
     <Card.Footer className="card-footer">
       <div className="action-buttons">
         <Button
@@ -58,7 +70,7 @@ const DocumentCard = ({ document, handleOpenModal }: { document: Document, handl
         <Button
           variant="outline-dark"
           className="print-btn"
-          onClick={() => { }/*handlePrint(document)*/}
+          onClick={() => {} /*handlePrint(document)*/}
         >
           <FiPrinter className="action-icon" />
           <span className="button-text">Print</span>

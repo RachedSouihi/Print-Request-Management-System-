@@ -120,7 +120,9 @@ const documentsSlice = createSlice({
       })
       .addCase(fetchDocuments.fulfilled, (state, action) => {
         state.loading = false;
-        state.documents = action.payload;
+        //state.documents = action.payload;
+        state.documents = [...state.documents, ...action.payload];
+
       })
       .addCase(fetchDocuments.rejected, (state, action) => {
         state.loading = false;
