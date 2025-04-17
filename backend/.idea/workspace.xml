@@ -5,22 +5,46 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6132e1f8-bbc2-483f-9596-a6aa16d5ac48" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Subject.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/SubjectRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/app/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/app/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/flink-scripts/stream.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/flink-scripts/stream.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/src/cs_docs.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/src/doc_embeddings.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/src/doc_ids.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/src/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/src/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/src/embeddings.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/src/embeddings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AI/src/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/src/profile.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/profile-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/routes/Routes.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/routes/Routes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/config/RedisConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/KafkaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/KafkaService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/utils/KafkaEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/utils/KafkaEvent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/authSlice.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/authSlice.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/profSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/profSlice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/userSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/userSlice.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -78,7 +102,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.ApiGatewayApplication">
+  <component name="RunManager" selected="Spring Boot.UserServiceApplication">
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.api_gateway.ApiGatewayApplication" />
@@ -163,6 +187,9 @@
       <workItem from="1742480447474" duration="6211000" />
       <workItem from="1742940896404" duration="663000" />
       <workItem from="1744368502636" duration="1874000" />
+      <workItem from="1744483582833" duration="3963000" />
+      <workItem from="1744618505042" duration="4978000" />
+      <workItem from="1744886600211" duration="372000" />
     </task>
     <servers />
   </component>

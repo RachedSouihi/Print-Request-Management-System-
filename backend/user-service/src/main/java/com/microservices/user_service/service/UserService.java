@@ -1,17 +1,11 @@
 package com.microservices.user_service.service;
-
-
 import com.microservices.common_models_service.dto.ProfileDTO;
 import com.microservices.common_models_service.dto.UserDTO;
-import com.microservices.common_models_service.model.Document;
-import com.microservices.common_models_service.model.Profile;
-import com.microservices.common_models_service.model.User;
+import com.microservices.common_models_service.model.*;
 //import com.microservices.common_models_service.repository.ProfileRepository;
 //import com.microservices.common_models_service.repository.UserRepository;
 
-import com.microservices.common_models_service.repository.DocumentRepository;
-import com.microservices.common_models_service.repository.ProfileRepository;
-import com.microservices.common_models_service.repository.UserRepository;
+import com.microservices.common_models_service.repository.*;
 import com.microservices.user_service.utils.VerificationData;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
@@ -51,11 +45,19 @@ public class UserService {
 
 
     @Autowired
-    public UserService(UserRepository userRepository, ProfileRepository profileRepository, KeyCloakService keyCloakService, DocumentRepository documentRepository, ModelMapper adminMapper) {
+    private SubjectRepository subjectRepository;
+
+
+
+
+    @Autowired
+    public UserService(UserRepository userRepository, ProfileRepository profileRepository, SubjectRepository subjectRepository, KeyCloakService keyCloakService, DocumentRepository documentRepository, ModelMapper adminMapper) {
         super();
         this.userRepository = userRepository;
         this.keyCloakService = keyCloakService;
         this.profileRepository = profileRepository;
+
+        this.subjectRepository = subjectRepository;
 
         //this.passwordEncoder = passwordEncoder;
         this.documentRepository = documentRepository;
@@ -169,7 +171,7 @@ public class UserService {
 
 
         System.out.println("new password: " + newPassword);
-       if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             response.put("code", "400");
             response.put("message", "Wrong password");
             return response;
@@ -265,21 +267,21 @@ public class UserService {
                 UserDTO userDTO = new UserDTO(
                         user.getUser_id(),
                         new ProfileDTO(
-                        user.getProfile().getFirstname(),
-                        user.getProfile().getLastname(),
-                        user.getProfile().getRole(),
-                        user.getProfile().getPhone(),
-                        user.getProfile().getEducationLevel(),
-                        user.getProfile().getField()
+                                user.getProfile().getFirstname(),
+                                user.getProfile().getLastname(),
+                                user.getProfile().getRole(),
+                                user.getProfile().getPhone(),
+                                user.getProfile().getEducationLevel(),
+                                user.getProfile().getField()
                         ),
                         user.getEmail()
 
 
-                        );
+                );
 
                 response.put("data", userDTO);
                 response.put("code", "200");
-               response.put("tokens", tokens);
+                response.put("tokens", tokens);
 
 
 
@@ -308,9 +310,35 @@ public class UserService {
     }
 
 
+    @Transactional
+    public String saveChosenSubjects(String userId, List<String> subjectNames) {
+        try {
+            // Check if the user exists
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + userId));
 
+            // Find subjects by name
+            List<Subject> subjects = subjectRepository.findByNameIn(subjectNames);
+            if (subjects.size() != subjectNames.size()) {
+                Set<String> availableSubjects = subjectRepository.findAll().stream()
+                        .map(Subject::getName)
+                        .collect(Collectors.toSet());
+                String missingSubjects = subjectNames.stream()
+                        .filter(name -> !availableSubjects.contains(name))
+                        .collect(Collectors.joining(", "));
+                return "Error: The following subjects are not available: " + missingSubjects;
+            }
 
+            // Set the subjects for the user
+            user.setSubjects(new HashSet<>(subjects));
 
+            return "Subjects saved successfully";
+        } catch (NoSuchElementException e) {
+            return e.getMessage();
+        } catch (Exception e) {
+            return "Error: Failed to save subjects. " + e.getMessage();
+        }
+    }
 
     public void saveDocument(String userId, String documentId) {
         User user = userRepository.findById(userId)

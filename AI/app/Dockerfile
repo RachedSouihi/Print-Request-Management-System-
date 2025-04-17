@@ -1,8 +1,13 @@
 # Use the existing image with dependencies as the base image
-FROM custom-flink-img:latest
+FROM printrequestmanagementsystem:latest
 
+FROM python:3.10-slim
+
+# Installer les dépendances système nécessaires pour venv
+RUN apt-get update && apt-get install -y python3-venv && apt-get clean
 # Set the working directory inside the container
 WORKDIR /app
+
 
 # Create a Python virtual environment
 RUN python3 -m venv /app/venv

@@ -18,6 +18,7 @@ import SavedDocumentsPage from './pages/SavedDocs/SavedDocs'
 import Login from './pages/Login/Login'
 import PrintHistory from './pages/history/PrintHistory'
 import DocumentOverview from './components/DocumentOverview'
+import Analyse from './pages/analyse'
 
 
 function App() {
@@ -33,6 +34,9 @@ function App() {
             <Route path='/saved-docs' element={<SavedDocumentsPage />}/>
             <Route path='/documents' element={<DocumentsPage />} />
             <Route path='/requests' element={<PrintHistory />} />
+            <Route path="/" element={<Home />}>
+  <Route path="/analyse" element={<Analyse />} />
+</Route>
 
 
 

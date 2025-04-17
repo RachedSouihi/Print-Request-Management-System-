@@ -2,14 +2,19 @@ package com.microservices.user_service.service;
 
 
 
-import com.microservices.user_service.utils.KafkaEvent;
+
+
 import org.springframework.kafka.core.KafkaTemplate;
-
-
 import org.springframework.stereotype.Service;
 
+import com.microservices.user_service.utils.KafkaEvent;
+
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class KafkaService {
@@ -20,28 +25,42 @@ public class KafkaService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public String sendMessage(String topic, Map<String, String> event) {
 
 
-        String title = event.get("title");
-        String message = event.get("text");
-        String timestamp = event.get("timestamp");
 
-        KafkaEvent kafkaEvent = new KafkaEvent();
 
-        kafkaEvent.setTitle(title);
-        kafkaEvent.setText(message);
-        kafkaEvent.setTimestamp(timestamp);
+    public boolean sendEvent(String topic, String userId, String docId, String event, long timestamp) {
+
+
+        // Get the current date and time in UTC
+        OffsetDateTime currentDateTimeUTC = OffsetDateTime.now(ZoneOffset.UTC);
+
+        // Define the desired format (which is already matched by ISO_INSTANT)
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
+
+        // Format the current date and time
+        String formattedCurrentDate = currentDateTimeUTC.format(formatter);
+
+        KafkaEvent kafkaEvent = new KafkaEvent(
+                UUID.randomUUID().toString(),
+                userId,
+                docId,
+                event,
+                timestamp
+
+        );
+
+
 
 
         try {
             kafkaTemplate.send(topic, kafkaEvent);
 
 
-            return "Message sent";
+            return true;
         }catch (Exception e) {
             System.out.println(e.getMessage());
-            return "Error sending message";
+            return false;
         }
         // Optional: Add a callback to handle success/failure
         /*

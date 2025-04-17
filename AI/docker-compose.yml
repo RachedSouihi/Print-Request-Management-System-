@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   flink-jobmanager:
-    image: custom-flink-img:latest
+    image: printrequestmanagementsystem:latest
     ports:
       - "8081:8081"
       - "6123:6123"
@@ -15,7 +15,7 @@ services:
       - ./src:/opt/flink/src   # Mount the src directory (excluding .csv files)
 
   flink-taskmanager:
-    image: custom-flink-img:latest
+    image: printrequestmanagementsystem:latest
     depends_on:
       - flink-jobmanager
     command: taskmanager

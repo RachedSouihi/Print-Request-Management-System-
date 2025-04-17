@@ -14,8 +14,11 @@ RUN set -e && \
 # Create a Python virtual environment
 RUN python3 -m venv /app/venv
 
-# Activate the virtual environment and install Python dependencies
-RUN /app/venv/bin/pip install --no-cache-dir \
+# Upgrade pip first, then install packages with increased timeout
+RUN /app/venv/bin/pip install --upgrade pip && \
+    /app/venv/bin/pip install --no-cache-dir \
+        --default-timeout=300 \
+        --retries=5 \
         apache-flink \
         confluent-kafka \
         kafka-python \
@@ -27,10 +30,8 @@ RUN /app/venv/bin/pip install --no-cache-dir \
 # Copy Kafka connector JARs to Flink's library directory
 COPY ./flink-scripts/*.jar /opt/flink/lib/
 
-
+# Copy application source code
 COPY ./src /app/src
-
 
 # Set the working directory to the app directory
 WORKDIR /app
-

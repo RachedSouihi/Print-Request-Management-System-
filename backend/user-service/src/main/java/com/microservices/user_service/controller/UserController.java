@@ -1,7 +1,5 @@
 package com.microservices.user_service.controller;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.microservices.api_gateway.utils.AESUtil;
 import com.microservices.api_gateway.utils.AESUtil;
 import com.microservices.common_models_service.dto.UserDTO;
 import com.microservices.common_models_service.model.User;
@@ -18,10 +16,7 @@ import org.bouncycastle.jcajce.provider.symmetric.AES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -155,6 +150,9 @@ public class UserController {
 
     }
 
+
+
+
     /**
      * Validates the encrypted password payload.
      * @param request The request containing the encrypted payload.
@@ -277,6 +275,8 @@ public class UserController {
 
 
                 user = mapper.convertValue(response.get("user"), User.class);
+
+                user.setPassword(null);
                 tokens.put("access_token", AESUtil.encrypt(access_token, SECRET_KEY, ALGO));
                 //tokens.put("refresh_token", AESUtil.encrypt((String) tokens.get("refresh_token"), SECRET_KEY, ALGO));
                 verificationService.saveTokens(user.getUser_id(), (String) tokens.get("access_token"), (String) tokens.get("refresh_token"), 432000, 777600);
@@ -329,6 +329,32 @@ public class UserController {
         emailService.sendVerificationEmail(email, otp, request.get("firstname"));
         return ResponseEntity.ok("Email sent");
     }
+
+
+    @PostMapping("/{userId}/subjects")
+    public ResponseEntity<String> saveChosenSubjects(
+            @RequestHeader HttpHeaders headers,
+
+
+            @PathVariable("userId") String userId,
+            @RequestBody List<String> subjectNames) {
+
+        try {
+
+            System.out.println(subjectNames);
+            String result = userService.saveChosenSubjects(userId, subjectNames);
+            if (result.startsWith("Error")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Server error: " + e.getMessage());
+        }
+    }
+
+
+
 
     /**
      * Resends the verification email with OTP.
@@ -388,15 +414,15 @@ public class UserController {
      */
     @PutMapping("/update-password")
     public ResponseEntity<?> up(@RequestHeader HttpHeaders headers ,@RequestBody Map<String, String> request) throws Exception {
-       try{
-        String email = request.get("email");
-        System.out.println(email);
-        String oldPassword = AESUtil.decrypt(request.get("oldPassword"), SECRET_KEY, ALGO);
-        String newPassword = AESUtil.decrypt(request.get("newPassword"), SECRET_KEY, ALGO);
+        try{
+            String email = request.get("email");
+            System.out.println(email);
+            String oldPassword = AESUtil.decrypt(request.get("oldPassword"), SECRET_KEY, ALGO);
+            String newPassword = AESUtil.decrypt(request.get("newPassword"), SECRET_KEY, ALGO);
 
-        System.out.println(oldPassword);
-        System.out.println(newPassword);
-        System.out.println(email);
+            System.out.println(oldPassword);
+            System.out.println(newPassword);
+            System.out.println(email);
 
             Map<String, Object> response = userService.updatePassword(email, oldPassword, newPassword, bCryptPasswordEncoder);
             return ResponseEntity.status(Integer.parseInt((String) response.get("code"))).body(response.get("message").toString());
@@ -425,9 +451,22 @@ public class UserController {
     @PostMapping("/save-doc")
     public String saveDoc(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
         try {
+            System.out.println("Saving docs");
             String userId = (String) request.get("userId");
+
+
+            System.out.println("UserID: " + userId);
+
             String docId = (String) request.get("documentId");
-            userService.saveDocument(userId, docId);
+            System.out.println("DocId: " + docId);
+
+            long date_milliseconds = (long) request.get("date_milliseconds");
+
+            System.out.println("TIMESTAMP: " + date_milliseconds);
+
+
+            //boolean kafkaResponse = kafkaService.sendEvent("inputtopic" ,userId, docId, "save", date_milliseconds);
+            //userService.saveDocument(userId, docId);
             return "Document saved";
         } catch (Exception e) {
             return e.getMessage();
@@ -446,6 +485,33 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/track-doc-click")
+
+
+    public ResponseEntity<?> trackDocClick(@RequestHeader HttpHeaders headers, @RequestBody Map<String, String> request) {
+
+        try{
+            String userId = request.get("userId");
+
+            String docId = request.get("docId");
+
+            boolean kafkaResponse = kafkaService.sendEvent("inputtopic" ,userId, docId, "click", System.currentTimeMillis());
+
+            if(kafkaResponse){
+                return ResponseEntity.ok().build();
+
+            }else{
+
+                return ResponseEntity.status(500).build();
+
+            }
+        }catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+
+        }
+
     }
 
 
@@ -470,26 +536,11 @@ public class UserController {
 
 
 
-    @GetMapping("/send-event")
-    public ResponseEntity<?> sendEvent(@RequestHeader HttpHeaders header ,@RequestBody Map<String, Object> request) {
-
-        String topic = (String) request.get("topic");
-
-        Map<String, String> event = (Map<String, String>) request.get("event");
-
-
-        try{
-            return  ResponseEntity.ok(kafkaService.sendMessage(topic, event));
-
-        }catch(Exception e){
-            System.out.println(e.getMessage());
-
-            return ResponseEntity.status(500).body(e.getMessage());
-        }
-
-    }
 
 }
+
+
+
 
 
 
