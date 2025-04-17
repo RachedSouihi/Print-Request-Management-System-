@@ -320,6 +320,44 @@ export const loginUser = createAsyncThunk<
   }
 );
 
+export const saveChosenSubjects = createAsyncThunk<
+  { status: number; message: string }, // Return type
+  string[], // Input type (list of strings)
+  { rejectValue: { status: number; message: string } } // Rejected value type
+>(
+  'auth/saveChosenSubjects',
+  async (subjects, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_SAVE_CHOOSEN_SUBJECTS_URL,
+        { subjects }, // Payload
+        {
+          withCredentials: true, // Allow cookies
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        return { status: response.status, message: 'Subjects saved successfully' };
+      } else {
+        throw new Error('Failed to save subjects');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue({
+          status: error.response.status,
+          message: error.response.data || 'Failed to save subjects',
+        });
+      }
+      if (error instanceof Error) {
+        return rejectWithValue({ status: 500, message: error.message });
+      }
+      return rejectWithValue({ status: 500, message: 'An unknown error occurred' });
+    }
+  }
+);
 
 // Slice Redux
 const authSlice = createSlice({
