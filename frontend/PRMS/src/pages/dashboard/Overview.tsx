@@ -1,325 +1,249 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Table, Button, Form, Pagination, Modal, Badge } from 'react-bootstrap';
-import { FiFilter, FiAlertTriangle, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import './Admin.scss';
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
-import sampleRequests from './data';
-import RequestDetailModal from './RequestDetailsModal';
-import { PrintRequest, addRequest, fetchPrintRequests, approvePrintRequest, updateRequestStatus } from '../../store/requestSlice';
-import { AppDispatch, RootState } from '../../store/store';
-import { useToast } from '../../context/ToastContext';
-import CustomToast from '../../common/Toast';
-
-interface Filters {
-  status: string;
-  urgency: string;
-  date: string;
-}
-
-interface SortConfig {
-  key: keyof PrintRequest;
-  direction: 'asc' | 'desc';
-}
-
-const PrintRequestsTable: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const requests = useSelector((state: RootState) => state.printRequest.requests);
+// DashboardOverview.tsx
+import { useState } from 'react';
+import { Card, Row, Col, Table, Dropdown } from 'react-bootstrap';
+import { Line, Doughnut } from 'react-chartjs-2';
 
 
-  //const [requests, setRequests] = useState<PrintRequest[]>(sampleRequests);
-  const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
-  const [filters, setFilters] = useState<Filters>({
-    status: '',
-    urgency: '',
-    date: '',
-  });
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'date', direction: 'asc' });
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [showDetail, setShowDetail] = useState<PrintRequest | null>(null);
-  const [showBulkConfirm, setShowBulkConfirm] = useState<boolean>(false);
-  const itemsPerPage = 10;
+import './Overview.scss'
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    ArcElement,
+    Tooltip,
+    Legend
+} from 'chart.js';
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    ArcElement,
+    Tooltip,
+    Legend
+);
+
+
+const MetricCard = ({
+    title,
+    mainValue,
+    change,
+    changeType,
+    breakdown
+}: {
+    title: string;
+    mainValue: string;
+    change: string;
+    changeType: 'increase' | 'decrease';
+    breakdown?: { label: string; value: string; percentage: string }[];
+}) => (
+    <Card className="dashboard-card">
+        <Card.Body>
+            <div className="metric-header">
+                <h6 className="metric-title">{title}</h6>
+                <span className={`badge trend-badge trend-${changeType}`}>
+                    {changeType === 'increase' ? '↑' : '↓'} {change}
+                </span>
+            </div>
+            <h3 className="metric-value">{mainValue}</h3>
+            {breakdown && (
+                <div className="metric-breakdown">
+                    {breakdown.map((item, index) => (
+                        <div key={index} className="breakdown-item">
+                            <span className="breakdown-label">{item.label}</span>
+                            <div className="breakdown-values">
+                                <span className="breakdown-value">{item.value}</span>
+                                <span className="breakdown-percentage">({item.percentage})</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </Card.Body>
+    </Card>
+);
 
 
 
-    const { toast, showToast, hideToast } = useToast()
-  
+const DashboardOverview = () => {
+    const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
 
-  // Fetch print requests once when the component mounts
-  useEffect(() => {
-    dispatch(fetchPrintRequests());
-  }, [dispatch]);
-
-
-
-  // WebSocket
-  useEffect(() => {
-    const socket = new SockJS('http://localhost:9001/ws');
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
-      debug: (str) => console.log(str),
-      onConnect: () => {
-        console.log('Connected to WebSocket');
-        stompClient.subscribe('/topic/printRequests', (message) => {
-          const updatedRequest = JSON.parse(message.body);
-          console.log('Incoming request:', updatedRequest); // Log each incoming request
-          dispatch(addRequest(updatedRequest)); // Dispatch action to add the new request to the Redux store
-        });
-      },
-      onStompError: (frame) => {
-        console.error('Broker reported error: ' + frame.headers['message']);
-        console.error('Additional details: ' + frame.body);
-      },
-    });
-
-    stompClient.activate();
-
-    return () => {
-      stompClient.deactivate();
-    };
-  }, [dispatch]);
-
-  // Function to approve a print request
-  const handleApproveRequest = (userId: string, requestId: string) => {
-    if (userId && requestId) {
-      dispatch(approvePrintRequest({ userId, requestId })).then((action: any) => {
-        console.log("approve actions: " + action.payload);
-
-        if (action.type === 'printRequest/approvePrintRequest/fulfilled') {
-          showToast(action.payload.message, action.payload.status === 200 ? 'success' : 'danger');
-
-
+    // Mock data
+    const metrics = {
+        pagesPrinted: {
+            value: '12,345',
+            change: '+12%',
+            changeType: 'increase' as const
+        },
+        totalCost: {
+            value: '$1,234',
+            change: '-3%',
+            changeType: 'decrease' as const,
+            breakdown: [
+                { label: 'Paper', value: '$925', percentage: '75%' },
+                { label: 'Ink', value: '$309', percentage: '25%' }
+            ]
+        },
+        printRequests: {
+            value: '789',
+            change: '+8%',
+            changeType: 'increase' as const
+        },
+        activeUsers: {
+            value: '143',
+            change: '+5%',
+            changeType: 'increase' as const,
+            breakdown: [
+                { label: 'Professors', value: '32', percentage: '22%' },
+                { label: 'Students', value: '111', percentage: '78%' }
+            ]
         }
+    };
 
-        // Update the request state to "approved" in the requests array
-        const updatedRequests = requests.map(request =>
-          request.requestId === requestId ? { ...request, status: 'APPROVED' } : request
-        );
+    const printingVolumeData = {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        datasets: [
+            {
+                label: 'Professors',
+                data: [1200, 1900, 3000, 2500, 2100],
+                borderColor: '#4A55A2', // Primary blue
+                backgroundColor: 'rgba(74, 85, 162, 0.1)',
+                tension: 0.4,
+                fill: true
+            },
+            {
+                label: 'Students',
+                data: [800, 1500, 2000, 1800, 2400],
+                borderColor: '#8A4FFF', // Purple accent
+                backgroundColor: 'rgba(138, 79, 255, 0.1)',
+                tension: 0.4,
+                fill: true
+            },
+        ],
+    };
 
-        const status = "APPROVED"
+    const costDistributionData = {
+        labels: ['Paper', 'Ink'],
+        datasets: [{
+            data: [75, 25],
+            backgroundColor: ['#7895CB', '#FF9800'],
+            hoverOffset: 4,
+        }],
+    };
 
-        dispatch(updateRequestStatus({ requestId, status }))
-        setShowDetail(null);
-      });
-    }
-  };
+    const topDocuments = [
+        { subject: 'Math', level: 'Algebra 101', owner: 'Dr. Smith', prints: 45 },
+        { subject: 'History', level: 'World War II', owner: 'Prof. Johnson', prints: 32 },
+        { subject: 'Biology', level: 'Cell Structure', owner: 'Dr. Williams', prints: 28 },
+    ];
 
-  // Filtering and sorting logic
-  const filteredRequests = requests.filter(request => {
     return (
-      (!filters.status || request.status === filters.status) &&
-      (!filters.urgency || request.urgency === filters.urgency) &&
-      (!filters.date || request.date === filters.date)
-    );
-  }).sort((a, b) => {
-    if (sortConfig.direction === 'asc') {
-      return a[sortConfig.key]! > b[sortConfig.key]! ? 1 : -1;
-    }
-    return a[sortConfig.key]! < b[sortConfig.key]! ? 1 : -1;
-  });
+        <div className="dashboard-container">
+            {/* Header and Filter */}
+            <div className="dashboard-header">
+                <div className="header-group">
+                    <h1>Overview</h1>
+                    <Dropdown className="time-filter-wrapper">
+                        <Dropdown.Toggle variant="light" className="time-filter">
+                            View by: {timeRange.charAt(0).toUpperCase() + timeRange.slice(1)}
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item onClick={() => setTimeRange('day')}>Day</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTimeRange('week')}>Week</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setTimeRange('month')}>Month</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div>
+            </div>
 
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const [currentItems, setCurrentItems] = useState<PrintRequest[]>(filteredRequests.slice(indexOfFirstItem, indexOfLastItem));
+            {/* Metric Cards */}
+            <Row className="metric-row">
+                {Object.entries(metrics).map(([key, metric], index) => (
+                    <Col key={key} xl={3} lg={6} className="metric-col">
+                        <MetricCard
+                            title={key.replace(/([A-Z])/g, ' $1').toUpperCase()}
+                            mainValue={metric.value}
+                            change={metric.change}
+                            changeType={metric.changeType}
+                            breakdown={'breakdown' in metric ? metric.breakdown : undefined}
+                        />
+                    </Col>
+                ))}
+            </Row>
 
-  useEffect(() => {
-    setCurrentItems(filteredRequests.slice(indexOfFirstItem, indexOfLastItem));
-  }, [requests, filters, sortConfig, currentPage]);
+            {/* Charts Section */}
+            <Row className="charts-row">
+                <Col xl={8} className="chart-col">
+                    <Card className="volume-chart">
+                        <Card.Body>
+                            <h5>Printing Volume Over Time</h5>
+                            <Line
+                                data={printingVolumeData}
+                                options={{
+                                    responsive: true,
+                                    plugins: {
+                                        legend: { position: 'top' },
+                                    },
+                                }}
+                            />
+                        </Card.Body>
+                    </Card>
+                </Col>
+                <Col xl={4} className="chart-col">
+                    <Card className="cost-chart">
+                        <Card.Body>
+                            <h5>Cost Distribution</h5>
+                            <Doughnut
+                                data={costDistributionData}
+                                options={{
+                                    plugins: {
+                                        tooltip: {
+                                            callbacks: {
+                                                label: (context) =>
+                                                    `${context.label}: $${context.raw as number} (${(((context.raw as number) / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(2)}%)`
+                                            }
+                                        }
+                                    }
+                                }}
+                            />
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
 
-  const handleSort = (key: keyof PrintRequest) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
-
-  const handleBulkAction = (action: string) => {
-    // Implement bulk action logic
-    setShowBulkConfirm(false);
-  };
-
-  const handleRowClick = (event: React.MouseEvent, request: PrintRequest) => {
-    // Prevent modal from opening if the checkbox is clicked
-    if ((event.target as HTMLElement).tagName !== 'INPUT') {
-      setShowDetail(request);
-      console.log("clicked request: ", request)
-    }
-  };
-
-  return (
-
-  
-    <div className="print-requests-admin">
-<CustomToast
-        show={toast.show}
-        onClose={hideToast}
-        type={toast.type}
-        message={toast.message}
-      />
-
-      {/* Filters Section */}
-      <div className="filters-section">
-        <Form.Group className="filter-group">
-          <Form.Select
-            value={filters.status}
-            onChange={e => setFilters({ ...filters, status: e.target.value })}
-          >
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </Form.Select>
-        </Form.Group>
-
-        <Form.Group className="filter-group">
-          <Form.Select
-            value={filters.urgency}
-            onChange={e => setFilters({ ...filters, urgency: e.target.value })}
-          >
-            <option value="">All Urgency Levels</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </Form.Select>
-        </Form.Group>
-
-        <Button variant="outline-dark" className="action-button">
-          <FiFilter /> Apply Filters
-        </Button>
-      </div>
-
-      {/* Requests Table */}
-      <Table responsive hover className="requests-table">
-        <thead>
-          <tr>
-            <th>
-              <Form.Check
-                type="checkbox"
-                onChange={e => {
-                  const allIds = currentItems.map(item => item.requestId).filter((id): id is string => id !== undefined);
-                  setSelectedRequests(e.target.checked ? allIds : []);
-                }}
-              />
-            </th>
-            {['Document Title', 'User', 'Date', 'Copies', 'Paper Type', 'Status', 'Urgency'].map((header) => (
-              <th key={header} onClick={() => handleSort(header.toLowerCase().replace(' ', '_') as keyof PrintRequest)}>
-                {header}
-                {sortConfig.key === header.toLowerCase().replace(' ', '_') && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                  </span>
-                )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map(request => (
-            <tr
-              key={request.requestId}
-              className={`request-row ${request.urgency === 'high' ? 'high-priority' : ''}`}
-              onClick={(event) => handleRowClick(event, request)}
-            >
-              <td>
-                <Form.Check
-                  type="checkbox"
-                  checked={selectedRequests.includes(request.requestId ?? '')}
-                  onChange={e => {
-                    setSelectedRequests(prev =>
-                      e.target.checked
-                        ? [...prev, ...(request.requestId ? [request.requestId] : [])]
-                        : prev.filter(id => id !== request.requestId)
-                    );
-                  }}
-                />
-              </td>
-              <td>{request.document.title}</td>
-              <td>{request.user.email}</td>
-              <td>{formatDateTime(request.date ?? '')}</td>
-              <td>{request.copies}</td>
-              <td>{request.paperType}</td>
-              <td>
-                {request.status && <StatusBadge status={request.status} />}
-              </td>
-              <td>
-                <UrgencyIndicator urgency={request.urgency ?? ''} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-
-      {/* Pagination */}
-      <Pagination className="justify-content-center">
-        {[...Array(Math.ceil(filteredRequests.length / itemsPerPage)).keys()].map(number => (
-          <Pagination.Item
-            key={number + 1}
-            active={number + 1 === currentPage}
-            onClick={() => setCurrentPage(number + 1)}
-          >
-            {number + 1}
-          </Pagination.Item>
-        ))}
-      </Pagination>
-
-      {/* Bulk Actions */}
-      {selectedRequests.length > 0 && (
-        <div className="bulk-actions-bar">
-          <Button variant="success" onClick={() => handleBulkAction('approve')}>
-            <FiCheckCircle /> Approve Selected
-          </Button>
-          <Button variant="danger" onClick={() => handleBulkAction('reject')}>
-            <FiXCircle /> Reject Selected
-          </Button>
+            {/* Top Documents Table */}
+            <Card className="documents-table">
+                <Card.Body>
+                    <div className="table-header">
+                        <h5>Top Printed Documents</h5>
+                    </div>
+                    <Table hover>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Level</th>
+                                <th>Owner</th>
+                                <th>Times Printed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {topDocuments.map((doc, i) => (
+                                <tr key={i}>
+                                    <td>{doc.subject}</td>
+                                    <td>{doc.level}</td>
+                                    <td>{doc.owner}</td>
+                                    <td>{doc.prints}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </Card.Body>
+            </Card>
         </div>
-      )}
-
-      {/* Request Detail Modal */}
-      <RequestDetailModal
-        show={!!showDetail}
-        request={showDetail}
-        onHide={() => setShowDetail(null)}
-        onApprove={handleApproveRequest} // Pass the approve function to the modal
-      />
-    </div>
-  );
+    );
 };
 
-// Helper Components
-const StatusBadge: React.FC<{ status: 'pending' | 'in-progress' | 'completed' | 'APPROVED'}> = ({ status }) => {
-  const statusConfig: Record<'pending' | 'in-progress' | 'completed'| 'APPROVED', { label: string; variant: string }> = {
-    pending: { label: 'Pending', variant: 'warning' },
-    'in-progress': { label: 'In Progress', variant: 'primary' },
-    completed: { label: 'Completed', variant: 'success' },
-    APPROVED: { label: 'Approved', variant: 'success' },
-  };
-
-  if (!statusConfig[status]) {
-    return null; // Return null if the status is not valid
-  }
-
-  return <Badge bg={statusConfig[status].variant}>{statusConfig[status].label}</Badge>;
-};
-
-const UrgencyIndicator: React.FC<{ urgency: string }> = ({ urgency }) => {
-  return (
-    <div className="urgency-indicator">
-      {urgency === 'high' && <FiAlertTriangle className="text-danger" />}
-      <span className={`urgency-label ${urgency}`}>{urgency}</span>
-    </div>
-  );
-};
-
-const formatDateTime = (dateTime: string) => {
-  const date = new Date(dateTime);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
-};
-
-export default PrintRequestsTable;
+export default DashboardOverview;
