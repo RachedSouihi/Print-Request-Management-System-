@@ -6,7 +6,7 @@ import { RootState } from './store/store';
 interface PrivateRouteProps {
   children: React.ReactNode;
   requiredRole?: string;
-  fallbackComponent?: React.ReactNode;
+  fallbackComponent?: React.ReactElement | null;  // Type modifié ici
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredRole, fallbackComponent }) => {

@@ -5,32 +5,51 @@ import {
   FiUsers, FiUserPlus, FiSettings, FiLogOut,
   FiBookmark
 } from 'react-icons/fi';
-
 import { VscHistory } from "react-icons/vsc";
-
 import './SideBar.scss';
 import { useNavigate } from 'react-router';
+
+// Import follow/unfollow services
+import { followUser, unfollowUser } from './followService';
 
 const Sidebar = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [collapsed, setCollapsed] = useState(false);
-
   const navigate = useNavigate();
 
+  // Sample mentors data
   const mentors = [
-    { id: 1, name: "Prof. Smith", avatar: "https://via.placeholder.com/40" },
-    { id: 2, name: "Prof. Johnson", avatar: "https://via.placeholder.com/40" },
-    { id: 3, name: "Prof. Williams", avatar: "https://via.placeholder.com/40" }
+    { id: "prof456", name: "Prof. Smith", avatar: "https://via.placeholder.com/40" },
+    { id: "user2", name: "Prof. Johnson", avatar: "https://via.placeholder.com/40" },
+    { id: "user3", name: "Prof. Williams", avatar: "https://via.placeholder.com/40" }
   ];
 
+  // State to track follow status of each mentor
+  const [followStates, setFollowStates] = useState({});
 
   useEffect(() => {
+    if (activeTab === "home") navigate('/');
+    else if (activeTab === 'saved') navigate('/saved-docs');
+    else if (activeTab === 'printing history') navigate('/requests');
+  }, [activeTab, navigate]);
 
-
-      activeTab === "home" && navigate('/')
-      activeTab === 'saved' && navigate('/saved-docs')
-      activeTab === 'printing history' && navigate('/requests')
-  }, [activeTab])
+  // Handle follow/unfollow toggle
+  const handleFollowToggle = async (mentorId: string) => {
+    const followerId = 'user123'; // Replace with actual user ID
+  
+    try {
+      if (followStates[mentorId]) {
+        await unfollowUser(followerId, mentorId);
+        setFollowStates(prev => ({ ...prev, [mentorId]: false }));
+      } else {
+        await followUser(followerId, mentorId);
+        setFollowStates(prev => ({ ...prev, [mentorId]: true }));
+      }
+    } catch (error) {
+      console.error('Error toggling follow status:', error);
+    }
+  };
+  
 
   return (
     <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -49,7 +68,6 @@ const Sidebar = () => {
         {[
           { id: 'home', icon: <FiHome />, label: 'Home' },
           { id: 'saved', icon: <FiBookmark />, label: 'Saved' },
-
           { id: 'printing history', icon: <VscHistory />, label: 'Printing history' },
           { id: 'tasks', icon: <FiCheckSquare />, label: 'Tasks' },
           { id: 'groups', icon: <FiUsers />, label: 'Groups' },
@@ -68,24 +86,32 @@ const Sidebar = () => {
 
       <div className="mentors-section">
         <h4 className="section-title">Professors</h4>
-        {mentors.map((mentor) => (
-          <div key={mentor.id} className="mentor-item">
-            <img src='boy.png' alt={mentor.name} className="mentor-avatar" />
-            {!collapsed && (
-              <>
-                <span className="mentor-name">{mentor.name}</span>
-                <button className="follow-btn">Follow</button>
-              </>
-            )}
-          </div>
-        ))}
+        {mentors.map((mentor) => {
+          const isFollowing = followStates[mentor.id] || false;
+          return (
+            <div key={mentor.id} className="mentor-item">
+              <img src={mentor.avatar} alt={mentor.name} className="mentor-avatar" />
+              {!collapsed && (
+                <>
+                  <span className="mentor-name">{mentor.name}</span>
+                  <button 
+                    className={`follow-btn ${isFollowing ? 'following' : ''}`} 
+                    onClick={() => handleFollowToggle(mentor.id)}
+                  >
+                    {isFollowing ? 'Unfollow' : 'Follow'}
+                  </button>
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="sidebar-footer">
         <Nav.Link className="settings-link" onClick={() => {
           setActiveTab("");
-          
-          navigate('account')}}>
+          navigate('account');
+        }}>
           <FiSettings className="nav-icon" />
           {!collapsed && 'Settings'}
         </Nav.Link>

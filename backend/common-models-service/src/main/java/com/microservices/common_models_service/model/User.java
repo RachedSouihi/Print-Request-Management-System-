@@ -1,9 +1,7 @@
 package com.microservices.common_models_service.model;
 
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,8 +9,10 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
-    private String user_id;
+    @Column(name = "user_id")
+    private String userId;  // Correspond à user_id dans la table users
 
     private String email;
     private String password;
@@ -20,10 +20,12 @@ public class User {
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean active;
 
+    // Relation un-à-un avec Profile
     @OneToOne(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
     @JsonManagedReference
     private Profile profile;
 
+    // Relation plusieurs-à-plusieurs avec Document
     @ManyToMany
     @JoinTable(
             name = "saved_documents",
@@ -32,6 +34,7 @@ public class User {
     )
     private Set<Document> savedDocuments = new HashSet<>();
 
+    // Relation plusieurs-à-plusieurs avec Subject
     @ManyToMany
     @JoinTable(
             name = "user_subjects",
@@ -40,13 +43,42 @@ public class User {
     )
     private Set<Subject> subjects = new HashSet<>();
 
-    // Getters and Setters
-    public String getUser_id() {
-        return user_id;
+    // Relation un-à-plusieurs avec Follow (suivi des utilisateurs)
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Follow> followings = new HashSet<>();
+
+    @OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Follow> followers = new HashSet<>();
+
+    // Méthodes pour gérer les relations de suivi (Follow)
+    public void follow(User userToFollow) {
+        if (userToFollow != null && !this.equals(userToFollow)) {
+            Follow follow = new Follow();
+            follow.setFollower(this);
+            follow.setFollowed(userToFollow);
+            this.followings.add(follow);
+            userToFollow.getFollowers().add(follow);
+        }
     }
 
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
+    public void unfollow(User userToUnfollow) {
+        Follow follow = this.followings.stream()
+                .filter(f -> f.getFollowed().equals(userToUnfollow))
+                .findFirst().orElse(null);
+        if (follow != null) {
+            this.followings.remove(follow);
+            userToUnfollow.getFollowers().remove(follow);
+        }
+    }
+
+    // Getters et Setters
+    public String getUserId() {
+        return userId;
+    }
+
+
+    public void setUser_id(String userId) {
+        this.userId = userId;
     }
 
     public String getEmail() {
@@ -65,20 +97,23 @@ public class User {
         this.password = password;
     }
 
-    public Profile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-    }
-
     public boolean isActive() {
         return active;
     }
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        if (profile != null && !this.userId.equals(profile.getId())) {
+            throw new IllegalArgumentException("Profile user_id does not match the user's id.");
+        }
+        this.profile = profile;
     }
 
     public Set<Document> getSavedDocuments() {
@@ -90,11 +125,15 @@ public class User {
     }
 
     public void saveDocument(Document document) {
-        savedDocuments.add(document);
+        if (document != null) {
+            savedDocuments.add(document);
+        }
     }
 
     public void removeSavedDocument(Document document) {
-        savedDocuments.remove(document);
+        if (document != null) {
+            savedDocuments.remove(document);
+        }
     }
 
     public Set<Subject> getSubjects() {
@@ -106,10 +145,32 @@ public class User {
     }
 
     public void addSubject(Subject subject) {
-        subjects.add(subject);
+        if (subject != null) {
+            subjects.add(subject);
+        }
     }
 
     public void removeSubject(Subject subject) {
-        subjects.remove(subject);
+        if (subject != null) {
+            subjects.remove(subject);
+        }
     }
+
+    public Set<Follow> getFollowings() {
+        return followings;
+    }
+
+    public void setFollowings(Set<Follow> followings) {
+        this.followings = followings;
+    }
+
+    public Set<Follow> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Set<Follow> followers) {
+        this.followers = followers;
+    }
+
+
 }

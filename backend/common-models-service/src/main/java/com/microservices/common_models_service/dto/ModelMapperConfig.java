@@ -28,7 +28,7 @@ public class ModelMapperConfig {
         // Configure User -> UserDTO (ignore savedDocuments recursion)
         modelMapper.createTypeMap(User.class, UserDTO.class)
                 .addMappings(mapper -> {
-                    mapper.map(User::getUser_id, UserDTO::setUserId);
+                    mapper.map(User::getUserId, UserDTO::setUserId);
                     mapper.map(User::getEmail, UserDTO::setEmail);
                     mapper.map(User::getProfile, UserDTO::setProfile);
                     mapper.using(ctx -> mapDocumentsWithoutUser((List<Document>) ctx.getSource()))

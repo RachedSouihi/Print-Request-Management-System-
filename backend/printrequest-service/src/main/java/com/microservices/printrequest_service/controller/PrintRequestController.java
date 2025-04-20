@@ -66,7 +66,7 @@ public class PrintRequestController {
 
 
         try {
-            System.out.println(print_request.getUser().getUser_id());
+            System.out.println(print_request.getUser().getUserId());
 
             //return ResponseEntity.ok(printRequest);
 

@@ -75,7 +75,7 @@ public class UserService {
             for(User user : allUsers) {
                 dtos.add(
                         new UserDTO(
-                                user.getUser_id(),
+                                user.getUserId(),
                                 user.isActive(),
                                 user.getEmail(),
                                 user.getProfile().getFirstname(),
@@ -265,7 +265,7 @@ public class UserService {
 
                 User user = opt_user.get();
                 UserDTO userDTO = new UserDTO(
-                        user.getUser_id(),
+                        user.getUserId(),
                         new ProfileDTO(
                                 user.getProfile().getFirstname(),
                                 user.getProfile().getLastname(),
@@ -354,7 +354,7 @@ public class UserService {
         Optional<User> userOptional = userRepository.findUserWithDocuments(userId);
 
         if(userOptional.isPresent()){
-            System.out.println(userOptional.get().getUser_id());
+            System.out.println(userOptional.get().getUserId());
             System.out.println(userOptional.get().getProfile().getFirstname());
         }
         return userOptional.map(user -> adminMapper.map(user, UserDTO.class))
@@ -370,7 +370,7 @@ public class UserService {
             if(userOptional.isPresent()) {
                 User user = userOptional.get();
                 return new UserDTO(
-                        user.getUser_id(),
+                        user.getUserId(),
                         user.isActive(),
                         user.getEmail(),
                         user.getProfile().getFirstname(),

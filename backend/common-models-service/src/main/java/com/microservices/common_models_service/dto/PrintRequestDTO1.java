@@ -75,7 +75,7 @@ public class PrintRequestDTO1 {
     public static PrintRequestDTO1 fromEntity(PrintRequest entity) {
         if (entity == null) return null;
 
-        String userId = entity.getUser() != null ? entity.getUser().getUser_id() : null;
+        String userId = entity.getUser() != null ? entity.getUser().getUserId() : null;
         String firstName = entity.getUser() != null ? entity.getUser().getProfile().getFirstname() : null;
         String lastName = entity.getUser() != null ? entity.getUser().getProfile().getLastname() : null;
         String email = entity.getUser() != null ? entity.getUser().getEmail() : null;

@@ -2,15 +2,11 @@ package com.microservices.document_service.controller;
 import com.microservices.common_models_service.dto.ProfileDTO;
 import com.microservices.common_models_service.dto.UserDTO;
 import com.microservices.common_models_service.model.Document;
-import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
 import com.microservices.common_models_service.repository.UserRepository;
 import com.microservices.document_service.dto.DocumentMetadataDTO;
 import com.microservices.document_service.service.DocumentService;
-import org.apache.commons.io.input.BOMInputStream;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +43,7 @@ public class DocumentController {
         //u.setEmail(user.getEmail());
 
         ProfileDTO p = new ProfileDTO(user.getProfile().getFirstname(), user.getProfile().getLastname());
-        return new UserDTO(user.getUser_id(), p, user.getEmail());
+        return new UserDTO(user.getUserId(), p, user.getEmail());
 
 
 

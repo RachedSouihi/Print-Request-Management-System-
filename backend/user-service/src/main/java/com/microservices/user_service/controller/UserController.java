@@ -279,7 +279,7 @@ public class UserController {
                 user.setPassword(null);
                 tokens.put("access_token", AESUtil.encrypt(access_token, SECRET_KEY, ALGO));
                 //tokens.put("refresh_token", AESUtil.encrypt((String) tokens.get("refresh_token"), SECRET_KEY, ALGO));
-                verificationService.saveTokens(user.getUser_id(), (String) tokens.get("access_token"), (String) tokens.get("refresh_token"), 432000, 777600);
+                verificationService.saveTokens(user.getUserId(), (String) tokens.get("access_token"), (String) tokens.get("refresh_token"), 432000, 777600);
                 ResponseCookie access_token_cookie = ResponseCookie.from("access_token", (String) tokens.get("access_token"))
                         .httpOnly(true)
                         .sameSite("LAX")

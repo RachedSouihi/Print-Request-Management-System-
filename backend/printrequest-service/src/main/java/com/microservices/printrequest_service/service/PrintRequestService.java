@@ -90,7 +90,7 @@ public class PrintRequestService {
 
         String id= printRequest.getDocument().getId();
 
-        User user = userRepository.findById(printRequest.getUser().getUser_id())
+        User user = userRepository.findById(printRequest.getUser().getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Ensure the Document exists

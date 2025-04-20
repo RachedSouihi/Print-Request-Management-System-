@@ -18,6 +18,8 @@ public class Routes {
         return GatewayRouterFunctions.route("user_service")
                 .route(RequestPredicates.path("/user/**"),
                         HandlerFunctions.http("http://localhost:8089"))
+                .route(RequestPredicates.path("/follow/**"),
+                        HandlerFunctions.http("http://localhost:8089"))
                 .filter((request, next) -> {
                     // Extract the Authorization header from the original request
                     String authHeader = request.headers().firstHeader("Authorization");

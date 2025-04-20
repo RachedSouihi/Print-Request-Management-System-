@@ -23,7 +23,7 @@ public class CustomJwtDecoder implements JwtDecoder {
             @Value("${app.encrytion.algo}") String algo) {
         this.secretKey = secretKey;
         this.algo = algo;
-        this.jwtParser = NimbusJwtDecoder.withJwkSetUri("http://127.0.0.1:9000/realms/spring-microservices-security-realm/protocol/openid-connect/certs")
+        this.jwtParser = NimbusJwtDecoder.withJwkSetUri("http://127.0.0.1:8180/realms/spring-microservices-security-realm/protocol/openid-connect/certs")
                 .build();
     }
 

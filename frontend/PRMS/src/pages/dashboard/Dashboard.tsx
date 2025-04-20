@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
+
 import { Col, Nav } from 'react-bootstrap'
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router'
 import Sidebar from '../../components/SideBar/SideBar'
 import Overview from './Overview'
 import Header from '../../layouts/Header'
@@ -35,7 +36,7 @@ export default function Dashboard() {
             ].map((item) => (
               <Nav.Link
                 key={item.path}
-                as={Link}
+                as={Link as React.ElementType}
                 to={`/dashboard/${item.path}`}
                 className={window.location.pathname.includes(item.path) ? 'active' : ''}
               >
@@ -48,6 +49,7 @@ export default function Dashboard() {
       </Col>
 
       <Col>
+
         <Routes>
           <Route path="overview" element={<Overview />} />
           <Route path="users" element={<UserManagement />} />

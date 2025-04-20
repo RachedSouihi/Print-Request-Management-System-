@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
@@ -21,8 +20,17 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     // Add an entity graph to fetch the user along with savedDocuments
     @EntityGraph(attributePaths = "savedDocuments")
-    @Query("SELECT u FROM User u WHERE u.user_id = :userId")
+    @Query("SELECT u FROM User u WHERE u.userId = :userId")
     Optional<User> findUserWithDocuments(@Param("userId") String userId);
+
+    @Query("SELECT u FROM User u WHERE u.userId = :userId")
+    Optional<User> findByUserId(@Param("userId") String userId);
+
+    @Query("SELECT u FROM User u WHERE u.userId = :userId")
+    Optional<User> findById (@Param("userId") String userId);
+
+
+
 }
 
 
