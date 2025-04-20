@@ -5,36 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6132e1f8-bbc2-483f-9596-a6aa16d5ac48" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Follow.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/FollowRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/FollowController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/FollowService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/WebConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/routes/Routes.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/routes/Routes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/security/CustomJwtDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/security/CustomJwtDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/repository/ProfileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/repository/ProfileRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ModelMapperConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ModelMapperConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/PrintRequestDTO1.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/PrintRequestDTO1.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Subject.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Subject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/ProfileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/ProfileRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/SubjectRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/SubjectRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/controller/DocumentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/controller/DocumentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/controller/PrintRequestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/controller/PrintRequestController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/service/PrintRequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/printrequest-service/src/main/java/com/microservices/printrequest_service/service/PrintRequestService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/repository/UserRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/microservices/user_service/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/PrivateRoute.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/PrivateRoute.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/components/SideBar/SideBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/components/SideBar/SideBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/Dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/Dashboard.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,7 +76,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.UserServiceApplication">
+  <component name="RunManager" selected="Spring Boot.ApiGatewayApplication">
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservices.api_gateway.ApiGatewayApplication" />
@@ -195,6 +166,7 @@
       <workItem from="1744886600211" duration="13247000" />
       <workItem from="1744964445433" duration="16444000" />
       <workItem from="1745049312557" duration="7730000" />
+      <workItem from="1745146590901" duration="1321000" />
     </task>
     <servers />
   </component>

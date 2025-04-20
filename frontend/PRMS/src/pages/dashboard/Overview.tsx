@@ -55,7 +55,7 @@ const PrintRequestsTable: React.FC = () => {
 
   // WebSocket
   useEffect(() => {
-    const socket = new SockJS('http://localhost:9001/ws');
+    const socket = new SockJS('http://localhost:8085/ws');
     const stompClient = new Client({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
