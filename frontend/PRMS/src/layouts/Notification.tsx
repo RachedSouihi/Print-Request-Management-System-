@@ -5,6 +5,11 @@ import { FiBell, FiCheckCircle, FiX, FiBook, FiAlertCircle, FiAward } from 'reac
 import { formatDistanceToNow } from 'date-fns';
 import './Notification.scss';
 
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
+import { v4 as uuidv4 } from 'uuid';
+
+
 type NotificationType = 'assignment' | 'announcement' | 'grade';
 
 export interface Notification {
@@ -20,8 +25,9 @@ export const Notifications: React.FC<{
     notifications: Notification[];
     onMarkRead: (id: string) => void;
     onMarkAllRead: () => void;
+    onReceiveSocketNotif: (notif: Notification) => void;
     isDarkMode: boolean;
-}> = ({ notifications, onMarkRead, onMarkAllRead, isDarkMode }) => {
+}> = ({ notifications, onMarkRead, onMarkAllRead, onReceiveSocketNotif, isDarkMode }) => {
     const [show, setShow] = useState(false);
     const target = useRef(null);
 
@@ -44,6 +50,43 @@ export const Notifications: React.FC<{
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
+    // ✅ WebSocket pour recevoir les notifications push
+    useEffect(() => {
+        const socket = new SockJS('http://localhost:8085/ws'); // Assurez-vous que ce chemin correspond à celui configuré côté backend
+        const stompClient = new Client({
+            webSocketFactory: () => socket,
+            reconnectDelay: 5000,
+            onConnect: () => {
+                console.log("✅ WebSocket connecté");
+
+                stompClient.subscribe('/user123/queue/notifications', (message) => {
+                    const data = JSON.parse(message.body);
+                    console.log("🔔 Notification reçue:", data);
+
+                    const newNotif: Notification = {
+                        id: uuidv4(),
+                        type: 'announcement', // 👉 Tu peux ajuster dynamiquement selon le `data.type`
+                        title: 'New Follower',
+                        message: data.message,
+                        timestamp: new Date(),
+                        read: false
+                    };
+
+                    onReceiveSocketNotif(newNotif);
+                });
+            },
+            onStompError: (frame) => {
+                console.error('❌ STOMP error:', frame);
+            }
+        });
+
+        stompClient.activate();
+
+        return () => {
+            stompClient.deactivate();
+        };
+    }, [onReceiveSocketNotif]);
+
     return (
         <div className="notifications-container">
             <Button
@@ -65,7 +108,7 @@ export const Notifications: React.FC<{
                 )}
             </Button>
             <Overlay
-                show={show} // Changed from show={true}
+                show={show}
                 target={target.current}
                 placement="bottom-end"
                 rootClose

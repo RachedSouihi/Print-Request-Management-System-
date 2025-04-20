@@ -47,4 +47,23 @@ public class ApiGatewayController {
         messagingTemplate.convertAndSendToUser(username, "/queue/notifications", r);
     }
 
+    // ✅ Nouveau endpoint pour notification lors du follow
+    @PostMapping("/notify")
+    public void sendFollowNotification(@RequestBody Map<String, String> payload) {
+        try {
+            String username = payload.get("username");
+            String message = payload.get("message");
+
+            Map<String, String> notif = new HashMap<>();
+            notif.put("username", username);
+            notif.put("message", message);
+
+            messagingTemplate.convertAndSendToUser(username, "/queue/notifications", notif);
+            System.out.println("🔔 Notification envoyée à : " + username);
+        } catch (Exception e) {
+            System.out.println("❌ Erreur lors de l'envoi de la notification : " + e.getMessage());
+        }
+
+    }
+
 }

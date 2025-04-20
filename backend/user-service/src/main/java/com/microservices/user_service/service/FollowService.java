@@ -4,10 +4,14 @@ import com.microservices.common_models_service.model.Follow;
 import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
 import com.microservices.common_models_service.repository.FollowRepository;
-import com.microservices.common_models_service.repository.UserRepository;
 import com.microservices.common_models_service.repository.ProfileRepository;
+import com.microservices.common_models_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class FollowService {
@@ -20,6 +24,8 @@ public class FollowService {
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    private final RestTemplate restTemplate = new RestTemplate(); // Pour appeler l'API de notification
 
     // Méthode pour permettre à un étudiant de suivre un professeur
     public String followUser(String followerId, String followedId) {
@@ -38,7 +44,6 @@ public class FollowService {
             Profile followedProfile = profileRepository.findById(followedId).orElse(null);
             System.out.println("FollowerId: " + followerId + ", FollowedId: " + followedId);
 
-
             if (followerProfile == null || followedProfile == null) {
                 return "Error: Profile not found for one or both users.";
             }
@@ -54,8 +59,20 @@ public class FollowService {
                 follow.setFollowerId(follower.getUserId());
                 follow.setFollowedId(followed.getUserId());
 
-
                 followRepository.save(follow);
+
+                // ✅ Envoi de la notification via API Gateway
+                Map<String, String> notifData = new HashMap<>();
+                notifData.put("username", followed.getProfile().getFirstname()); // Assurez-vous que le champ "username" est correct
+                notifData.put("message", follower.getProfile().getFirstname() + " started following you.");
+
+                try {
+                    restTemplate.postForObject("http://localhost:8085/broadcast/notify", notifData, String.class);
+                    System.out.println("✅ Notification envoyée au professeur");
+                } catch (Exception e) {
+                    System.out.println("❌ Erreur d'envoi de notification : " + e.getMessage());
+                }
+
                 return "You are now following the professor successfully.";
 
             } else {
@@ -65,7 +82,6 @@ public class FollowService {
             return "Error: " + e.getMessage();
         }
     }
-
 
     // Méthode pour permettre à un étudiant d'arrêter de suivre un professeur
     public String unfollowUser(String followerId, String followedId) {
