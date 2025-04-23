@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class FollowService {
@@ -63,7 +65,7 @@ public class FollowService {
 
                 // ✅ Envoi de la notification via API Gateway
                 Map<String, String> notifData = new HashMap<>();
-                notifData.put("username", followed.getProfile().getFirstname()); // Assurez-vous que le champ "username" est correct
+                notifData.put("username", followed.getProfile().getFirstname()); 
                 notifData.put("message", follower.getProfile().getFirstname() + " started following you.");
 
                 try {
@@ -94,6 +96,22 @@ public class FollowService {
             return "You have unfollowed the professor successfully.";
         } catch (Exception e) {
             return "Error: " + e.getMessage();
+        }
+    }
+
+    public List<User> getFollowedProfessorsByUser(String userId) {
+        try {
+            // Récupérer tous les follows où cet utilisateur est le follower
+            List<Follow> follows = followRepository.findByFollowerId(userId);
+
+            // Mapper vers les User correspondants, en filtrant uniquement les professeurs
+            return follows.stream()
+                    .map(follow -> userRepository.findById(follow.getFollowedId()).orElse(null))
+                    .filter(user -> user != null && user.getProfile() != null)
+                    .filter(user -> "professor".equalsIgnoreCase(user.getProfile().getRole()))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve followed professors: " + e.getMessage());
         }
     }
 }

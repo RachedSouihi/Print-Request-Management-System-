@@ -9,7 +9,6 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { v4 as uuidv4 } from 'uuid';
 
-
 type NotificationType = 'assignment' | 'announcement' | 'grade';
 
 export interface Notification {
@@ -59,7 +58,7 @@ export const Notifications: React.FC<{
             onConnect: () => {
                 console.log("✅ WebSocket connecté");
 
-                stompClient.subscribe('/user123/queue/notifications', (message) => {
+                stompClient.subscribe('/user/queue/notifications', (message) => {
                     const data = JSON.parse(message.body);
                     console.log("🔔 Notification reçue:", data);
 

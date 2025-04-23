@@ -57,6 +57,7 @@ public class ApiGatewayController {
             Map<String, String> notif = new HashMap<>();
             notif.put("username", username);
             notif.put("message", message);
+            System.out.println(username);
 
             messagingTemplate.convertAndSendToUser(username, "/queue/notifications", notif);
             System.out.println("🔔 Notification envoyée à : " + username);

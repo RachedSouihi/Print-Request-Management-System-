@@ -32,7 +32,7 @@ public class PrintRequest {
     private LocalDateTime createdAt;
 
     @Column(name = "ink_usage")
-    private double inkUsage = 0.5; // Default value for inkUsage
+    private Double inkUsage = 0.5; // Default value for inkUsage
 
     private String urgency = "low"; // Default value for urgency
 
