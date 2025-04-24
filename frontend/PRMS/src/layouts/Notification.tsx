@@ -4,17 +4,11 @@ import { Overlay, Popover, Badge, Button } from 'react-bootstrap';
 import { FiBell, FiCheckCircle, FiX, FiBook, FiAlertCircle, FiAward } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import './Notification.scss';
+import { Notification, NotificationType } from '../store/notificationSlice';
 
-type NotificationType = 'assignment' | 'announcement' | 'grade';
 
-export interface Notification {
-    id: string;
-    type: string;
-    title: string;
-    message: string;
-    timestamp: Date;
-    read: boolean;
-}
+
+
 
 export const Notifications: React.FC<{
     notifications: Notification[];
@@ -106,10 +100,10 @@ export const Notifications: React.FC<{
                             ) : (
                                 notifications.map(notification => (
                                     <div
-                                        key={notification.id}
+                                        key={notification.notif_id}
                                         className={`notification-item ${!notification.read ? 'unread' : ''}`}
                                         role="button"
-                                        onClick={() => onMarkRead(notification.id)}
+                                        onClick={() => onMarkRead(notification.notif_id)}
                                     >
                                         <div className="notification-indicator" aria-hidden="true" />
                                         <div className="notification-icon-container">
@@ -119,7 +113,7 @@ export const Notifications: React.FC<{
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <h6 className="mb-0">{notification.title}</h6>
                                                 <small className="text-muted">
-                                                    {formatDistanceToNow(notification.timestamp)} ago
+                                                    {formatDistanceToNow(new Date(notification.timestamp))} ago
                                                 </small>
                                             </div>
                                             <p className="mb-0 text-muted">{notification.message}</p>

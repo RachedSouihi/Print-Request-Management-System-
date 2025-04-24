@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiBell, FiUser, FiSun, FiMoon, FiCheckCircle } from 'react-icons/fi';
+import { FiBell, FiUser, FiSun, FiMoon } from 'react-icons/fi';
 import './Header.scss';
-import {Notifications} from './Notification';
+import { Notifications } from './Notification';
 
-import { Notification } from './Notification';
 import { useNavigate } from 'react-router';
-
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchNotifications, selectNotifications, markAsRead, markAsRead as markAllAsRead } from '../store/notificationSlice';
+import { RootState } from '../store/store';
+import { AppDispatch } from '../store/store';
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -13,25 +15,25 @@ const Header = () => {
   const [activeLink, setActiveLink] = useState<string | null>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
-  const notifications_l = [
-    { id: "1", type: "assignment", title: 'New Assignment', message: 'Math homework due tomorrow', timestamp: new Date(), /*time: '2h ago',*/ read: false },
-    { id: "2", type: "grade", title: 'Grade Updated', message: 'Science test results available', timestamp: new Date(), /*time: '5h ago',*/ read: true },
-    { id: "3", type: "announcement", title: 'Announcement', message: 'School event on Friday', timestamp: new Date(), /*time: '1d ago',*/ read: true },
-  ];
+  const dispatch: AppDispatch = useDispatch();
+  const notifications = useSelector((state: RootState) => selectNotifications(state));
+  const navigate = useNavigate();
 
-  const [notifications, setNotifications] = useState<Notification[]>(notifications_l)
-
-  const navigate = useNavigate()
-
+  useEffect(() => {
+    // Fetch notifications when the component mounts
+    dispatch(fetchNotifications());
+  }, [dispatch]);
 
   const handleMarkRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(n => (n.id == id ? { ...n, read: true } : n))
-    );
+    dispatch(markAsRead(id));
   };
 
   const handleMarkAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    notifications.forEach((notification) => {
+      if (!notification.read) {
+        dispatch(markAllAsRead(notification.notif_id));
+      }
+    });
   };
 
   const handleDarkModeToggle = () => {
@@ -48,9 +50,7 @@ const Header = () => {
   const handleClick = (link: string) => {
     setActiveLink(link);
     navigate(link === 'Home' ? '/' : link.toLowerCase());
-
-
-  }
+  };
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -84,17 +84,14 @@ const Header = () => {
           <button className="icon-btn" aria-label="Toggle dark mode" onClick={handleDarkModeToggle}>
             {isDarkMode ? <FiSun /> : <FiMoon />}
           </button>
-          
+
           <div className="notification-wrapper" ref={notificationsRef}>
-
-
-          <Notifications
+            <Notifications
               notifications={notifications}
               onMarkRead={handleMarkRead}
               onMarkAllRead={handleMarkAllRead}
-
               isDarkMode={isDarkMode}
-            />     
+            />
           </div>
 
           <button className="icon-btn" aria-label="User profile">
@@ -107,18 +104,3 @@ const Header = () => {
 };
 
 export default Header;
-
-
-
-/*
-
- <button 
-              className="icon-btn" 
-              aria-label="Notifications"
-              onClick={() => setShowNotifications(!showNotifications)}
-            >
-              <FiBell />
-              {notifications.some(n => !n.read) && (
-                <span className="notification-badge"></span>
-              )}
-            </button>*/
