@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import { Col, Nav } from 'react-bootstrap'
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom'
 import Sidebar from '../../components/SideBar/SideBar'
-import Overview from './Overview'
 import Header from '../../layouts/Header'
 import UserManagement from './UserManagement'
-import PrintRequestsTable from './Overview'
+import PrintRequestsTable from './PRManagement'
 import { FiHome, FiUsers, FiPrinter } from 'react-icons/fi'
+import Overview from './Overview'
 
 export default function Dashboard() {
   const [collapsed, setCollapsed] = useState(false);
@@ -14,7 +14,9 @@ export default function Dashboard() {
 
   return (
     <div className="d-flex gap-0">
-      <Col md={3}>
+      <Col md={collapsed ? 1  : 3} style={{
+        transition: '0.2s ease'
+      }}>
         <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
             <h3 className="logo">Dashboard</h3>
@@ -47,11 +49,16 @@ export default function Dashboard() {
         </div>
       </Col>
 
-      <Col>
+      <Col md={collapsed ? 11  : 9} style={{
+        transition: '0.2s ease'
+      }}>
         <Routes>
           <Route path="overview" element={<Overview />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="request-management" element={<PrintRequestsTable />} />
+     
+
+          <Route path='users' element={<UserManagement />} />
+
+          <Route path='request-management' element={<PrintRequestsTable />} />
         </Routes>
       </Col>
     </div>
