@@ -1,25 +1,21 @@
 package com.microservices.common_models_service.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Type;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-
 @Entity
 @Table(name = "documents")
 public class Document {
+
     @Id
     private String id;
 
     private String title;
-
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -28,24 +24,19 @@ public class Document {
     @Column(name = "doc_type")
     private String docType; // e.g., "PDF", "DOCX"
 
-
     @Nullable
     @Column(name = "\"group\"")
     private String group;
 
     @Nullable
-    private LocalDate deadline; // New attribute
+    private LocalDate deadline;
 
     @Nullable
-    private String instructions; // New attribute
-
-
-
-
+    private String instructions;
 
     @Lob
     @JsonIgnore
-    private byte[] document; // Use @Lob alone
+    private byte[] document;
 
     private String subject;
     private String description;
@@ -56,13 +47,36 @@ public class Document {
     @Nullable
     private Float rating;
 
-
     private String level;
 
     private String field;
 
     private LocalDate date;
 
+    @Nullable
+    @Column(name = "type")
+    private String type; // New attribute: Administrative or Educational
+
+    @Nullable
+    @Column(name = "visibility")
+    private String visibility; // New attribute: Public or Private
+
+    @Nullable
+    @Column(name = "message")
+    private String message; // Nouveau champ message
+
+    @ManyToMany(mappedBy = "savedDocuments")
+    private Set<User> savedByUsers = new HashSet<>();
+
+    // ========================= Getters and Setters ==============================
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     @Nullable
     public String getInstructions() {
@@ -91,26 +105,8 @@ public class Document {
         this.deadline = deadline;
     }
 
-    @PrePersist
-    public void onCreate() {
-        date = LocalDate.now();
-    }
-
-    @ManyToMany(mappedBy = "savedDocuments")
-    private Set<User> savedByUsers = new HashSet<>();
-
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public float getRating() {
         return (rating != null) ? rating : 0.0f;
-
     }
 
     public void setRating(float rating) {
@@ -145,27 +141,51 @@ public class Document {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getSubject() {
         return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public byte[] getDocument() {
         return document;
     }
 
+    public void setDocument(byte[] document) {
+        this.document = document;
+    }
+
     public String getDocType() {
         return docType;
+    }
+
+    public void setDocType(String docType) {
+        this.docType = docType;
     }
 
     public User getUser() {
         return user;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public String getId() {
         return id;
     }
 
-    public int getDownloads(){
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getDownloads() {
         return downloads;
     }
 
@@ -173,36 +193,48 @@ public class Document {
         this.downloads = downloads;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public void setDocument(byte[] document) {
-        this.document = document;
-    }
-
-    public void setDocType(String docType) {
-        this.docType = docType;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-
     public Set<User> getSavedByUsers() {
         return savedByUsers;
     }
+
     public void setSavedByUsers(Set<User> savedByUsers) {
         this.savedByUsers = savedByUsers;
     }
 
+    @Nullable
+    public String getType() {
+        return type;
+    }
+
+    public void setType(@Nullable String type) {
+        this.type = type;
+    }
+
+    @Nullable
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(@Nullable String visibility) {
+        this.visibility = visibility;
+    }
+
+    @Nullable
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(@Nullable String message) {
+        this.message = message;
+    }
+
+    // ========================= Hooks ==============================
+
+    @PrePersist
+    public void onCreate() {
+        date = LocalDate.now();
+        if (visibility == null) {
+            visibility = "Public"; // Default value if not set
+        }
+    }
 }
