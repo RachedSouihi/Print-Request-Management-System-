@@ -6,10 +6,6 @@ import { formatDistanceToNow } from 'date-fns';
 import './Notification.scss';
 import { Notification, NotificationType } from '../store/notificationSlice';
 
-
-
-
-
 export const Notifications: React.FC<{
     notifications: Notification[];
     onMarkRead: (id: string) => void;
@@ -30,6 +26,7 @@ export const Notifications: React.FC<{
             case 'assignment':
                 return <FiBook {...iconProps} />;
             case 'announcement':
+            case 'COURSE_ANNOUNCEMENT':
                 return <FiAlertCircle {...iconProps} />;
             case 'grade':
                 return <FiAward {...iconProps} />;
@@ -100,10 +97,12 @@ export const Notifications: React.FC<{
                             ) : (
                                 notifications.map(notification => (
                                     <div
-                                        key={notification.notif_id}
+                                        key={notification.notifId}
                                         className={`notification-item ${!notification.read ? 'unread' : ''}`}
                                         role="button"
-                                        onClick={() => onMarkRead(notification.notif_id)}
+                                        onClick={() => {
+                                            onMarkRead(notification.notifId); // Call the provided onMarkRead function
+                                        }}
                                     >
                                         <div className="notification-indicator" aria-hidden="true" />
                                         <div className="notification-icon-container">

@@ -5,7 +5,7 @@ import { Notifications } from './Notification';
 
 import { useNavigate } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchNotifications, selectNotifications, markAsRead, markAsRead as markAllAsRead } from '../store/notificationSlice';
+import { fetchNotifications, selectNotifications, markAsRead, markAsRead as markAllAsRead, markNotificationAsRead, markAllNotificationsAsRead } from '../store/notificationSlice';
 import { RootState } from '../store/store';
 import { AppDispatch } from '../store/store';
 
@@ -24,16 +24,22 @@ const Header = () => {
     dispatch(fetchNotifications());
   }, [dispatch]);
 
+  console.log('Notifications:', notifications);
+
+
+
+
   const handleMarkRead = (id: string) => {
-    dispatch(markAsRead(id));
+    //dispatch(markAsRead(id));
+    dispatch(markNotificationAsRead(id));
+
+
+    
   };
 
   const handleMarkAllRead = () => {
-    notifications.forEach((notification) => {
-      if (!notification.read) {
-        dispatch(markAllAsRead(notification.notif_id));
-      }
-    });
+      dispatch(markAllNotificationsAsRead()).unwrap();
+      
   };
 
   const handleDarkModeToggle = () => {
