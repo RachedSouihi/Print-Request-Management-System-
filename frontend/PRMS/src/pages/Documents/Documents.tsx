@@ -4,7 +4,7 @@ import { FiSearch, FiDownload, FiStar, FiFilter, FiX, FiPrinter } from 'react-ic
 import './Documents.scss';
 import { PrintRequestModal } from '../../components/PrintRequest/PrintRequest';
 import axios from 'axios';
-import { Document, fetchDocuments } from '../../store/documentsSlice';
+import { Document, fetchDocuments, fetchFieldsThunk, fetchSubjectsThunk, Field, Subject } from '../../store/documentsSlice';
 import { useToast } from '../../context/ToastContext';
 import CustomToast from '../../common/Toast';
 import DocumentCard from '../../cards/DocumentCard';
@@ -13,6 +13,7 @@ import DocumentCard from '../../cards/DocumentCard';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppDispatch, RootState } from '../../store/store';
+import { sendPrintRequest, updatePrintRequest } from '../../store/requestSlice';
 
 
 
@@ -29,10 +30,19 @@ const DocumentsPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const sampleDocuments: Document[] = useSelector((state: RootState) => state.documents.documents);
 
+
+  const subjects: Subject[] = useSelector((state: RootState) => state.documents.subjects);
+
+  const fields: Field[] = useSelector((state: RootState) => state.documents.fields);
+
+
+
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
+
+  
 
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,12 +57,7 @@ const DocumentsPage: React.FC = () => {
   const { toast, showToast, hideToast } = useToast()
 
 
-  const subjects = [
-    "Math", "Physics", "Science de la vie et de la terre", "Computer science", "Technologies",
-    "History Geography", "English", "French", "Economics",
-    "Management", "Philosophy", "Islamic thought", "Spanish",
-    "Arabic", "German", "Italian"
-  ];
+  
 
   const filteredDocuments = sampleDocuments.filter(doc => {
     const matchesSearch = doc.description?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -60,8 +65,8 @@ const DocumentsPage: React.FC = () => {
     //const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) 
     //doc.keywords.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesLevel = !filters.level || doc.level === parseInt(filters.level);
-    const matchesSubject = !filters.subject || doc.subject.toLocaleLowerCase() == filters.subject;
-    const matchesField = !filters.field || doc.field === filters.field;
+    const matchesSubject = !filters.subject || doc.subject?.name.toLocaleLowerCase() == filters.subject;
+    const matchesField = !filters.field || doc.field?.name === filters.field;
 
     return matchesSearch && matchesLevel && matchesSubject && matchesField;
   }).sort((a, b) => {
@@ -87,41 +92,35 @@ const DocumentsPage: React.FC = () => {
 
   const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleSubmit = async (data: any) => {
-    console.log('Print Request Submitted:', data);
-
-    try {
-      const formData = new FormData();
-      formData.append('copies', data.copies);
-      formData.append('printMode', data.printMode);
-      formData.append('notes', data.notes);
-      //formData.append('file', data.file);
-      //formData.append('documentName', selectedDocument);
-
-      const response = await axios.post(`${import.meta.env.VITE_PRINT_REQUEST_URL}`, formData, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+    // Add this handler function
+  const handlePrintSubmit = (values: any, isUpdate: boolean) => {
+   
+     
+      dispatch(sendPrintRequest({
+        copies: values.copies,
+        color: values.printMode === 'color',
+        notes: values.notes,
+        document: selectedDocument as Document,
+        paperType: { paperType: values.paperType }
+      })).then((action: any) => {
+        if (action.type === 'printRequest/sendPrintRequest/fulfilled') {
+          showToast('Print request sent successfully', 'success');
+          setIsModalOpen(false);
+         // dispatch(fetchPrintHistory());
+        }
+        if (action.type === 'printRequest/sendPrintRequest/rejected') {
+          showToast('Submission failed', 'danger');
+        }
       });
-
-      if (response.status === 200) {
-        console.log('Print request successful:', response.data);
-      } else {
-        console.error('Print request failed:', response.data);
-      }
-    } catch (error) {
-      console.error('Error submitting print request:', error);
-    }
-
-    //handleCloseModal();
+    
   };
+  
 
 
   const loadDocuments = useCallback(async () => {
     setIsLoading(true);
     try {
-      const action = await dispatch(fetchDocuments( /*{ page, filters }*/ ));
+      const action = await dispatch(fetchDocuments( /*{ page, filters }*/));
       const newDocuments = action.payload as Document[];
 
       console.log('Fetched documents:', newDocuments);
@@ -138,6 +137,38 @@ const DocumentsPage: React.FC = () => {
   useEffect(() => {
     loadDocuments();
   }, [loadDocuments]);
+
+  useEffect(() => {
+
+    dispatch(fetchSubjectsThunk()).then((action: any) => {
+      if (action.payload) {
+        console.log('Fetched subjects:', action.payload);
+      }
+      else {
+        console.error('Failed to fetch subjects:', action.error);
+      }
+    }
+    ).catch((error: any) => {
+      console.error('Error fetching subjects:', error);
+    }
+  )  
+  }
+  , [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchFieldsThunk()).then((action: any) => {
+      if (action.payload) {
+        console.log('Fetched fields:', action.payload);
+      } else {
+        console.error('Failed to fetch fields:', action.error);
+      }
+    }).catch((error: any) => {
+      console.error('Error fetching fields:', error);
+    });
+  }, [dispatch]);
+
+
+
 
   useEffect(() => {
     // Reset to first page when filters change
@@ -180,12 +211,9 @@ const DocumentsPage: React.FC = () => {
       <PrintRequestModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        // onSubmit={handleSubmit}
-        showToast={showToast}
-
+        onSubmit={handlePrintSubmit}
         document={selectedDocument as Document}
-      //documentName="Mathematics Basics"
-      //documentInfo="Final exam version - Algebra section"
+
       />
 
       <Row>
@@ -220,7 +248,7 @@ const DocumentsPage: React.FC = () => {
                 >
                   <option value="">All Subjects</option>
                   {subjects.map(subject => (
-                    <option key={subject} value={subject.toLowerCase()}>{subject}</option>
+                    <option key={subject.id} value={subject.id}>{subject.name}</option>
                   ))}
                 </Form.Select>
               </Form.Group>
@@ -232,10 +260,11 @@ const DocumentsPage: React.FC = () => {
                   onChange={(e) => handleFilterChange('field', e.target.value)}
                 >
                   <option value="">All Fields</option>
-                  <option value="computer-science">Computer Science</option>
-                  <option value="math">Mathematics</option>
-                  <option value="technical-science">Technical Science</option>
-                  <option value="experimental-science">Experimental Science</option>
+                  {fields.map((field) => (
+                    <option key={field.field_id} value={field.field_id}>
+                      {field.name}
+                    </option>
+                  ))}
                 </Form.Select>
               </Form.Group>
 
@@ -246,7 +275,7 @@ const DocumentsPage: React.FC = () => {
           )}
         </Col>
 
-        <Col md={showFilters ? 9 : 12} className="main-content">
+        <Col md={9} className="main-content">
           <div className="search-controls">
             <InputGroup className="search-bar">
               <InputGroup.Text>
@@ -270,14 +299,14 @@ const DocumentsPage: React.FC = () => {
             </Form.Select>
           </div>
           {filteredDocuments.length > 0 ? (
-         // Modify the Row component
-<Row className="documents-grid row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
-  {filteredDocuments.map(doc => (
-    <Col key={doc.id} className="d-flex">
-      <DocumentCard document={doc} handleOpenModal={handleOpenModal} />
-    </Col>
-  ))}
-</Row>
+            // Modify the Row component
+            <Row className="documents-grid row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+              {filteredDocuments.map(doc => (
+                <Col key={doc.id} className="d-flex">
+                  <DocumentCard doc={doc} handleOpenModal={handleOpenModal} dispatch={dispatch} />
+                </Col>
+              ))}
+            </Row>
           ) : (
             <div className="empty-state">
               <h3>No documents found</h3>

@@ -4,29 +4,14 @@ import { Overlay, Popover, Badge, Button } from 'react-bootstrap';
 import { FiBell, FiCheckCircle, FiX, FiBook, FiAlertCircle, FiAward } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import './Notification.scss';
-
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
-import { v4 as uuidv4 } from 'uuid';
-
-type NotificationType = 'assignment' | 'announcement' | 'grade';
-
-export interface Notification {
-    id: string;
-    type: NotificationType;
-    title: string;
-    message: string;
-    timestamp: Date;
-    read: boolean;
-}
+import { Notification, NotificationType } from '../store/notificationSlice';
 
 export const Notifications: React.FC<{
     notifications: Notification[];
     onMarkRead: (id: string) => void;
     onMarkAllRead: () => void;
-    onReceiveSocketNotif: (notif: Notification) => void;
     isDarkMode: boolean;
-}> = ({ notifications, onMarkRead, onMarkAllRead, onReceiveSocketNotif, isDarkMode }) => {
+}> = ({ notifications, onMarkRead, onMarkAllRead, isDarkMode }) => {
     const [show, setShow] = useState(false);
     const target = useRef(null);
 
@@ -41,6 +26,7 @@ export const Notifications: React.FC<{
             case 'assignment':
                 return <FiBook {...iconProps} />;
             case 'announcement':
+            case 'COURSE_ANNOUNCEMENT':
                 return <FiAlertCircle {...iconProps} />;
             case 'grade':
                 return <FiAward {...iconProps} />;
@@ -48,43 +34,6 @@ export const Notifications: React.FC<{
     };
 
     const unreadCount = notifications.filter(n => !n.read).length;
-
-    // ✅ WebSocket pour recevoir les notifications push
-    useEffect(() => {
-        const socket = new SockJS('http://localhost:8085/ws'); // Assurez-vous que ce chemin correspond à celui configuré côté backend
-        const stompClient = new Client({
-            webSocketFactory: () => socket,
-            reconnectDelay: 5000,
-            onConnect: () => {
-                console.log("✅ WebSocket connecté");
-
-                stompClient.subscribe('/user/queue/notifications', (message) => {
-                    const data = JSON.parse(message.body);
-                    console.log("🔔 Notification reçue:", data);
-
-                    const newNotif: Notification = {
-                        id: uuidv4(),
-                        type: 'announcement', // 👉 Tu peux ajuster dynamiquement selon le `data.type`
-                        title: 'New Follower',
-                        message: data.message,
-                        timestamp: new Date(),
-                        read: false
-                    };
-
-                    onReceiveSocketNotif(newNotif);
-                });
-            },
-            onStompError: (frame) => {
-                console.error('❌ STOMP error:', frame);
-            }
-        });
-
-        stompClient.activate();
-
-        return () => {
-            stompClient.deactivate();
-        };
-    }, [onReceiveSocketNotif]);
 
     return (
         <div className="notifications-container">
@@ -107,7 +56,7 @@ export const Notifications: React.FC<{
                 )}
             </Button>
             <Overlay
-                show={show}
+                show={show} // Changed from show={true}
                 target={target.current}
                 placement="bottom-end"
                 rootClose
@@ -148,10 +97,12 @@ export const Notifications: React.FC<{
                             ) : (
                                 notifications.map(notification => (
                                     <div
-                                        key={notification.id}
+                                        key={notification.notifId}
                                         className={`notification-item ${!notification.read ? 'unread' : ''}`}
                                         role="button"
-                                        onClick={() => onMarkRead(notification.id)}
+                                        onClick={() => {
+                                            onMarkRead(notification.notifId); // Call the provided onMarkRead function
+                                        }}
                                     >
                                         <div className="notification-indicator" aria-hidden="true" />
                                         <div className="notification-icon-container">
@@ -161,7 +112,7 @@ export const Notifications: React.FC<{
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <h6 className="mb-0">{notification.title}</h6>
                                                 <small className="text-muted">
-                                                    {formatDistanceToNow(notification.timestamp)} ago
+                                                    {formatDistanceToNow(new Date(notification.timestamp))} ago
                                                 </small>
                                             </div>
                                             <p className="mb-0 text-muted">{notification.message}</p>
