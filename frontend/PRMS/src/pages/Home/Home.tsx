@@ -45,8 +45,10 @@ const Home: React.FC = () => {
 
     console.log("User from Home: ", user)
 
+    const url = `http://127.0.0.1:9001/ws?username=${user.user_id}`;
+console.log("url: ", url)
 
-    const socket = new SockJS(`http://127.0.0.1:9001/ws?username=${user.user_id}`);
+    const socket = new SockJS(url);
     const stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame: any) {

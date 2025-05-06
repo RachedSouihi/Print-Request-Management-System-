@@ -9,5 +9,5 @@ import java.util.UUID;
 
 
 @Repository
-public interface ProfileRepository extends JpaRepository<Profile, Long> {
+public interface ProfileRepository extends JpaRepository<Profile, String> {
 }

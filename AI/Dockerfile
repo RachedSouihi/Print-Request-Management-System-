@@ -28,8 +28,6 @@ RUN /app/venv/bin/pip install --no-cache-dir \
 COPY ./flink-scripts/*.jar /opt/flink/lib/
 
 
-COPY ./src /app/src
-
 
 # Set the working directory to the app directory
 WORKDIR /app

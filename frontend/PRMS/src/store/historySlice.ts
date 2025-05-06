@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { ReactNode } from "react";
-import { Key } from "readline";
+
 import { PrintRequest } from "./requestSlice";
 
 

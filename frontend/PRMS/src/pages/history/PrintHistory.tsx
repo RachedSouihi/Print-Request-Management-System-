@@ -16,24 +16,86 @@ import { FaSearch, FaFileExport, FaPlus } from "react-icons/fa";
 
 import { AppDispatch, RootState } from "../../store/store";
 import { fetchPrintHistory } from "../../store/historySlice";
-import { PrintRequest } from "../../store/requestSlice";
+import { deletePrintRequest, fetchPrintRequests, PrintRequest, sendPrintRequest, updatePrintRequest } from "../../store/requestSlice";
+import { PrintRequestModal } from "../../components/PrintRequest/PrintRequest";
+import { useToast } from "../../context/ToastContext";
+import CustomToast from "../../common/Toast";
 
 
 
 const PrintHistory: React.FC = () => {
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<PrintRequest | null>(null);
+    const { toast, showToast, hideToast } = useToast()
+  
+
+
+
   const dispatch = useDispatch<AppDispatch>();
-  const data = useSelector((state: RootState) => state.history.data as PrintRequest[]);
+  const data = useSelector((state: RootState) => state.printRequest.requests as PrintRequest[]);
   console.log("Données dans Redux:", data);
 
   useEffect(() => {
-    dispatch(fetchPrintHistory());
+    dispatch(fetchPrintRequests());
   }, [dispatch]);
+
+
 
   // États pour la recherche et les filtres
   const [searchTerm, setSearchTerm] = useState<string>("");  // Recherche générale
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+
+
+
+
+
+  // handler function to update print request
+const handlePrintSubmit = (values: any, isUpdate: boolean) => {
+  if (isUpdate && selectedRequest) {
+    const updatedRequest = {
+      ...selectedRequest,
+      copies: values.copies,
+      color: values.printMode === 'color',
+      instructions: values.notes,
+      paperType: values.paperType
+    };
+    
+    dispatch(updatePrintRequest(updatedRequest))
+      .then((action) => {
+        if (action.type === 'printRequest/updatePrintRequest/fulfilled') {
+          showToast('Request updated successfully', 'success');
+          setShowModal(false);
+        }
+        if (action.type === 'printRequest/updatePrintRequest/rejected') {
+          showToast('Update failed', 'danger');
+        }
+      });
+  } else {
+    dispatch(sendPrintRequest({
+      copies: values.copies,
+      color: values.printMode === 'color',
+      notes: values.notes,
+      document: selectedRequest!.document,
+      paperType: { paperType: values.paperType }
+    })).then((action) => {
+      if (action.type === 'printRequest/sendPrintRequest/fulfilled') {
+        showToast('Print request sent successfully', 'success');
+        setShowModal(false);
+      }
+      if (action.type === 'printRequest/sendPrintRequest/rejected') {
+        showToast('Submission failed', 'danger');
+      }
+    });
+  }
+};
+
+
+
+
+
 
   // Gestion du changement de la date de début
   const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,10 +146,46 @@ const PrintHistory: React.FC = () => {
     return matchesSearch && matchesStatus && matchesDate;
   });
 
-  console.log("filteredData", filteredData);
+
+  // Add handlers
+  const handleDelete = (requestId: string) => {
+    if (window.confirm("Are you sure you want to cancel this request?")) {
+      dispatch(deletePrintRequest(requestId)).then((action: any) => {
+        if(action.type === "printRequest/deletePrintRequest/fulfilled") {
+          showToast("Print request cancelled successfully", "success");
+        }
+        if (action.type === "printRequest/deletePrintRequest/rejected") {
+          showToast("Failed to cancel print request", "danger");
+        }
+        console.log("Delete action: ", action);
+      });
+    }
+  };
+
+  const handleUpdate = (request: PrintRequest) => {
+    setSelectedRequest(request);
+    setShowModal(true);
+  };
+
 
   return (
     <Container fluid className="print-history-container">
+<CustomToast
+        show={toast.show}
+        onClose={hideToast}
+        type={toast.type}
+        message={toast.message}
+      />
+
+{showModal && (
+  <PrintRequestModal
+    isOpen={showModal}
+    onClose={() => setShowModal(false)}
+    document={selectedRequest?.document!}
+    existingRequest={selectedRequest!}
+    onSubmit={handlePrintSubmit}
+  />
+)}
       <Card className="print-history-card">
         <Row className="mb-4">
           <Col>
@@ -162,18 +260,34 @@ const PrintHistory: React.FC = () => {
                   <th>Copies</th>
                   <th>Date</th>
                   <th>Status</th>
-                  <th>Executed By</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredData.map((record) => (
                   <tr key={String(record.requestId)}>
                     <td>{record.document?.description || "N/A"}</td> {/* Afficher la description ici */}
-                    <td>{record.document?.subject || "N/A"}</td> {/* Afficher le sujet ici */}
+                    <td>{record.document.subject?.name || "N/A"}</td> {/* Afficher le sujet ici */}
                     <td>{record.copies}</td>  {/* Nombre de copies */}
                     <td>{new Date(record.date || "").toLocaleDateString()}</td>  {/* Formater la date */}
                     <td>{record.status}</td>
-                    <td>{record.user?.email || "Unknown"}</td>  {/* Email de l'utilisateur */}
+
+                    <td>
+          <Button 
+            variant="warning" 
+            onClick={() => handleUpdate(record)}
+            className="me-2"
+          >
+            Update
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={() => handleDelete(record.requestId!)}
+          >
+            Cancel
+          </Button>
+        </td>
+
                   </tr>
                 ))}
                 {filteredData.length === 0 && (

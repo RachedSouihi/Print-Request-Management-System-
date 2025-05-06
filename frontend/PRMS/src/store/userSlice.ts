@@ -7,7 +7,7 @@ import { profile } from 'console';
 
 // Define a type guard for User
 const isUser = (obj: any): obj is User => {
-  return obj && typeof obj === 'object' && 'id' in obj && 'email' in obj; // Add more checks as needed
+  return obj && typeof obj === 'object' && 'userId' in obj && 'email' in obj; // Add more checks as needed
 };
 
 // Function to load user profile from local storage
@@ -20,12 +20,17 @@ const loadUserProfile = async (): Promise<User | null> => {
 
   if (userProfile) {
     try {
-      const parsedProfile = JSON.parse(userProfile);
-      if (isUser(parsedProfile)) {
+      const parsedProfile = JSON.parse(userProfile).user;
+
+      console.log("parsedProfile: ", parsedProfile)
+      //if (isUser(parsedProfile)) {
+
         user = parsedProfile;
-      } else {
+
+        console.log("parsed user: ", user)
+      //} else {
         console.warn("Invalid user profile format in local storage.");
-      }
+      //}
     } catch (error) {
       console.error("Error parsing user profile:", error);
     }
@@ -69,11 +74,14 @@ const initialState: UserState = {
 // Async thunk for updating profile
 export const updateProfileAsync = createAsyncThunk(
   'user/updateProfileAsync',
-  async (userData: Partial<User>, {getState,rejectWithValue }) => {
+
+  async (userData: Partial<User>, {rejectWithValue }) => {
     try {
+      console.log('user updated info: ', userData)
+
       const response = await axios.put(`${import.meta.env.VITE_UPDATE_PROFILE_URL}`,
         userData, {
-        withCredentials: true,
+          withCredentials: true,
         headers: {
           "Content-Type": "application/json",
         }
@@ -151,6 +159,72 @@ export const fetchAllUsersAsync = createAsyncThunk(
   }
 );
 
+// Async thunk for adding a new user
+export const addUserAsync = createAsyncThunk<
+  { status: number; message: string; user: User }, // Return type
+  User, // Argument type
+  { rejectValue: { status: number; message: string } } // Rejected value type
+>(
+  'user/addUserAsync',
+  async (newUser: User, { rejectWithValue }) => {
+    try {
+      console.log('Adding new user: ', newUser);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_ADD_USER_URL}`,
+        {"user": newUser},
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('Add user response: ', response);
+
+      return { status: response.status, message: 'User added successfully', user: response.data };
+    } catch (error: Error | any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue({ status: error.response.status, message: error.response.data });
+      }
+      return rejectWithValue({ status: 500, message: 'An unknown error occurred' });
+    }
+  }
+);
+
+// Async thunk for updating a user
+export const updateUserAsync = createAsyncThunk<
+  { status: number; message: string; user: User }, // Return type
+  User, // Argument type
+  { rejectValue: { status: number; message: string } } // Rejected value type
+>(
+  'user/updateUserAsync',
+  async (updatedUser: User, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_UPDATE_USER_URL}/${updatedUser.user_id}`, // Replace with your API endpoint
+        
+        updatedUser,
+        
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      return { status: response.status, message: 'User updated successfully', user: response.data };
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue({ status: error.response.status, message: error.response.data });
+      }
+      return rejectWithValue({ status: 500, message: 'An unknown error occurred' });
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -162,28 +236,34 @@ const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(updateProfileAsync.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user: User }>) => {
+        console.log('UPDATE USER ACTION PAYLOAD: ', action);
+        state.user = action.payload.user;
 
-        console.log("UPDATE USER ACTION PAYLOAD: ", action)
-        state.user = action.payload.user
-
-        localStorage.setItem("authState", JSON.stringify(action.payload));
-
-
+        localStorage.setItem('authState', JSON.stringify(action.payload));
+      })
+      .addCase(addUserAsync.fulfilled, (state, action: PayloadAction<{ status: number; message: string; user: User }>) => {
+        console.log('ADD USER ACTION PAYLOAD: ', action);
+        state.users.push(action.payload.user); // Add the new user to the users array
+      })
+      .addCase(addUserAsync.rejected, (state, action) => {
+        console.error('Failed to add user: ', action.payload?.message);
       })
       .addCase(updatePasswordAsync.fulfilled, (state, action) => {
-        // Handle successful password update
         state.user = { ...state.user, ...action.payload };
       })
-      .addCase(updatePasswordAsync.rejected, (state, action) => {
-        // Handle password update error
-      })
       .addCase(fetchAllUsersAsync.fulfilled, (state, action) => {
-        // Handle successful fetch of all users
         state.users = action.payload;
-
       })
-      .addCase(fetchAllUsersAsync.rejected, (state, action) => {
-        // Handle fetch all users error
+      .addCase(updateUserAsync.fulfilled, (state, action) => {
+
+        console.log('UPDATE USER ACTION PAYLOAD: ', action);
+        const index = state.users.findIndex(user => user.user_id === action.payload.user.user_id);
+        if (index !== -1) {
+          state.users[index] = action.payload.user; // Update the user in the state
+        }
+      })
+      .addCase(updateUserAsync.rejected, (state, action) => {
+        console.error('Failed to update user:', action.payload?.message);
       });
   },
 });

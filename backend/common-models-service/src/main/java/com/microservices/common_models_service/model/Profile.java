@@ -17,13 +17,21 @@ public class Profile {
 
     @Column(name = "education_level")
     private String educationLevel;
-    private String field;
     private String phone;
     private boolean agree;
 
     // Professor-specific fields
     private String idCard;
-    private String subject;
+
+
+
+
+    @Column(name = "\"group\"") // Escaping the column name
+    private String group;
+
+
+
+
 
     @OneToOne(cascade = CascadeType.ALL)
     @MapsId
@@ -31,6 +39,17 @@ public class Profile {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference
     private User user;
+
+
+    // Replace the String 'subject' with this:
+    @ManyToOne
+    @JoinColumn(name = "subject_id") // Foreign key in the profile table
+    private Subject subject;
+
+    @ManyToOne
+    @JoinColumn(name = "field_id")
+    private Field field;
+
 
     @PrePersist
     @PreUpdate
@@ -40,7 +59,7 @@ public class Profile {
                 throw new IllegalStateException("Professors must have an ID card and a subject.");
             }
         } else {
-            this.idCard = null; // Ensure students don't have this field
+            this.idCard = null;
             this.subject = null;
         }
     }
@@ -82,12 +101,15 @@ public class Profile {
     public void setEducationLevel(String educationLevel) {
         this.educationLevel = educationLevel;
     }
-    public String getField() {
+
+    public Field getField() {
         return field;
     }
-    public void setField(String field) {
+
+    public void setField(Field field) {
         this.field = field;
     }
+
     public boolean isAgree() {
         return agree;
     }
@@ -104,20 +126,26 @@ public class Profile {
             this.idCard = null; // Ensure students don't have this field
         }
     }
-    public String getSubject() {
+    public Subject getSubject() {
         return subject;
     }
-    public void setSubject(String subject) {
-        if ("professor".equalsIgnoreCase(this.role)) {
-            this.subject = subject;
-        } else {
-            this.subject = null; // Ensure students don't have this field
-        }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
     public User getUser() {
         return user;
     }
     public void setUser(User user) {
         this.user = user;
+    }
+
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 }

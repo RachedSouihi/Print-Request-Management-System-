@@ -1,46 +1,48 @@
 // components/PrintRequestModal.tsx
-import React, { useEffect, useRef } from 'react';
-import { Modal, Form, Button, FormText } from 'react-bootstrap';
-import { Field, Formik } from 'formik';
-import * as Yup from 'yup';
+import React, { useEffect, useRef } from "react";
+import { Modal, Form, Button, FormText } from "react-bootstrap";
+import { Field, Formik } from "formik";
+import * as Yup from "yup";
 
-import './PrintRequest.scss';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../store/store';
-import { sendPrintRequest } from '../../store/requestSlice';
-import { Document } from '../../store/documentsSlice';
-import { useToast } from '../../context/ToastContext';
+import "./PrintRequest.scss";
+
+import {
+  PrintRequest,
+ 
+} from "../../store/requestSlice";
+import { Document } from "../../store/documentsSlice";
 
 interface PrintRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
-  document: Document;
-  showToast: any
+  document: Partial<Document>;
+  existingRequest?: PrintRequest;
+  onSubmit: (values: any, isUpdate: boolean) => void;
+
+
 }
 
 const validationSchema = Yup.object().shape({
   copies: Yup.number()
-    .min(1, 'Must be at least 1 copy')
-    .required('Number of copies is required'),
+    .min(1, "Must be at least 1 copy")
+    .required("Number of copies is required"),
   printMode: Yup.string()
-    .oneOf(['color', 'bw'], 'Invalid print mode')
-    .required('Please select a print mode'),
+    .oneOf(["color", "bw"], "Invalid print mode")
+    .required("Please select a print mode"),
   paperType: Yup.string()
-    .oneOf(['plain', 'glossy', 'recycled', 'A4', 'A3'], 'Invalid paper type')
-    .required('Please select a paper type'),
-  notes: Yup.string().optional()
+    .oneOf(["plain", "glossy", "recycled", "A4", "A3"], "Invalid paper type")
+    .required("Please select a paper type"),
+  notes: Yup.string().optional(),
 });
 
 export const PrintRequestModal = ({
   isOpen,
   onClose,
   document,
-  showToast
+  existingRequest,
+  onSubmit,
 }: PrintRequestModalProps) => {
-
-  
   const copiesInputRef = useRef<HTMLInputElement>(null);
-  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     if (isOpen && copiesInputRef.current) {
@@ -49,8 +51,6 @@ export const PrintRequestModal = ({
   }, [isOpen]);
 
   return (
-
-
     <Modal
       show={isOpen}
       onHide={onClose}
@@ -64,34 +64,15 @@ export const PrintRequestModal = ({
       </Modal.Header>
       <Formik
         initialValues={{
-          copies: 1,
-          printMode: 'color',
-          paperType: 'A4',
-          notes: '',
+          copies: existingRequest?.copies || 1,
+          printMode: existingRequest?.color ? "color" : "bw" || "color",
+          paperType: existingRequest?.paperType || "A4",
+          notes: existingRequest?.instructions || "",
         }}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting }) => {
           // handle form submission
-
-          dispatch(sendPrintRequest({
-            copies: values.copies,
-            color: values.printMode === 'color',
-            notes: values.notes,
-            document: document,
-            paperType: {
-              paperType:  values.paperType
-            }
-          })).then((action: any) => {
-            console.log("p-req action: ", action)
-            if(action.payload.status === 200) {
-              showToast('Print request sent successfully', 'success');
-
-            }
-
-            if (action.type === 'printRequest/sendPrintRequest/fulfilled') {
-              onClose();
-            }
-          });
+          onSubmit(values, !!existingRequest);
           setSubmitting(false);
         }}
       >
@@ -102,12 +83,12 @@ export const PrintRequestModal = ({
                 <Form.Label>Document</Form.Label>
                 <Form.Control
                   type="text"
-                  value={document.subject}
+                  value={document.subject?.name}
                   readOnly
                   className="bg-light border-0"
                 />
                 <FormText className="text-muted">
-                  {document.field} - Grade {document.level}
+                  {document.field?.name} - Grade {document.level}
                 </FormText>
               </Form.Group>
 
@@ -118,7 +99,9 @@ export const PrintRequestModal = ({
                   type="number"
                   min="1"
                   ref={copiesInputRef}
-                  className={`form-control text-center ${errors.copies && touched.copies ? 'is-invalid' : ''}`}
+                  className={`form-control text-center ${
+                    errors.copies && touched.copies ? "is-invalid" : ""
+                  }`}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.copies}
@@ -156,7 +139,9 @@ export const PrintRequestModal = ({
                 <Field
                   as="select"
                   name="paperType"
-                  className={`form-control ${errors.paperType && touched.paperType ? 'is-invalid' : ''}`}
+                  className={`form-control ${
+                    errors.paperType && touched.paperType ? "is-invalid" : ""
+                  }`}
                 >
                   <option value="A4">A4</option>
                   <option value="A3">A3</option>
@@ -183,7 +168,7 @@ export const PrintRequestModal = ({
                 Cancel
               </Button>
               <Button
-                className='submit-btn'
+                className="submit-btn"
                 type="submit"
                 disabled={isSubmitting}
               >

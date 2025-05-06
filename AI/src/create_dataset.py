@@ -27,7 +27,6 @@ FROM print_requests;
 """
 df = pd.read_sql(query, conn)
 
-
 df['created_at'] = pd.to_datetime(df['created_at'])
 df['date'] = df['created_at'].dt.date
 df['day_of_week'] = df['created_at'].dt.dayofweek  # 0=Monday, 6=Sunday
@@ -50,145 +49,166 @@ profiles = pd.read_sql(profile_query, conn)
 df = df.merge(profiles, on='user_id', how='left')
 df['date'] = pd.to_datetime(df['date'])  # ensure proper datetime format
 
+
 # Compute total copies for all print requests per date
 total_copies_df = df.groupby('date')['copies'].sum().reset_index()
 total_copies_df.rename(columns={'copies': 'total_copies'}, inplace=True)
+
+total_requests_df = df.groupby('date')['request_id'].count().reset_index()
+total_requests_df.rename(columns={'request_id': 'total_requests'}, inplace=True)
+
+ink_usage_df = df.groupby('date')['ink_usage'].sum().reset_index()
 
 # Filter for student prints only (since we're grouping by student "field")
 student_df = df.copy() #df[df['role'] == 'student'].copy()
 
 # Aggregate student prints by date and field
 student_daily = student_df.groupby(['date', 'field']).agg(
-    student_prints=('copies', 'sum'),
+    #student_prints=('copies', 'sum'),
+    total_copies_field = ('copies', 'sum'),
     total_color_pages=('color', 'sum'),
-    ink_usage=('ink_usage', 'sum'),
-    total_requests=('request_id', 'count')
+    ink_usage_field=('ink_usage', 'sum'),
+    total_requests_field=('request_id', 'count')
 ).reset_index()
+
+
+
+student_daily = student_daily.merge(total_copies_df, on='date', how='left')
+
+student_daily = student_daily.merge(total_requests_df, on='date', how='left')
+
+student_daily = student_daily.merge(ink_usage_df, on='date', how='left')
 
 
 
 # Sort the data by field and date for time series operations
 student_daily = student_daily.sort_values(['date'], ascending=True)
 
-# Compute previous day and week dates
-#student_daily['prev_day_date'] = student_daily['date'] - pd.DateOffset(days=1)
-
-# Merge previous day's data
-#prev_day = student_daily[['date', 'field', 'student_prints']].copy()
-#prev_day.rename(columns={'date': 'prev_day_date', 'student_prints': 'prev_day_print_volume'}, inplace=True)
-#student_daily = student_daily.merge(prev_day, on=['prev_day_date', 'field'], how='left')
 
 
+# Compute previous day and previous week values for target features
+for target in ['ink_usage', 'total_copies', 'total_requests']:
+    daily_target = student_daily.groupby('date', as_index=False)[target].sum()
+    
+    
+    
+    
+    daily_target[f'prev_day_{target}'] = (
+        daily_target.set_index('date')[target]
+        .rolling('1D', closed='left')  # 1-day window up to previous day
+        .sum()
+        .reset_index(drop=True)
+    )
+    
+    student_daily[f'prev_day_{target}_field'] = (
+        student_daily.set_index('date').sort_index().groupby(['date', 'field'])[f'{target}_field']
+        .rolling('1D', closed='left')  # 1-day window up to previous day
+        .sum()
+        .reset_index(drop=True)
+    )
+    
+    student_daily[f'prev_week_{target}_field'] = (
+        student_daily.set_index('date').sort_index().groupby(['date', 'field'])[f'{target}_field']
+        .rolling('7D', closed='left')  # 7-day window up to previous day
+        .sum()
+        .reset_index(drop=True)
+    )
+   
+    
+    
+    for i in range(2, 8):
+        daily_target[f'{i}_prev_day_{target}'] = (
+        daily_target.set_index('date')[target]
+        .rolling(f'{i}D', closed='left')  # 1-day window up to previous day
+        .sum()
+        .reset_index(drop=True)
+    )
+        
+    for i in range(2, 8):
+        student_daily[f'{i}_prev_day_{target}_field'] = (
+        student_daily.set_index('date').sort_index().groupby(['date', 'field'])[f'{target}_field']
+        .rolling(f'{i}D', closed='left')  # 1-day window up to previous day
+        .sum()
+        .reset_index(drop=True)
+    )
+    
+    for i in [7, 30]:
+        student_daily[f'moving_avg_{i}_{target}_field'] = (
+        student_daily.set_index('date').sort_index().groupby(['date', 'field'])[f'{target}_field']
+        .rolling(f'{i}D', closed='left')  # 1-day window up to previous day
+        .mean()
+        .reset_index(drop=True)
+    )
+        
+    
+    
+    
+    daily_target[f'prev_week_{target}'] = (
+        daily_target.set_index('date')[target]
+        .rolling('7D', closed='left')  # 7-day window up to previous day
+        .sum()
+        .reset_index(drop=True)
+    )
+    
 
+    
+    #lag features
+    lag_features = [f'{i}_prev_day_{target}' for i in range(2, 8)]
+    
+    # Merge the aggregated target features back into the original DataFrame
+    student_daily = student_daily.merge(
+        daily_target[['date', f'prev_day_{target}', f'prev_week_{target}', *lag_features]], 
+        on='date', 
+        how='left'
+    )
+    
+    # Optionally fill NaN values for target features
+    student_daily[f'prev_day_{target}'] = student_daily[f'prev_day_{target}'].fillna(method='ffill')
+    student_daily[f'prev_week_{target}'] = student_daily[f'prev_week_{target}'].fillna(method='ffill')
 
-
-# Compute rolling sum for the last 7 days for prev_week_print_volume
-
-'''student_daily['prev_week_print_volume'] = (
-    student_daily
-    .set_index('date')  # Set date as index for time-based window
-    .groupby('field')['student_prints']
-    .rolling('7D', closed='left')  # 7-day window, exclude current date
-    .sum()
-    .reset_index()
-    .sort_values(['field', 'date'])
-    ['student_prints']
-)'''
-
-daily_total = student_daily.groupby('date', as_index=False)['student_prints'].sum()
-
-daily_total['prev_day_total'] = (
-    daily_total.set_index('date')['student_prints']
-    .rolling('1D', closed='left')  # 7-day window up to previous day
-    .sum()
-    .reset_index(drop=True)
-)
-
-
-
-# Calculate rolling 7-day sum (date-based, closed='left' excludes current date)
-daily_total['prev_week_total'] = (
-    daily_total.set_index('date')['student_prints']
-    .rolling('7D', closed='left')  # 7-day window up to previous day
-    .sum()
-    .reset_index(drop=True)
-)
-
-# Merge the aggregated total back into the original DataFrame
-
-student_daily = student_daily.merge(
-    daily_total[['date',  'prev_day_total','prev_week_total']], 
-    on='date', 
-    how='left'
-)
-
-
-
-# Rename the column to match your target
-student_daily.rename(columns={'prev_week_total': 'prev_week_print_volume'}, inplace=True)
-
-student_daily.rename(columns={'prev_day_total': 'prev_day_print_volume'}, inplace=True)
-
-
-# Optionally fill NaN values (using forward fill here; alternatives: interpolation or fillna(0))
-student_daily['prev_day_print_volume'] = student_daily['prev_day_print_volume'].fillna(method='ffill')
-student_daily['prev_week_print_volume'] = student_daily['prev_week_print_volume'].fillna(method='ffill')
-
-
-#student_daily = student_daily.drop(columns=['prev_day_date'])
-
-#student_daily['moving_avg_7'] = student_daily.groupby('field')['student_prints']\
-    #.rolling(7, min_periods=1).mean().reset_index(level=0, drop=True)
-
-daily_total = student_daily.groupby('date', as_index=False)['student_prints'].mean()
-
-
-daily_total['moving_avg_7'] = (
-    daily_total.set_index('date')['student_prints']
-    .rolling('7D', closed='left')  # 7-day window up to previous day
-    .mean()
-    .reset_index(drop=True)
-)
-
-#student_daily['moving_avg_30'] = student_daily.groupby('field')['student_prints']\
- #   .rolling(30, min_periods=1).mean().reset_index(level=0, drop=True)
-
-
-daily_total['moving_avg_30'] = (
-    daily_total.set_index('date')['student_prints']
-    .rolling('30D', closed='left')  # 7-day window up to previous day
-    .mean()
-    .reset_index(drop=True)
-)
+# Compute moving averages for target features
+avg_df = pd.DataFrame({})
+avg_df['date'] = student_daily['date'].unique()
 
 
 
-student_daily = student_daily.merge(
-    daily_total[['date',  'moving_avg_7','moving_avg_30']], 
-    on='date', 
-    how='left'
-)
+for target in ['total_requests', 'total_copies', 'ink_usage']:
+    avg_df[f'{target}_avg'] = student_daily.groupby('date')[target].sum().to_numpy().squeeze()
+    
+    avg_df[f'moving_avg_7_{target}'] = (
+        avg_df.set_index('date')[f'{target}_avg']
+        .rolling('7D', closed='left')  # 7-day window up to previous day
+        .mean()
+        .reset_index(drop=True)
+    )
+    
+    avg_df[f'moving_avg_30_{target}'] = (
+        avg_df.set_index('date')[f'{target}_avg']
+        .rolling('30D', closed='left')  # 30-day window up to previous day
+        .mean()
+        .reset_index(drop=True)
+    )
+    
+    student_daily = student_daily.merge(
+        avg_df[['date', f'moving_avg_7_{target}', f'moving_avg_30_{target}']], 
+        on='date', 
+        how='left'
+    )
+    student_daily[f'moving_avg_7_{target}'] = student_daily[f'moving_avg_7_{target}'].fillna(value=0)
+    student_daily[f'moving_avg_30_{target}'] = student_daily[f'moving_avg_30_{target}'].fillna(value=0)
 
-student_daily['moving_avg_7'] = student_daily['moving_avg_7'].fillna(value=0)
-student_daily['moving_avg_30'] = student_daily['moving_avg_30'].fillna(value=0)
-print(student_daily.head(30)[["date", "student_prints", "moving_avg_7", "moving_avg_30"]])
 
-
-
-
-#print(student_daily.head(25)[["date", "student_prints", "moving_avg_7", "moving_avg_30"]])
 # Create a calendar dataframe for exam_period and holidays (per date)
 calendar = df[['date', 'exam_period', 'holidays']].drop_duplicates()
 
 # Merge calendar and total_copies into the student prints data
 training_dataset = student_daily.merge(calendar, on='date', how='left')
-training_dataset = training_dataset.merge(total_copies_df, on='date', how='left')
 
 # Sort the final training dataset by date in ascending order
 training_dataset = training_dataset.sort_values(by='date')
 
 # Save the final training dataset to CSV
-training_dataset.to_csv("training_dataset.csv", index=False)
+training_dataset.to_csv("trainingdataset.csv", index=False)
 print("Dataset saved successfully! ✅")
 
 conn.close()

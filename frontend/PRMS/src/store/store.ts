@@ -3,6 +3,8 @@ import authReducer from './authSlice';
 import userReducer from './userSlice';
 import documentsReducer from './documentsSlice';
 
+import notificationsReducer from './notificationSlice'
+
 import requestSlice from './requestSlice'
 
 import historyReducer from "./historySlice";
@@ -17,12 +19,21 @@ const store = configureStore({
     user: userReducer,
     documents: documentsReducer,
     printRequest: requestSlice,
+
+    notifications: notificationsReducer,
    
     history: historyReducer,
     prof: profReducer,
     reducer: profReducer,
+
+    
     
   },
+
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false, // Disable serialization checks
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

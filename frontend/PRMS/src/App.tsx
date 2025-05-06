@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import SignUp from "./pages/SignUp/SignUp";
 import Home from "./pages/Home/Home";
@@ -20,11 +20,14 @@ import PrintHistory from "./pages/history/PrintHistory";
 import DocumentOverview from "./components/DocumentOverview";
 import { Button } from "react-bootstrap";
 import SubjectModal from "./layouts/ChooseSubjectsModal";
+import ProfRequest from "./pages/profrequest/ProfRequest";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { PrintRequestModal } from "./components/PrintRequest/PrintRequest";
 
 function App() {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(true);
   const [selected, setSelected] = useState(["math", "english"]);
-  
+
 
   return (
     <div className="root-app">
@@ -33,29 +36,31 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
 
+          <Route path="/loading" element={<Loading size="sm" color="secondary" />} />
+
+   
+
           <Route
             path="/choose"
             element={
-              <>
-                <Button onClick={() => setShowModal(true)}>
-                  Select Subjects
-                </Button>
-                <SubjectModal
-                  show={showModal}
-                  onHide={() => setShowModal(false)}
-                  onConfirm={(selected) => {
-                    setSelected(selected);
-                    setShowModal(false);
-                  }}
-                  initialSelections={selected}
-                />
-              </>
+              <SubjectModal
+                show={showModal}
+                onHide={() => setShowModal(false)}
+                onConfirm={(selectedSubjects) => setSelected(selectedSubjects)}
+              />
             }
           />
 
+
+
           <Route path="/" element={<Home />}>
-            <Route path="/account" element={<AccountSettings />} />
-            <Route path="/saved-docs" element={<SavedDocumentsPage />} />
+          <Route path="/account" element={<AccountSettings />} />
+
+
+              <Route path="/saved-docs" element={<SavedDocumentsPage />} />
+
+
+            
             <Route path="/documents" element={<DocumentsPage />} />
             <Route path="/requests" element={<PrintHistory />} />
 
@@ -66,19 +71,24 @@ function App() {
                   <DocumentOverview />
                   <CoursesCarousel />
 
+
                   <TestimonialCarousel />
                 </>
               }
             />
           </Route>
-          <Route
-            path="/dashboard/*"
-            element={
-              <>
-                <Dashboard />
-              </>
-            }
-          />
+         
+            <Route
+              path="/dashboard/*"
+              element={
+                <>
+                  <Dashboard />
+                </>
+              }
+            />
+
+
+          
         </Routes>
       </Router>
     </div>

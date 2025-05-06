@@ -84,6 +84,14 @@ public class ApiGatewayController {
     }
 
 
+    @PostMapping("/notify-user")
+    public void notifyUser(@RequestHeader HttpHeaders header, @RequestBody Notification notification, @RequestParam("userId") String userId) {
+        String topic = "/queue/notifications";
+
+        messagingTemplate.convertAndSendToUser(userId, topic, notification);
+    }
+
+
     @PostMapping("/notify")
     public void sendFollowNotification(@RequestBody Map<String, String> payload) {
         try {

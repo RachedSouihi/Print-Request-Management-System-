@@ -1,5 +1,10 @@
 version: '3.7'
 services:
+
+
+
+
+
   flink-jobmanager:
     image: custom-flink-img:latest
     ports:
@@ -49,7 +54,26 @@ services:
     networks:
       - prms-network  # Add FastAPI to the common network
 
+
+  postgres: 
+    image: postgres:14  # Use your preferred PostgreSQL version
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "242619"
+      POSTGRES_DB: prms
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persistent storage
+    ports:
+      - "5432:5432"  # Expose on host (optional)
+    networks:
+      - prms-network
+    restart: always
+
 networks:
   prms-network:
     driver: bridge
     name: prms-network
+
+volumes:
+  postgres_data:  # Define the volume for PostgreSQL
+    driver: local

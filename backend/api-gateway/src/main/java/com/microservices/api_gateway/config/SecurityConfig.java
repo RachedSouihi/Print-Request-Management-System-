@@ -12,6 +12,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
+
 
 @Configuration
 @EnableWebSecurity
@@ -24,15 +31,18 @@ public class SecurityConfig {
     @Autowired
     private SecurityProperties securityProperties;
 
+    @Autowired
+    private CorsConfigurationSource corsConfigurationSource; // Injected from CorsConfig
+
     public SecurityConfig(JwtTokenProvider jwtTokenProvider, SecurityProperties securityProperties) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.securityProperties = securityProperties;
-
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(
@@ -41,14 +51,10 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(securityProperties.getPermittedPaths().toArray(new String[0])).permitAll()
-                        .requestMatchers("/user/get-all-users", "/user/save-doc", "/user/saved-docs","/doc", "/doc/docs-metadata",   "/p-request/all","/p-request/send-print-request", "/p-request/approve", "/user/decode-jwt", "/user/generate-secret-key", "/user/save-access-token", "/user/update-password", "/user/get-tokens", "/user/auth/verify-email", "/user/auth/resend-verif-email","/user/auth/signup", "/user/auth/login").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(
-                        (request, response, authException) -> response.sendError(401, "Unauthorized")
-                ));
-
+                        .anyRequest().authenticated()
+                );
         return http.build();
     }
 }
+
+

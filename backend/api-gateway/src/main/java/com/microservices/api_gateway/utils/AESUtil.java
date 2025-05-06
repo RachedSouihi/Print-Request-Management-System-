@@ -52,40 +52,48 @@ public class AESUtil {
 
     public static String decrypt(String encryptedData, String secretKey, String algorithm) throws Exception {
 
-        // 1. Convert URL-safe Base64 to standard Base64 and add padding
-        String base64Data = encryptedData
-                .replace('-', '+')
-                .replace('_', '/');
 
-        // Pad with '=' to make length a multiple of 4
-        int padding = (4 - (base64Data.length() % 4)) % 4;
-        base64Data += "=".repeat(padding);
+        try {
+            // 1. Convert URL-safe Base64 to standard Base64 and add padding
+            String base64Data = encryptedData
+                    .replace('-', '+')
+                    .replace('_', '/');
 
-        // 2. Decode the Base64 data
-        byte[] encryptedBytes = Base64.getDecoder().decode(base64Data);
+            // Pad with '=' to make length a multiple of 4
+            int padding = (4 - (base64Data.length() % 4)) % 4;
+            base64Data += "=".repeat(padding);
 
-        // 3. Extract IV (first 16 bytes) and ciphertext
-        byte[] iv = new byte[16];
-        System.arraycopy(encryptedBytes, 0, iv, 0, iv.length);
-        byte[] ciphertext = new byte[encryptedBytes.length - iv.length];
-        System.arraycopy(encryptedBytes, iv.length, ciphertext, 0, ciphertext.length);
+            // 2. Decode the Base64 data
+            byte[] encryptedBytes = Base64.getDecoder().decode(base64Data);
 
-        // 4. Decode the secret key
-        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
+            // 3. Extract IV (first 16 bytes) and ciphertext
+            byte[] iv = new byte[16];
+            System.arraycopy(encryptedBytes, 0, iv, 0, iv.length);
+            byte[] ciphertext = new byte[encryptedBytes.length - iv.length];
+            System.arraycopy(encryptedBytes, iv.length, ciphertext, 0, ciphertext.length);
 
-        // 5. Validate key length (must be 16, 24, or 32 bytes)
-        if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
-            throw new IllegalArgumentException("Invalid AES key length: " + keyBytes.length + " bytes");
+            // 4. Decode the secret key
+            byte[] keyBytes = Base64.getDecoder().decode(secretKey);
+
+            // 5. Validate key length (must be 16, 24, or 32 bytes)
+            if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
+                throw new IllegalArgumentException("Invalid AES key length: " + keyBytes.length + " bytes");
+            }
+
+            // 6. Initialize cipher with IV
+            SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, new IvParameterSpec(iv));
+
+            // 7. Decrypt the data
+            byte[] decryptedBytes = cipher.doFinal(ciphertext);
+            return new String(decryptedBytes, "UTF-8");
+
+
+        }catch (Exception e) {
+
+            return null;
         }
-
-        // 6. Initialize cipher with IV
-        SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, keySpec, new IvParameterSpec(iv));
-
-        // 7. Decrypt the data
-        byte[] decryptedBytes = cipher.doFinal(ciphertext);
-        return new String(decryptedBytes, "UTF-8");
     }
 
 

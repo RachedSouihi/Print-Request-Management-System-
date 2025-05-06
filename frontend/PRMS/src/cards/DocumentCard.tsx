@@ -1,45 +1,84 @@
 import { Badge, Button, Card } from "react-bootstrap";
 import { FiDownload, FiPrinter, FiStar } from "react-icons/fi";
-import { Document } from "../store/documentsSlice";
+import { Document, downloadDocumentThunk, increaseDownloads } from "../store/documentsSlice";
 
 import "./DocumentCard.scss";
+
 const DocumentCard = ({
-  document,
+  doc,
   handleOpenModal,
+  dispatch
 }: {
-  document: Document;
+  doc: Document;
   handleOpenModal: any;
-}) => (
+
+  dispatch?: any;
+}) => {
+
+
+
+
+
+ 
+  const handleDownload = async () => {
+    try {
+      const { blob } = await dispatch(downloadDocumentThunk(doc.id)).then(
+        (action: any) => {
+          console.log("Download action: ", action);
+          return action.payload; // Extract the payload containing the blob and documentId
+        }
+      );
+
+      // Create a URL for the blob and trigger the download
+      const url = window.URL.createObjectURL(blob); // Use the blob from the payload
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.title; // Set the file name for the download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url); // Clean up the URL object
+    } catch (error) {
+      console.error('Failed to download document:', error);
+    }
+  };
+
+
+  return(
+
+
+
+  
   // Update the Card component
   <Card
     className="document-card h-100 d-flex flex-column"
-    onClick={() => handleOpenModal(document)}
+
   >
     {" "}
     <div className="card-header">
       <Badge
-        bg={document.docType === "exam" ? "dark" : ""}
+        bg={doc.docType === "principal" ? "dark" : ""}
         style={{
-          color: document.docType === "serie" ? "#000" : "",
-          border: document.docType === "serie" ? "1px solid #000" : "",
+          color: doc.docType === "serie" ? "#000" : "",
+          border: doc.docType === "serie" ? "1px solid #000" : "",
         }}
         className="type-label"
       >
-        {document.docType}
+        {doc.docType}
       </Badge>
       <div className="document-meta">
-        <span className="subject">{document.subject}</span>
+        <span className="subject">{doc.subject!.name}</span>
         <span className="separator">•</span>
-        <span className="level">Grade {document.level}</span>
+        <span className="level">Grade {doc.level}</span>
       </div>
     </div>
     <Card.Body className="card-body">
       <h3 className="document-title">
         {
-          //document.title ||
-          //document.field + " " + document.level + " " + document.subject  +
+          //doc.title ||
+          //doc.field + " " + doc.level + " " + doc.subject  +
 
-          document.description
+          doc.description
         }
       </h3>
 
@@ -47,10 +86,10 @@ const DocumentCard = ({
         {[...Array(5)].map((_, index) => (
           <FiStar
             key={index}
-            className={`star ${index < document.rating ? "filled" : ""}`}
+            className={`star ${index < doc.rating ? "filled" : ""}`}
           />
         ))}
-        <span className="rating-text">({document.rating}/5)</span>
+        <span className="rating-text">({doc.rating}/5)</span>
       </div>
     </Card.Body>
     <Card.Footer className="card-footer">
@@ -58,26 +97,27 @@ const DocumentCard = ({
         <Button
           variant="primary"
           className="download-btn"
-          href={document.fileUrl}
-          download
+          href={doc.fileUrl}
+          onClick={handleDownload}
         >
           <FiDownload className="action-icon" />
           <span className="button-text">
             Download
-            <span className="download-count">({document.downloads})</span>
+            <span className="download-count">({doc.downloads})</span>
           </span>
         </Button>
         <Button
           variant="outline-dark"
           className="print-btn"
-          onClick={() => {} /*handlePrint(document)*/}
-        >
+          onClick={() => handleOpenModal(doc)}        >
           <FiPrinter className="action-icon" />
           <span className="button-text">Print</span>
         </Button>
       </div>
     </Card.Footer>
   </Card>
-);
+
+      )
+};
 
 export default DocumentCard;

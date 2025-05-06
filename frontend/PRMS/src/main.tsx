@@ -12,12 +12,11 @@ import store from './store/store.ts'
 import { ToastProvider } from './context/ToastContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
     <Provider store={store}>
       <ToastProvider>
         <App />
 
       </ToastProvider>
     </Provider>
-  </StrictMode>,
+,
 )

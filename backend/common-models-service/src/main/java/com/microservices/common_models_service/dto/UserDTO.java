@@ -1,6 +1,11 @@
 package com.microservices.common_models_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.microservices.common_models_service.model.Field;
+import com.microservices.common_models_service.model.Profile;
+import com.microservices.common_models_service.model.Subject;
+import com.microservices.common_models_service.model.User;
 
 import java.util.List;
 
@@ -10,6 +15,10 @@ public class UserDTO {
     private String user_id;
     private ProfileDTO profile; // Use ProfileDTO here
     private String email;
+
+    private String idCard;
+
+    private String group;
 
     private boolean active;
     private List<DocumentDTO> savedDocuments;
@@ -47,16 +56,34 @@ public class UserDTO {
     }
 
 
+    public UserDTO(String userId, boolean active, String email, String firstname, String lastname, String role, String phone, String educationLevel, Field field, String group) {
+
+        this.user_id = userId;
+        this.email = email;
+        this.active = active;
+        this.profile = new ProfileDTO(firstname, lastname, role, phone, educationLevel, field, group);
+
+    }
+
+    public UserDTO(String userId, boolean active, String idCard, String email, String firstname, String lastname, String role, String phone, String educationLevel, Field field, Subject subject) {
+
+        this.user_id = userId;
+        this.email = email;
+        this.active = active;
+        this.profile = new ProfileDTO(idCard, firstname, lastname, role, phone, educationLevel, field, subject);
+
+    }
+
+
 
 
     // Getters and Setters
 
-    // Add this method to UserDTO
 
+    @JsonProperty("user_id") // Ensure JSON key is "user_id"
     public String getUserId() {
         return user_id;
     }
-
     public void setUserId(String userId) {
         this.user_id = userId;
     }
@@ -92,6 +119,29 @@ public class UserDTO {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+
+
+
+    public static UserDTO fromUser(User user) {
+        Profile profile = user.getProfile();
+
+
+
+        return new UserDTO(
+                user.getUser_id(),
+                user.isActive(),
+                user.getEmail(),
+                profile.getFirstname(),
+                profile.getLastname(),
+                profile.getRole(),
+                profile.getPhone(),
+                profile.getEducationLevel(),
+                profile.getField(),
+                profile.getGroup()
+        );
+    }
+
 
 
 

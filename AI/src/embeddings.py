@@ -4,20 +4,26 @@ import redis
 import faiss
 
 # Connect to Redis
-r = redis.Redis(host="redis", port=6379, db=0)
+r = redis.Redis(host="127.0.0.1", port=6379, db=0)
 
 def save_docs():
     r.flushdb()
 
     # Load data
-    base_url = (
-        '/opt/flink/src'
-    )
+    #base_url = "/app/src"
+    
+    
+    base_url = "C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/AI/src"
+
 
     df = pd.read_csv(f"{base_url}/docs.csv")
 
-    embeddings = np.load(f"{base_url}/embeddings.npy")
-    doc_ids = np.load(f"{base_url}/doc_ids.npy")[:embeddings.shape[0]]
+    #embeddings = np.load(f"{base_url}/new_doc_embeddings.npy")
+    
+    index = faiss.read_index('new_doc_embeddings.index')
+    
+    embeddings = np.array([index.reconstruct(i) for i in range(index.ntotal)])
+    doc_ids = np.load(f"{base_url}/new_doc_ids.npy")[:embeddings.shape[0]]
 
     subjects = df["subject"].values
     levels = df["level"].values

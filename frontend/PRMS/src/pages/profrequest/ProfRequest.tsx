@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Button, Form, Alert, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store/store";
 import { addDocument } from "../../store/profSlice";
+import { fetchFieldsThunk, fetchSubjectsThunk, Field, Subject } from "../../store/documentsSlice";
 
 interface ProfRequestProps {
   show: boolean;
@@ -20,7 +21,6 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
     class: "",
     docType: "Exam",
     examDate: "",
-    printMode: "Black & White",
     file: null as File | null,
     description: "",
   });
@@ -29,14 +29,27 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const levels = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
-  const sections = ["Mathematics", "Science", "Literature", "Informatics"];
   const classes = ["1", "2", "3", "4", "5", "6"];
 
-  const subjectsBySection: Record<string, string[]> = {
-    Mathematics: ["Algebra", "Geometry", "Calculus"],
-    Science: ["Physics", "Chemistry", "Biology"],
-    Literature: ["French", "English", "Philosophy"],
-    Informatics: ["Programming", "Data Structures", "Databases"],
+
+    const subjects: Subject[] = useSelector((state: RootState) => state.documents.subjects);
+  
+    const fields: Field[] = useSelector((state: RootState) => state.documents.fields);
+
+
+      useEffect(() => {
+    
+        dispatch(fetchSubjectsThunk()).unwrap()
+
+        dispatch(fetchFieldsThunk()).unwrap()
+      }
+      , [dispatch]);
+
+  const subjectsBySection: Record<string, Subject[]> = {
+    Mathematic: subjects,
+    Science: subjects,
+    Literature: subjects,
+    Informatics:subjects,
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -52,23 +65,22 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
   const handleSubmit = async () => {
     const data = new FormData();
     data.append("level", formData.level);
-    data.append("section", formData.section);
+    data.append("field_id", formData.section);
     data.append("subject", formData.subject);
-    data.append("class", formData.class);
-    data.append("docType", formData.docType);
-    data.append("examDate", formData.examDate);
-    data.append("printMode", formData.printMode);
+    data.append("group", formData.class);
+    data.append("doc_type", formData.docType);
+    data.append("deadline", formData.examDate);
     data.append("description", formData.description);
 
     if (formData.file) {
       data.append("file", formData.file);
     }
 
-    setSuccessMessage(null);
-    setErrorMessage(null);
-    console.log("Sending data:", Object.fromEntries(data.entries()));
 
-    try {
+   setSuccessMessage(null);
+    setErrorMessage(null);
+
+   try {
       await dispatch(addDocument(data)).unwrap();
       setSuccessMessage("The document has been successfully added.");
       handleClose();
@@ -78,7 +90,7 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
     }
   };
 
-  const sectionSubjects = subjectsBySection[formData.section] || [];
+  //const sectionSubjects = subjectsBySection[formData.section] || [];
 
   return (
     <Modal show={show} onHide={handleClose} centered size="lg">
@@ -96,8 +108,8 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
                 <Form.Label>Level</Form.Label>
                 <Form.Select name="level" value={formData.level} onChange={handleChange} required>
                   <option value="">Select Level</option>
-                  {levels.map((level) => (
-                    <option key={level} value={level}>{level}</option>
+                  {levels.map((level, index:number) => (
+                    <option key={level} value={index + 1}>{level}</option>
                   ))}
                 </Form.Select>
               </Form.Group>
@@ -109,8 +121,8 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
                   <Form.Label>Section</Form.Label>
                   <Form.Select name="section" value={formData.section} onChange={handleChange} required>
                     <option value="">Select Section</option>
-                    {sections.map((section) => (
-                      <option key={section} value={section}>{section}</option>
+                    {fields.map((field: Field) => (
+                      <option key={field.field_id} value={field.field_id}>{field.name}</option>
                     ))}
                   </Form.Select>
                 </Form.Group>
@@ -124,8 +136,8 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
                 <Form.Label>Subject</Form.Label>
                 <Form.Select name="subject" value={formData.subject} onChange={handleChange} required>
                   <option value="">Select Subject</option>
-                  {sectionSubjects.map((subject) => (
-                    <option key={subject} value={subject}>{subject}</option>
+                  {subjects.map((subject: Subject) => (
+                    <option key={subject.subject_id} value={subject.subject_id}>{subject.name}</option>
                   ))}
                 </Form.Select>
               </Form.Group>
@@ -174,15 +186,7 @@ const ProfRequest: React.FC<ProfRequestProps> = ({ show, handleClose }) => {
             </Form.Group>
           </div>
 
-          <div className="mt-3">
-            <Form.Group>
-              <Form.Label>Print Mode</Form.Label>
-              <div>
-                <Form.Check inline label="Color" type="radio" name="printMode" value="Color" checked={formData.printMode === "Color"} onChange={handleChange} />
-                <Form.Check inline label="Black & White" type="radio" name="printMode" value="Black & White" checked={formData.printMode === "Black & White"} onChange={handleChange} />
-              </div>
-            </Form.Group>
-          </div>
+         
 
           <div className="mt-3">
             <Form.Group>

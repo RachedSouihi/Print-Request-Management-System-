@@ -1,6 +1,9 @@
 package com.microservices.common_models_service.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,6 +27,9 @@ public class PrintRequest {
     private boolean color = false;
     private String status = "pending";
 
+
+    @Column(name = "priority")
+    private double priority = 0.5; // Set a default value
     @ManyToOne
     @JoinColumn(name = "paper_type")
     private PaperType paperType;
@@ -39,6 +45,8 @@ public class PrintRequest {
     @ElementCollection
     @CollectionTable(name = "print_request_status_history", joinColumns = @JoinColumn(name = "request_id"))
     @Column(name = "status_history")
+    @OnDelete(action = OnDeleteAction.CASCADE) // Add this line
+
     private List<StatusHistoryEntry> statusHistory;
 
     @PrePersist
@@ -128,12 +136,22 @@ public class PrintRequest {
         this.inkUsage = inkUsage;
     }
 
+    public double getPriority() {
+        return priority;
+    }
+
+    public void setPriority(double priority) {
+        this.priority = priority;
+        updateUrgencyBasedOnPriority();
+    }
+
     public String getUrgency() {
         return urgency;
     }
 
     public void setUrgency(String urgency) {
         this.urgency = urgency;
+
     }
 
     public List<StatusHistoryEntry> getStatusHistory() {
@@ -163,6 +181,17 @@ public class PrintRequest {
 
         public void setTimestamp(LocalDateTime timestamp) {
             this.timestamp = timestamp;
+        }
+    }
+
+
+    private void updateUrgencyBasedOnPriority() {
+        if (priority >= 0.8 && priority <= 1) {
+            this.urgency = "high";
+        } else if (priority >= 0.5 && priority < 0.8) {
+            this.urgency = "medium";
+        } else {
+            this.urgency = "low";
         }
     }
 }

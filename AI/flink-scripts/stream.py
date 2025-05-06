@@ -2,7 +2,6 @@ import logging
 import sys
 import os
 import csv
-
 # Add the parent directory to the Python module search path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -27,6 +26,8 @@ import uuid
 
 from src.profile import updateUserProfile
 
+from src.UserSession import calculate_context, record_interaction
+
 # Suppress Apache Beam type hint warnings
 logging.getLogger("apache_beam.typehints.native_type_compatibility").setLevel(
     logging.WARNING
@@ -41,6 +42,10 @@ logger = logging.getLogger(__name__)
 
 logging.getLogger("org.apache.flink").setLevel(logging.DEBUG)
 logging.getLogger("org.apache.kafka").setLevel(logging.DEBUG)
+
+
+
+
 
 
 def send_test_message():
@@ -106,6 +111,8 @@ def log_and_update_user_profile(row):
     event = {
         "interaction_type": getattr(row, 'event', None),
     }
+    
+    
 
     # Call the updateUserProfile function with the user_id, event, and doc_id
     #updateUserProfile(user_id, event, doc_id)
@@ -120,6 +127,10 @@ def log_and_update_user_profile(row):
 
     # Transform the message
     transformed_row = transform_message(row)
+    
+    
+    
+    updateUserProfile(user_id=user_id, event=event, doc_id=doc_id)
     logger.info(f"Transformed event: {transformed_row}")
     return transformed_row
 

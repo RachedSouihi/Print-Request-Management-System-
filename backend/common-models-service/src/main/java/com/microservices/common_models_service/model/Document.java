@@ -10,6 +10,7 @@ import org.springframework.lang.Nullable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 
 @Entity
@@ -47,7 +48,15 @@ public class Document {
     @JsonIgnore
     private byte[] document; // Use @Lob alone
 
-    private String subject;
+
+
+    @ManyToOne // Document has one Subject
+    @JoinColumn(name = "subject_id") // Foreign key column in the documents table
+    private Subject subject;
+
+    // NEW GETTER/SETTER
+
+
     private String description;
 
     @Column(name = "downloads", columnDefinition = "INT DEFAULT 0")
@@ -59,7 +68,9 @@ public class Document {
 
     private String level;
 
-    private String field;
+    @ManyToOne
+    @JoinColumn(name = "field_id") // Maps to the foreign key in the database
+    private Field field;
 
     private LocalDate date;
 
@@ -94,6 +105,7 @@ public class Document {
     @PrePersist
     public void onCreate() {
         date = LocalDate.now();
+        this.id = UUID.randomUUID().toString();
     }
 
     @ManyToMany(mappedBy = "savedDocuments")
@@ -117,6 +129,13 @@ public class Document {
         this.rating = rating;
     }
 
+    public Field getField() {
+        return field;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
+    }
     public LocalDate getDate() {
         return date;
     }
@@ -133,21 +152,11 @@ public class Document {
         this.level = level;
     }
 
-    public String getField() {
-        return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
-    }
 
     public String getDescription() {
         return description;
     }
 
-    public String getSubject() {
-        return subject;
-    }
 
     public byte[] getDocument() {
         return document;
@@ -165,6 +174,15 @@ public class Document {
         return id;
     }
 
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
     public int getDownloads(){
         return downloads;
     }
@@ -177,9 +195,6 @@ public class Document {
         this.description = description;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
 
     public void setDocument(byte[] document) {
         this.document = document;
@@ -193,9 +208,10 @@ public class Document {
         this.user = user;
     }
 
+    // You can remove the setId method if you want the ID to be strictly generated on creation
     public void setId(String id) {
-        this.id = id;
-    }
+         this.id = id;
+     }
 
 
     public Set<User> getSavedByUsers() {

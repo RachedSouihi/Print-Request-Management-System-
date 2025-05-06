@@ -1,26 +1,37 @@
 package com.microservices.common_models_service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.PrintRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL) // Add this
 public class PrintRequestDTO1 {
 
     private String requestId;
     private DocumentDTO document; // Nested Document class
+
     private UserDTO user; // Nested User class
     private String date;
     private int copies;
     private String paperType;
     private double inkUsage;
     private String status;
+
+    private String instructions;
+
+    private boolean color;
+
+    private double priority;
     private String urgency;
     private List<StatusHistoryEntryDTO> statusHistory;
 
     // Constructor
-    public PrintRequestDTO1(String requestId, DocumentDTO document, UserDTO user, String date, int copies, String paperType, double inkUsage, String status, String urgency, List<StatusHistoryEntryDTO> statusHistory) {
+    public PrintRequestDTO1(String requestId, DocumentDTO document, UserDTO user, String date, int copies, String paperType, String instructions, boolean color, double inkUsage, String status, double priority, String urgency, List<StatusHistoryEntryDTO> statusHistory) {
         this.requestId = requestId;
         this.document = document;
         this.user = user;
@@ -30,6 +41,11 @@ public class PrintRequestDTO1 {
         this.inkUsage = inkUsage;
         this.status = status;
         this.urgency = urgency;
+
+        this.instructions = instructions;
+        this.color = color;
+
+        this.priority = priority;
         this.statusHistory = statusHistory;
     }
 
@@ -45,6 +61,30 @@ public class PrintRequestDTO1 {
 
     public UserDTO getUser() { return user; }
     public void setUser(UserDTO user) { this.user = user; }
+
+    public double getPriority() {
+        return priority;
+    }
+
+    public void setPriority(double priority) {
+        this.priority = priority;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
+    }
+
+    public boolean isColor() {
+        return color;
+    }
+
+    public void setColor(boolean color) {
+        this.color = color;
+    }
 
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
@@ -97,7 +137,7 @@ public class PrintRequestDTO1 {
         Document document = entity.getDocument();
         DocumentDTO documentDTO = document != null ? new DocumentDTO(
                 document.getId(),
-                document.getSubject()
+                new SubjectDTO( document.getSubject().getSubjectId(), document.getSubject().getName())
 
         ) : null;
 
@@ -105,11 +145,17 @@ public class PrintRequestDTO1 {
                 entity.getRequestId(),
                 documentDTO,
                 userDTO,
-                entity.getCreatedAt().toString(),
+                entity.getCreatedAt() != null ? entity.getCreatedAt().toString(): LocalDateTime.now().toString(),
                 entity.getCopies(),
+
+
                 paperTypeName,
+                entity.getInstructions(),
+                entity.isColor(),
                 entity.getInkUsage(),
+
                 entity.getStatus(),
+                entity.getPriority(),
                 entity.getUrgency(),
                 history
         );

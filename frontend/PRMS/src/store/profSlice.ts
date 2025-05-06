@@ -1,4 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { RootState } from "./store";
 
 // Interface pour les données envoyées
 interface ProfRequestData {
@@ -9,29 +11,47 @@ interface ProfRequestData {
   docType: string;
   examDate?: string;
   printMode: string;
-  description:string;
-
-  //specialInstructions?: string;
+  description: string;
   file: File | null;
 }
 
 // Thunk pour envoyer les données à l'API
 export const addDocument = createAsyncThunk(
   "documents/addDocument",
-  async (formData: FormData, { rejectWithValue }) => {
+  async (formData: FormData, { getState, rejectWithValue }) => {
     try {
-      const response = await fetch("http://localhost:8081/documents/add", {
-        method: "POST",
-        body: formData,
+      const state = getState() as RootState;
+
+
+
+      const user_id =  state.user?.user.user_id;
+
+
+      formData.append("user_id", user_id); // Ajout de l'ID utilisateur au FormData
+
+      console.log("Form data before sending: ", formData)
+
+      const description = formData.get('description') as string | null;
+      formData.append('title', description || '');
+
+      // Utilisation de l'URL depuis les variables d'environnement
+      const url = import.meta.env.VITE_ADD_DOCUMENT_URL;
+
+      // Requête POST avec Axios
+      const response = await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to upload document");
-      }
 
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : "An unknown error occurred");
+      console.log("Add document response: ", response)
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "An unknown error occurred"
+      );
     }
   }
 );

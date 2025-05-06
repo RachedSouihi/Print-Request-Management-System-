@@ -4,27 +4,20 @@ import { Table, Button, Form, Modal, Badge, Tab, Tabs, InputGroup, Row, Col } fr
 import { FiUserPlus, FiSearch, FiEdit, FiLock, FiActivity } from 'react-icons/fi';
 import './UserManagement.scss';
 import { CiExport } from 'react-icons/ci';
-import { fetchAllUsersAsync } from '../../store/userSlice';
+import { addUserAsync, fetchAllUsersAsync, updateUserAsync } from '../../store/userSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import { User } from '../../types/userTypes';
+import { fetchFieldsThunk, fetchSubjectsThunk, Field, Subject } from '../../store/documentsSlice';
 
-const emptyUser: User = {
-    userId: "111",
-    email: "",
-    active: true,
-    profile: {
-        firstName: '',
-        lastName: '',
-        phone: '',
-        role: 'student',
-        educationLevel: '1',
-        field: 'Computer science'
-    }
-};
 
 const UserManagement: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const allUsers = useSelector((state: RootState) => state.user.users);
+
+    const subjects: Subject[] = useSelector((state: RootState) => state.documents.subjects);
+
+    const fields: Field[] = useSelector((state: RootState) => state.documents.fields);
+    
 
     const [users, setUsers] = useState<User[]>([]);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -36,6 +29,12 @@ const UserManagement: React.FC = () => {
 
     useEffect(() => {
         dispatch(fetchAllUsersAsync());
+
+        dispatch(fetchSubjectsThunk()).unwrap();
+
+        dispatch(fetchFieldsThunk()).unwrap();
+
+
     }, [dispatch]);
 
     useEffect(() => {
@@ -44,12 +43,12 @@ const UserManagement: React.FC = () => {
     }, [allUsers]);
 
     // Filtering logic (simple by role and search)
-    const filteredUsers = users.filter(user => {
+    const filteredUsers = allUsers && users.filter(user => {
         const matchesRole = user.profile.role === filters.role;
-        const matchesSearch = `${user.profile.firstName || ''} ${user.profile.lastName || ''}`
+        const matchesSearch = `${user.profile.firstname || ''} ${user.profile.lastname || ''}`
             .toLowerCase()
             .includes(filters.search.toLowerCase());
-        return matchesRole && matchesSearch;
+        return matchesRole && matchesSearch; 
     });
 
     console.log("Filtered users: ", filteredUsers);
@@ -115,9 +114,9 @@ const UserManagement: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredUsers.map(user => (
+                    {filteredUsers && filteredUsers.map(user => (
                         <UserRow
-                            key={user.userId}
+                            key={user.user_id}
                             user={user}
                             onEdit={() => {
                                 setSelectedUser(user);
@@ -132,19 +131,21 @@ const UserManagement: React.FC = () => {
             <UserModal
                 show={showEditModal}
                 user={selectedUser}
+                subjects={subjects}
+                fields={fields}
                 onClose={() => {
                     setShowEditModal(false);
                     setSelectedUser(null);
                 }}
                 onSubmit={(userData) => {
                     // Update logic (create or edit)
-                    if (userData.userId === "0") {
+                    if (userData.user_id === "0") {
                         // New user creation
-                        userData.userId = (users.length + 1).toString();
+                        userData.user_id = (users.length + 1).toString();
                         setUsers([...users, userData]);
                     } else {
                         // Edit existing user
-                        setUsers(users.map(u => (u.userId === userData.userId ? userData : u)));
+                        setUsers(users.map(u => (u.user_id === userData.user_id ? userData : u)));
                     }
                     setShowEditModal(false);
                     setSelectedUser(null);
@@ -161,7 +162,7 @@ interface UserRowProps {
 
 const UserRow: React.FC<UserRowProps> = ({ user, onEdit }) => (
     <tr>
-        <td>{`${user.profile.firstName || ''} ${user.profile.lastName || ''}`.trim()}</td>
+        <td>{`${user.profile.firstname || ''} ${user.profile.lastname || ''}`.trim()}</td>
         <td>{user.email}</td>
         <td>
             {user.profile.role && <Badge bg={roleBadgeColor(user.profile.role)}>{user.profile.role}</Badge>}
@@ -171,12 +172,12 @@ const UserRow: React.FC<UserRowProps> = ({ user, onEdit }) => (
         </td>
         {user.profile.role === 'professor' && (
             <td>
-                {user.profile.idCard} / {user.profile.subject}
+                {user.profile.idCard} / {user.profile.subject?.name}
             </td>
         )}
         {user.profile.role === 'student' && (
             <td>
-                {user.profile.educationLevel} / {user.profile.field}
+                {user.profile.educationLevel} / {user.profile.field?.name}
             </td>
         )}
         <td>
@@ -198,10 +199,29 @@ interface UserModalProps {
     user: User | null;
     onClose: () => void;
     onSubmit: (userData: User) => void;
+    subjects: Subject[];
+    fields: Field[];
 }
 
-const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) => {
+
+const emptyUser: User = {
+    user_id: '',
+    email: '',
+    active: true,
+    profile: {
+        firstname: '',
+        lastname: '',
+        phone: '',
+        role: 'student',
+        educationLevel: '',
+        field: {} as Field,
+    },
+}
+const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit, fields, subjects }) => {
     const [formData, setFormData] = useState<User>(user || emptyUser);
+    const dispatch = useDispatch<AppDispatch>();
+
+    console.log("form data: ", formData);
 
     // If the modal opens for editing a different user, update the form data.
     useEffect(() => {
@@ -213,21 +233,21 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
         const newRole = e.target.value as 'student' | 'professor' | 'admin';
         if (newRole === 'student') {
             setFormData({
-                userId: formData.userId,
+                user_id: formData.user_id,
                 email: formData.email,
-                active: formData.active,
+                active: true,
                 profile: {
                     firstname: formData.profile.firstname || '',
                     lastname: formData.profile.lastname || '',
                     phone: formData.profile.phone || '',
                     role: 'student',
                     educationLevel: '1',
-                    field: 'Computer science'
+                    field: formData.profile.field! || null, // Keep the field if it exists
                 }
             });
         } else if (newRole === 'professor') {
             setFormData({
-                userId: formData.userId,
+                user_id: formData.user_id,
                 email: formData.email,
                 active: formData.active,
                 profile: {
@@ -235,14 +255,14 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                     lastname: formData.profile.lastname || '',
                     phone: formData.profile.phone || '',
                     role: 'professor',
-                    idCard: '',
-                    subject: 'math'
+                    idCard: formData.profile.idCard,
+                    subject: formData.profile.subject
                 }
             });
         } else {
             // For admin or other roles, you can decide which fields to keep.
             setFormData({
-                userId: formData.userId,
+                user_id: formData.user_id,
                 email: formData.email,
                 active: formData.active,
                 profile: {
@@ -253,6 +273,32 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                 }
             });
         }
+    };
+
+    const handleSubmit = async () => {
+
+        console.log("Form data on submit: ", formData);
+        if (!formData.user_id || formData.user_id === "0") {
+            // Create a new user
+            try {
+                await dispatch(addUserAsync(formData)).unwrap();
+                console.log('User added successfully');
+            } catch (error) {
+                console.error('Failed to add user:', error);
+            }
+        } else {
+            // Save changes for an existing user
+            try {
+                const updatedUser = formData ; // Prepare the updated user data
+                // Dispatch an action to update the user
+
+                await dispatch(updateUserAsync(updatedUser)).unwrap();
+                console.log('User updated successfully');
+            } catch (error) {
+                console.error('Failed to update user:', error);
+            }
+        }
+        onClose(); // Close the modal after the operation
     };
 
     return (
@@ -339,18 +385,25 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Field</Form.Label>
                                         <Form.Select
-                                            value={formData.profile.field}
-                                            onChange={e =>
+                                            value={formData.profile.field?.field_id || ''} // Use field_id for the value
+                                            onChange={(e) => {
+                                                const selectedField = fields.find((field: Field) => field.field_id == e.target.value);
+
+                                               console.log("Selected field: ", e.target.value);
+
+                                               console.log("all fields: ", fields);
                                                 setFormData({
                                                     ...formData,
-                                                    profile: { ...formData.profile, field: e.target.value as 'Computer science' | 'experimental science' | 'technical science' | 'Math' }
-                                                })
-                                            }
+                                                    profile: { ...formData.profile, field: selectedField }, // Update the field with the selected object
+                                                });
+                                            }}
                                         >
-                                            <option value="Computer science">Computer science</option>
-                                            <option value="experimental science">Experimental science</option>
-                                            <option value="technical science">Technical science</option>
-                                            <option value="Math">Math</option>
+                                            <option value="">Select a field</option>
+                                            {fields.map((field: Field) => (
+                                                <option key={field.field_id} value={field.field_id}>
+                                                    {field.name}
+                                                </option>
+                                            ))}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
@@ -411,12 +464,25 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
                             <Form.Group className="mb-3">
                                 <Form.Label>Subject</Form.Label>
                                 <Form.Select
-                                    value={formData.profile.subject}
-                                    onChange={e => setFormData({ ...formData, profile: { ...formData.profile, subject: e.target.value as 'math' | 'science' | 'history' } })}
+                                    value={formData.profile.subject?.subject_id || ''} // Use subject_id for the value
+
+                                    
+                                    onChange={(e) => {
+
+                                        console.log("Selected subject: ", e.target.value);
+                                        const selectedSubject = subjects.find((subject: Subject) => subject.subject_id == e.target.value);
+                                        setFormData({
+                                            ...formData,
+                                            profile: { ...formData.profile, subject: selectedSubject }, // Update the subject with the selected object
+                                        });
+                                    }}
                                 >
-                                    <option value="math">Mathematics</option>
-                                    <option value="science">Science</option>
-                                    <option value="history">History</option>
+                                    <option value="">Select a subject</option>
+                                    {subjects.map((subject: Subject) => (
+                                        <option key={subject.subject_id} value={subject.subject_id}>
+                                            {subject.name}
+                                        </option>
+                                    ))}
                                 </Form.Select>
                             </Form.Group>
                         </>
@@ -427,7 +493,7 @@ const UserModal: React.FC<UserModalProps> = ({ show, user, onClose, onSubmit }) 
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onClose}>Cancel</Button>
-                <Button variant="outline-dark" onClick={() => onSubmit(formData)}>
+                <Button variant="outline-dark" onClick={handleSubmit}>
                     {user ? 'Save Changes' : 'Create User'}
                 </Button>
             </Modal.Footer>

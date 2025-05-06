@@ -19,16 +19,18 @@ export default function ExamCard({document, index, handleSaveDocument, showToast
   }, [savedDocuments, document.id]);
 
   const handleSaveClick = () => {
-    if (isSaved) {
+    /*if (isSaved) {
       dispatch(removeSavedDocument(document.id));
-    } else {
+    } else {*/
       dispatch(saveDocumentThunk(document.id)).then((action: any) => {
+
+        console.log("save doc action: ", action);
 
         if(saveDocumentThunk.fulfilled.match(action)) {
 
 
-          dispatch(saveDocument(document));
-          showToast('Document saved successfully', 'success' );
+          //dispatch(saveDocument(document));
+          showToast(action.payload, 'success' );
 
         }
 
@@ -41,9 +43,10 @@ export default function ExamCard({document, index, handleSaveDocument, showToast
         
       })
 
+      setIsSaved(!isSaved);
+
+
     }
-    setIsSaved(!isSaved);
-  };
 
   return (
     <Card className="course-card">

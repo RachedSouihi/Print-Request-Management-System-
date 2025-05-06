@@ -1,4 +1,4 @@
-import { PrintRequest } from './Overview';
+import { PrintRequest } from './PRManagement';
 
 const sampleRequests: PrintRequest[] = [
   {

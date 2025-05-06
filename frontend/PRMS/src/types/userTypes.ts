@@ -1,14 +1,21 @@
+import { Field, Subject } from "../store/documentsSlice";
+
 export interface Profile{
   firstname: string;
   lastname: string;
   phone: string;
   educationLevel: string;
-  field: string;
+  field?: Field;
+
+
+  group: string;
+
+
 
   role: 'student' | 'professor' | 'admin';
 
 
-  subject?: string;
+  subject?: Subject;
   idCard?: string;
 
 

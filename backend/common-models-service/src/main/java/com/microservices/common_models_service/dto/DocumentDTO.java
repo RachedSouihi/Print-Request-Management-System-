@@ -1,15 +1,20 @@
 package com.microservices.common_models_service.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.microservices.common_models_service.dto.UserDTO;
+import com.microservices.common_models_service.model.FieldDTO;
 import com.microservices.common_models_service.model.User;
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL) // Add this
 public class DocumentDTO {
     private String id;
     private String docType;
-    private String subject;
+    private SubjectDTO subject;
+
     private String level;
-    private String field;
+    private FieldDTO field;
     private int downloads;
     private Float rating;
     private String description;
@@ -20,7 +25,7 @@ public class DocumentDTO {
     public DocumentDTO() {}
 
 
-    public DocumentDTO(String id, String docType, String subject, String level, String field, int downloads, Float rating, String description, UserDTO user) {
+   /* public DocumentDTO(String id, String docType, String subject, String level, String field, int downloads, Float rating, String description, UserDTO user) {
         this.id = id;
         this.docType = docType;
         this.subject = subject;
@@ -31,13 +36,13 @@ public class DocumentDTO {
         this.downloads = downloads;
         this.rating = rating;
 
-    }
+    }*/
 
     public DocumentDTO(String id, String docType, String subject, String level, String field, int downloads, Float rating, String description) {
         this.id = id;
         this.docType = docType;
-        this.subject = subject;
-        this.field = field;
+        this.subject = new SubjectDTO();
+        this.field = new FieldDTO();
         this.description = description;
         this.level = level;
         this.downloads = downloads;
@@ -45,13 +50,25 @@ public class DocumentDTO {
 
     }
 
-    public DocumentDTO(String id, String subject){
+    public DocumentDTO(String id, SubjectDTO subject){
         this.id = id;
         this.subject = subject;
     }
 
-    public DocumentDTO(String id, String docType, String subject, String level, String field, int downloads, float rating, String description, User user) {
+    public DocumentDTO(String id, String docType, Long subjectId, String subjectName,  String level, Long fieldId, String fieldName, int downloads, Float rating, String description, UserDTO user) {
+        this.id = id;
+        this.docType = docType;
+        this.subject = subjectId != null ? new SubjectDTO(subjectId, subjectName): null;
+        this.level = level;
+        this.field = fieldId != null ? new FieldDTO(fieldId, fieldName): null;
+        this.downloads = downloads;
+        this.rating = rating;
+        this.description = description;
+        this.user = user;
     }
+
+
+
 
     // Getters and Setters
     public String getId() { return id; }
@@ -60,8 +77,8 @@ public class DocumentDTO {
     public String getDocType() { return docType; }
     public void setDocType(String docType) { this.docType = docType; }
 
-    public String getSubject() { return subject; }
-    public void setSubject(String subject) { this.subject = subject; }
+    public SubjectDTO getSubject() { return subject; }
+    public void setSubject(SubjectDTO subject) { this.subject = subject; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
@@ -73,7 +90,7 @@ public class DocumentDTO {
         return level;
     }
 
-    public String getField() {
+    public FieldDTO getField() {
         return field;
     }
 

@@ -31,7 +31,7 @@ public class CustomJwtDecoder implements JwtDecoder {
     @Override
     public Jwt decode(String encryptedToken) throws JwtException {
 
-        //System.out.println("Encrypted JWT : " + encryptedToken);
+        System.out.println("Encrypted JWT : " + encryptedToken);
         try {
 
             if (encryptedToken.startsWith("Bearer ")) {
@@ -39,7 +39,7 @@ public class CustomJwtDecoder implements JwtDecoder {
             }
             // Step 1: Decrypt the token using your function
             String decryptedJwt = AESUtil.decrypt(encryptedToken, secretKey, algo);
-            //System.out.println("Decrypted JWT: " + decryptedJwt);
+            System.out.println("Decrypted JWT: " + decryptedJwt);
             // Step 2: Parse and validate the JWT
             return jwtParser.decode(decryptedJwt);
         } catch (Exception e) {

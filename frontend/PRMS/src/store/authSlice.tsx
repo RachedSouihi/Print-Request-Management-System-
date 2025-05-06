@@ -55,7 +55,7 @@ const clearAuthState = () => {
   try {
     localStorage.removeItem('authState');
   } catch (err) {
-    console.error('Erreur lors de la suppression de l’état', err);
+    console.error('Error where clearing state', err);
   }
 };
 
@@ -131,7 +131,11 @@ export const checkAuth = createAsyncThunk<UserState, void, { rejectValue: string
   'auth/check',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/auth/me');
+      const response = await axios.get(import.meta.env.VITE_CHECK_AUTH_URL, {
+        withCredentials: true
+      });
+
+      console.log("Check auth response: ", response)
       return response.data;
     } catch (error) {
       if (error instanceof Error) {
@@ -326,11 +330,24 @@ export const saveChosenSubjects = createAsyncThunk<
   { rejectValue: { status: number; message: string } } // Rejected value type
 >(
   'auth/saveChosenSubjects',
-  async (subjects, { rejectWithValue }) => {
+  async (subjects, {getState, rejectWithValue }) => {
     try {
+
+      const state = getState() as { auth: AuthState };
+
+      const userId = state.auth.user?.user_id;
+
+      console.log("User ID: ", userId)
+
+      console.log("Subjects: ", subjects)
+
+      if (!userId) {
+        
+        return rejectWithValue({ status: 400, message: 'User ID not found' });
+      }
       const response = await axios.post(
-        import.meta.env.VITE_SAVE_CHOOSEN_SUBJECTS_URL,
-        { subjects }, // Payload
+        `${import.meta.env.VITE_SAVE_CHOOSEN_SUBJECTS_URL}/${userId}`, 
+        subjects , // Payload
         {
           withCredentials: true, // Allow cookies
           headers: {
@@ -358,6 +375,8 @@ export const saveChosenSubjects = createAsyncThunk<
     }
   }
 );
+
+
 
 // Slice Redux
 const authSlice = createSlice({
@@ -414,14 +433,21 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(checkAuth.fulfilled, (state, action: PayloadAction<UserState>) => {
-        state.user = action.payload;
+       // state.user = action.payload;
         state.isAuthenticated = true;
         state.loading = false;
-        saveState(state); // Save state to localStorage on auth check
+       saveState(state); // Save state to localStorage on auth check
       })
       .addCase(checkAuth.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.error = action.payload || 'Authentication check failed';
         state.loading = false;
+
+        // If the error indicates unauthorized (401), set isAuthenticated to false
+        if (action.payload === 'Request failed with status code 401') {
+          state.isAuthenticated = false;
+          state.user = null; // Optionally clear the user data
+          clearAuthState(); // Clear localStorage state
+        }
       })
       .addCase(sendVerifEmail.pending, (state) => {
         state.loading = true;

@@ -38,7 +38,7 @@ public class JwtTokenProvider {
     private final String authCookieName = "access_token"; // Your cookie name
 
     // Resolve token from header or cookie and then decrypt it.
-    public String resolveToken(HttpServletRequest request) {
+    public String resolveToken(HttpServletRequest request) throws Exception {
         String token = null;
         // First, check for an Authorization header.
         String bearerToken = request.getHeader("Authorization");
@@ -58,17 +58,14 @@ public class JwtTokenProvider {
             }
         }
 
-        if (token != null) {
-            try {
-                // Decrypt the token using AES decryption.
-                token = AESUtil.decrypt(token, SECRET_KEY, ALGO);
-            } catch (Exception e) {
-                //throw new JwtException("Failed to decrypt JWT token", e);
+        System.out.println("ACCESS_TOKEN: "+ token);
+        try {
+            return AESUtil.decrypt(token, SECRET_KEY, ALGO);
 
-                System.out.println(e.getMessage());
-            }
+        }catch (Exception e) {
+
+            return token;
         }
-        return token;
     }
 
     // Convert PEM String to PublicKey

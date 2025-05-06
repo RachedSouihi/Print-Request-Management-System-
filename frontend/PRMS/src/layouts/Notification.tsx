@@ -1,7 +1,7 @@
 // Notification.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Overlay, Popover, Badge, Button } from 'react-bootstrap';
-import { FiBell, FiCheckCircle, FiX, FiBook, FiAlertCircle, FiAward } from 'react-icons/fi';
+import { FiBell, FiCheckCircle, FiX, FiBook, FiAlertCircle, FiAward, FiPrinter } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import './Notification.scss';
 import { Notification, NotificationType } from '../store/notificationSlice';
@@ -30,6 +30,9 @@ export const Notifications: React.FC<{
                 return <FiAlertCircle {...iconProps} />;
             case 'grade':
                 return <FiAward {...iconProps} />;
+
+            case 'PRINT_REQUEST_STATUS':
+                return <FiPrinter {...iconProps} />; 
         }
     };
 
