@@ -1,0 +1,409 @@
+/* Styles spécifiques au composant DocAdmin */
+.doc-admin-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Montserrat', sans-serif;
+  color: #2D3250;
+}
+
+.doc-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.doc-header .doc-title {
+  font-size: 2rem;
+  line-height: 2.4rem;
+  font-weight: 700;
+  color: #2D3250;
+  margin: 0;
+}
+
+.doc-tabs {
+  margin-bottom: 2rem;
+}
+
+.doc-tabs .tab-nav {
+  display: flex;
+  gap: 0.5rem;
+  background: #f8fafc;
+  padding: 0.5rem;
+  border-radius: 12px;
+}
+
+.doc-tabs .tab-button {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  color: #64748B;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.2rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.doc-tabs .tab-button.active {
+  color: #4A55A2;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.doc-tabs .tab-button:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.doc-tabs .tab-button .tab-icon {
+  font-size: 1.2em;
+}
+
+.documents-container {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.documents-container .documents-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+}
+
+.documents-container .section-title {
+  font-size: 1.5rem;
+  line-height: 1.8rem;
+  font-weight: 600;
+  color: #2D3250;
+}
+
+.documents-container .search-container {
+  position: relative;
+}
+
+.documents-container .search-container .search-input {
+  padding: 0.75rem 1rem;
+  padding-left: 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  min-width: 300px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.documents-container .search-container .search-input:focus {
+  outline: none;
+  border-color: #4A55A2;
+  box-shadow: 0 0 0 2px rgba(74, 85, 162, 0.1);
+}
+
+.documents-container .search-container .search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748B;
+}
+
+.table-container {
+  overflow-x: auto;
+  padding: 0 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.documents-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.documents-table .table-header {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748B;
+}
+
+.documents-table .table-row {
+  border-bottom: 1px solid #e2e8f0;
+  transition: background 0.2s ease;
+}
+
+.documents-table .table-row:hover {
+  background: #f8fafc;
+}
+
+.documents-table .table-row:last-child {
+  border-bottom: none;
+}
+
+.documents-table .table-cell {
+  padding: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #2D3250;
+}
+
+.documents-table .document-cell .document-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.documents-table .document-cell .file-icon {
+  font-size: 1.8em;
+  color: #4A55A2;
+}
+
+.documents-table .document-cell .document-title {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.documents-table .document-cell .document-comments {
+  font-size: 0.875rem;
+  line-height: 1.05rem;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Badges améliorés */
+.documents-table .type-badge,
+.documents-table .status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.05rem;
+}
+
+.documents-table .type-badge.administratif {
+  background: #EDE9FE;
+  color: #7C3AED;
+}
+
+.documents-table .type-badge.pédagogique {
+  background: #E0E7FF;
+  color: #4338CA;
+}
+
+.documents-table .status-badge.à-signer {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.documents-table .status-badge.signé {
+  background: #D1FAE5;
+  color: #047857;
+}
+
+.documents-table .status-badge.en-attente {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.documents-table .status-badge.rejeté {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* Boutons d'action */
+.documents-table .actions-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.action-button.view-button {
+  background: #E0E7FF;
+  color: #4A55A2;
+}
+
+.action-button.view-button:hover {
+  background: #C7D2FE;
+}
+
+.action-button.sign-button {
+  background: #D1FAE5;
+  color: #047857;
+}
+
+.action-button.sign-button:hover {
+  background: #A7F3D0;
+}
+
+/* Formulaire d'ajout */
+.add-document-container {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #2D3250;
+}
+
+.document-form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #2D3250;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #4A55A2;
+  box-shadow: 0 0 0 2px rgba(74, 85, 162, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.file-upload {
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-upload:hover {
+  border-color: #C7D2FE;
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.upload-label {
+  font-weight: 500;
+  color: #4A55A2;
+  cursor: pointer;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-hint {
+  color: #64748B;
+  font-size: 0.875rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.cancel-button {
+  padding: 0.75rem 1.5rem;
+  background: #f1f5f9;
+  color: #64748B;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-button:hover {
+  background: #e2e8f0;
+}
+
+.submit-button {
+  padding: 0.75rem 1.5rem;
+  background: #4A55A2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-button:hover {
+  background: #3b487f;
+}
+.scan-button {
+  background: linear-gradient(to right, #4facfe, #00f2fe);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scan-button:hover {
+  background: linear-gradient(to right, #00f2fe, #4facfe);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}

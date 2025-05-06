@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './profdocs.css';
+import {
+  getProfDocuments,
+  updateProfDocument,
+  deleteProfDocument,
+  BackendDocument,
+  BASE_URL
+} from '../../store/profdocs';
+import axios from 'axios';
 
 interface Document {
   id: string;
@@ -8,47 +16,57 @@ interface Document {
   dateAdded: string;
   deadline?: string;
   fileUrl: string;
+  description?: string;
+  subject?: string;
+  visibility?: string;
 }
 
 const ProfDocs: React.FC = () => {
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: '1',
-      title: 'Introduction to React',
-      type: 'cours',
-      dateAdded: '2023-10-15',
-      fileUrl: '#'
-    },
-    {
-      id: '2',
-      title: 'Algorithm Lab',
-      type: 'exercice',
-      dateAdded: '2023-10-18',
-      deadline: '2023-11-05',
-      fileUrl: '#'
-    },
-    {
-      id: '3',
-      title: 'Final Exam',
-      type: 'examen',
-      dateAdded: '2023-11-01',
-      deadline: '2023-12-15',
-      fileUrl: '#'
-    }
-  ]);
-
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [profId] = useState('current-prof-id'); // Vous devriez récupérer l'ID du prof depuis l'authentification
   const [showModal, setShowModal] = useState(false);
   const [currentDoc, setCurrentDoc] = useState<Document | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [viewingDoc, setViewingDoc] = useState<Document | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Omit<Document, 'id'>>({
     title: '',
     type: 'cours',
     dateAdded: new Date().toISOString().split('T')[0],
     deadline: '',
-    fileUrl: ''
+    fileUrl: '',
+    description: '',
+    subject: '',
+    visibility: 'public'
   });
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const data = await getProfDocuments(profId);
+        const formattedDocs = data.map((doc: BackendDocument) => ({
+          id: doc.id,
+          title: doc.title,
+          type: doc.docType.toLowerCase() as 'cours' | 'exercice' | 'examen',
+          dateAdded: doc.dateAdded,
+          deadline: doc.deadline,
+          fileUrl: doc.fileUrl,
+          description: doc.description,
+          subject: doc.subject,
+          visibility: doc.visibility
+        }));
+        setDocuments(formattedDocs);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to load documents');
+        setLoading(false);
+      }
+    };
+
+    fetchDocuments();
+  }, [profId]);
 
   const handleAddDocument = () => {
     setCurrentDoc(null);
@@ -57,7 +75,10 @@ const ProfDocs: React.FC = () => {
       type: 'cours',
       dateAdded: new Date().toISOString().split('T')[0],
       deadline: '',
-      fileUrl: ''
+      fileUrl: '',
+      description: '',
+      subject: '',
+      visibility: 'public'
     });
     setIsEditMode(false);
     setShowModal(true);
@@ -70,7 +91,10 @@ const ProfDocs: React.FC = () => {
       type: doc.type,
       dateAdded: doc.dateAdded,
       deadline: doc.deadline || '',
-      fileUrl: doc.fileUrl
+      fileUrl: doc.fileUrl,
+      description: doc.description || '',
+      subject: doc.subject || '',
+      visibility: doc.visibility || 'public'
     });
     setIsEditMode(true);
     setShowModal(true);
@@ -84,26 +108,63 @@ const ProfDocs: React.FC = () => {
     setViewingDoc(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isEditMode && currentDoc) {
-      setDocuments(documents.map(doc =>
-        doc.id === currentDoc.id ? { ...doc, ...formData } : doc
-      ));
-    } else {
-      const newDoc: Document = {
-        ...formData,
-        id: Date.now().toString(),
-        deadline: formData.deadline || undefined
-      };
-      setDocuments([...documents, newDoc]);
+    try {
+      if (isEditMode && currentDoc) {
+        const updatedDoc = {
+          title: formData.title,
+          docType: formData.type.charAt(0).toUpperCase() + formData.type.slice(1) as 'Cours' | 'Exercice' | 'Examen',
+          dateAdded: formData.dateAdded,
+          deadline: formData.deadline || undefined,
+          fileUrl: formData.fileUrl,
+          description: formData.description,
+          subject: formData.subject,
+          visibility: formData.visibility
+        };
+        
+        await updateProfDocument(currentDoc.id, updatedDoc);
+        
+        setDocuments(documents.map(doc =>
+          doc.id === currentDoc.id ? { ...doc, ...formData } : doc
+        ));
+      } else {
+        const newDoc = {
+          title: formData.title,
+          docType: formData.type.charAt(0).toUpperCase() + formData.type.slice(1) as 'Cours' | 'Exercice' | 'Examen',
+          dateAdded: formData.dateAdded,
+          deadline: formData.deadline || undefined,
+          fileUrl: formData.fileUrl,
+          description: formData.description,
+          subject: formData.subject,
+          visibility: formData.visibility
+        };
+        
+        // Note: Vous devrez ajouter une fonction createProfDocument dans le service
+        // Pour l'exemple, nous simulons la création
+        const response = await axios.post(`${BASE_URL}/profdoccreate`, newDoc);
+        const createdDoc = {
+          ...newDoc,
+          id: response.data.id,
+          type: newDoc.docType.toLowerCase() as 'cours' | 'exercice' | 'examen'
+        };
+        
+        setDocuments([...documents, createdDoc]);
+      }
+      setShowModal(false);
+    } catch (err) {
+      setError('Failed to save document');
     }
-    setShowModal(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this document?')) {
-      setDocuments(documents.filter(doc => doc.id !== id));
+      try {
+        await deleteProfDocument(id);
+        setDocuments(documents.filter(doc => doc.id !== id));
+      } catch (err) {
+        setError('Failed to delete document');
+      }
     }
   };
 
@@ -124,6 +185,14 @@ const ProfDocs: React.FC = () => {
       default: return type.toUpperCase();
     }
   };
+
+  if (loading) {
+    return <div className="prof-docs-container">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="prof-docs-container">Error: {error}</div>;
+  }
 
   return (
     <div className="prof-docs-container">
@@ -246,6 +315,36 @@ const ProfDocs: React.FC = () => {
                 </div>
               </div>
 
+              <div className="form-group">
+                <label>Description (optional)</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Enter document description"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Subject (optional)</label>
+                <input
+                  type="text"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  placeholder="Enter subject"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Visibility</label>
+                <select
+                  value={formData.visibility}
+                  onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
+                >
+                  <option value="public">Public</option>
+                  <option value="private">Private</option>
+                </select>
+              </div>
+
               <div className="form-group file-upload">
                 <label>File</label>
                 <div className="upload-area">
@@ -311,6 +410,18 @@ const ProfDocs: React.FC = () => {
                 <div className="info-row">
                   <span className="info-label">Deadline:</span>
                   <span className="info-value deadline">{viewingDoc.deadline}</span>
+                </div>
+              )}
+              {viewingDoc.description && (
+                <div className="info-row">
+                  <span className="info-label">Description:</span>
+                  <span className="info-value">{viewingDoc.description}</span>
+                </div>
+              )}
+              {viewingDoc.subject && (
+                <div className="info-row">
+                  <span className="info-label">Subject:</span>
+                  <span className="info-value">{viewingDoc.subject}</span>
                 </div>
               )}
             </div>
