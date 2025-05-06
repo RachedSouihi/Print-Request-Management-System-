@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 
-export type NotificationType = 'assignment' | 'announcement' | 'grade' | 'COURSE_ANNOUNCEMENT';
+export type NotificationType = 'assignment' | 'announcement' | 'grade' | 'COURSE_ANNOUNCEMENT' | 'PRINT_REQUEST_STATUS';
 
 // Define the Notification type
 export interface Notification {

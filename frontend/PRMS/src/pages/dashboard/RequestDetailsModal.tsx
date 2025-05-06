@@ -90,10 +90,10 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ show, request ,
             <Button variant="outline-primary" disabled={request?.status === 'completed'}>
               <FiEdit className="me-2" /> Reassign
             </Button>
-            <Button variant="danger">
+            <Button variant="danger" disabled={request?.status === 'completed'} onClick={() => onApprove(request?.user.user_id, request?.requestId, 'REJECTED')}>
               <FiXCircle className="me-2" /> Reject
             </Button>
-            <Button variant="success" disabled={request?.status === 'completed'} onClick={() => onApprove(request?.user.userId, request?.requestId)}>
+            <Button variant="success" disabled={request?.status === 'completed'} onClick={() => onApprove(request?.user.user_id, request?.requestId, 'APPROVED')}>
               <FiCheckCircle className="me-2" /> Approve
             </Button>
           </Stack>
@@ -118,14 +118,16 @@ const DetailItem: React.FC<DetailItemProps> = ({ label, value, children }) => (
 );
 
 interface StatusIndicatorProps {
-  status?: 'pending' | 'in-progress' | 'completed';
+  status?: 'pending' | 'in-progress' | 'completed' | 'APPROVED' | 'REJECTED';
 }
 
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
   const statusConfig = {
     pending: { label: 'Pending', color: 'warning' },
     'in-progress': { label: 'In Progress', color: 'primary' },
-    completed: { label: 'Completed', color: 'success' }
+    completed: { label: 'Completed', color: 'success' },
+    APPROVED: { label: 'Approved', color: 'success' },
+    REJECTED: { label: 'Rejected', color: 'danger' }
   };
   
   return (
