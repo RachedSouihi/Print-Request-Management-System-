@@ -136,6 +136,31 @@ public class KeyCloakService {
 
 
 
+    // KeyCloakService.java
+    public Map<String, String> refreshAccessToken(String refreshToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", client_id);
+        body.add("client_secret", client_secret);
+        body.add("grant_type", "refresh_token");
+        body.add("refresh_token", refreshToken);
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<Map> response = restTemplate.exchange(token_url, HttpMethod.POST, entity, Map.class);
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("access_token", (String) response.getBody().get("access_token"));
+            tokens.put("refresh_token", (String) response.getBody().get("refresh_token"));
+            return tokens;
+        }
+        return null;
+    }
+
+
+
     public String updatePassword(String email, String newPassword){
 
         UsersResource usersResource = keycloak.realm(realm).users();

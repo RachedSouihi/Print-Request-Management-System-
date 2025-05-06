@@ -7,6 +7,7 @@ import com.microservices.common_models_service.dto.ModelMapperConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -16,7 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 //@Import({SecurityConfig.class, JwtTokenProviderConfig.class, JpaConfig.class, SecurityProperties.class})
 @Import({ModelMapperConfig.class, SecurityProperties.class, SecurityConfig.class, JwtTokenProviderConfig.class, JpaConfig.class, KeyCloakConfig.class})
-
+@EnableFeignClients
 public class PrintrequestServiceApplication {
 
 

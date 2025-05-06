@@ -40,6 +40,10 @@ public class NotificationService {
         this.userRepository = userRepository;
     }
 
+
+
+
+
     public NotificationDTO convertToDTO(Notification notification) {
         return new NotificationDTO(
                 notification.getNotifId(),
@@ -92,6 +96,38 @@ public class NotificationService {
             notification.setRead(true);
         }
         notificationRepository.saveAll(notifications);
+    }
+
+
+    public void createUserNotification(String userId, String title, String message) {
+        try {
+            User targetUser = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+            User u = new User();
+
+            u.setUser_id(userId);
+
+            u.setEmail(u.getEmail());
+
+            //u.setProfile(u.getProfile());
+            Notification notification = new Notification();
+            notification.setUser(u);
+            notification.setType(NotificationTypes.PRINT_REQUEST_STATUS);
+            notification.setTitle(title);
+            notification.setMessage(message);
+            notification.setTimestamp(LocalDateTime.now());
+            notification.setRead(false);
+
+            Notification savedNotification = notificationRepository.save(notification);
+
+            // Forward to API Gateway
+            String apiGatewayUrl = String.format("http://localhost:9001/broadcast/notify-user?userId=%s", userId);
+            restTemplate.postForObject(apiGatewayUrl, savedNotification, Void.class);
+        } catch (Exception e) {
+            System.err.println("Error creating user notification: " + e.getMessage());
+        }
     }
 
 

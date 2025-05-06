@@ -1,4 +1,4 @@
-package com.microservices.user_service.Config;
+package com.microservices.user_service.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.user_service.utils.VerificationData;

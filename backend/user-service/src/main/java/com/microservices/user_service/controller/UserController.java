@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.api_gateway.utils.AESUtil;
 import com.microservices.common_models_service.dto.UserDTO;
 import com.microservices.common_models_service.model.User;
-import com.microservices.user_service.service.EmailService;
-import com.microservices.user_service.service.KafkaService;
-import com.microservices.user_service.service.UserService;
-import com.microservices.user_service.service.VerificationService;
+import com.microservices.user_service.service.*;
 import com.microservices.user_service.utils.VerificationCodeUtil;
 import jakarta.annotation.security.PermitAll;
 import jakarta.mail.MessagingException;
@@ -17,17 +14,16 @@ import org.bouncycastle.jcajce.provider.symmetric.AES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -45,6 +41,7 @@ public class UserController {
     private final UserService userService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private final VerificationService verificationService;
+    private final KeyCloakService keyCloakService;
 
     @Value("${app.secret.key}")
     private String SECRET_KEY;
@@ -56,12 +53,13 @@ public class UserController {
     private String OTP_KEY;
 
     @Autowired
-    public UserController(UserService userService, ObjectMapper objectMapper, EmailService emailService, KafkaService kafkaService, VerificationService verificationService) {
+    public UserController(UserService userService, ObjectMapper objectMapper, EmailService emailService, KafkaService kafkaService, VerificationService verificationService, KeyCloakService keyCloakService) {
         this.userService = userService;
         this.emailService = emailService;
         this.objectMapper = objectMapper;
         this.kafkaService = kafkaService;
         this.verificationService = verificationService;
+        this.keyCloakService = keyCloakService;
     }
 
     /**
@@ -69,12 +67,42 @@ public class UserController {
      * @param user_id The ID of the user to check.
      * @return An Optional containing the user if found, otherwise empty.
      */
+
     @GetMapping
-    public Optional<User> isUserExist(@RequestParam String user_id) {
+    public Optional<?> isUserExist(@RequestParam String user_id) {
         Optional<User> user = userService.findById(user_id);
-        return user.isPresent() ? user : Optional.empty();
+
+
+        if(user.isPresent()) {
+
+            User u = new User();
+
+            u.setUser_id(user_id);
+
+            return Optional.of(u);
+        }
+
+
+        return Optional.empty();
+
+
     }
 
+
+
+    @PostMapping("/add-user")
+    public ResponseEntity<?> addUser(@RequestBody Map<String, Object> payload) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            User user = mapper.convertValue(payload.get("user"), User.class);
+            User savedUser = userService.addUser(user);
+            return savedUser != null
+                    ? ResponseEntity.status(HttpStatus.CREATED).body(savedUser)
+                    : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User creation failed");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
     @GetMapping("/get-all-users")
     //@PreAuthorize("hasRole('ROLE_admin')")
     public ResponseEntity<?> getAllUsers() {
@@ -103,56 +131,11 @@ public class UserController {
     }
 
 
-    @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestHeader HttpHeaders headers, @RequestBody Map<String, String> request, HttpServletResponse httpResponse) {
-        try{
-            String email = request.get("email");
-            String password = AESUtil.decrypt(request.get("password"), SECRET_KEY, ALGO);
-            //System.out.println("Decrypted password: " + AESUtil.decrypt(password, SECRET_KEY, ALGO));
-
-            Map<String, Object> response =  userService.login(email, password);
-            System.out.println(response);
 
 
-            if(Integer.parseInt(response.get("code").toString()) == 200){
-
-                UserDTO user = (UserDTO) response.get("data");
-                Map<String, Object> tokens = (Map<String, Object>) response.get("tokens");
-
-                String access_token =  AESUtil.encrypt((String)tokens.get("access_token"), SECRET_KEY, ALGO);
-
-                String refresh_token = AESUtil.encrypt((String) tokens.get("refresh_token"), SECRET_KEY, ALGO);
 
 
-                verificationService.saveTokens(user.getUserId(), access_token, refresh_token, 432000, 777600);
 
-
-                ResponseCookie access_token_cookie = ResponseCookie.from("access_token", (String) tokens.get("access_token"))
-                        .httpOnly(true)
-                        .sameSite("LAX")
-                        .path("/")
-                        .maxAge(Duration.ofDays(2))
-                        .build();
-                httpResponse.addHeader(HttpHeaders.SET_COOKIE, access_token_cookie.toString());
-
-
-                System.out.println("Response is ready");
-
-                return ResponseEntity.ok(user);
-
-            }else{
-                return ResponseEntity.status(HttpStatusCode.valueOf((Integer) response.get("code"))).body(response.get("message"));
-
-            }
-
-        }catch (Exception e){
-            System.out.println("Error: " + e.getMessage());
-            return ResponseEntity.status(500).body(e.getMessage());
-
-
-        }
-
-    }
 
     /**
      * Validates the encrypted password payload.
@@ -232,7 +215,7 @@ public class UserController {
      * @param httpResponse The HTTP response.
      * @return A response indicating the result of the signup process.
      */
-    @PostMapping("/auth/signup")
+    @PostMapping("/auth0/signup")
     public ResponseEntity<?> signup(@RequestBody Map<String, Object> request, HttpServletResponse httpResponse) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -276,6 +259,8 @@ public class UserController {
 
 
                 user = mapper.convertValue(response.get("user"), User.class);
+
+                user.setPassword(null);
                 tokens.put("access_token", AESUtil.encrypt(access_token, SECRET_KEY, ALGO));
                 //tokens.put("refresh_token", AESUtil.encrypt((String) tokens.get("refresh_token"), SECRET_KEY, ALGO));
                 verificationService.saveTokens(user.getUser_id(), (String) tokens.get("access_token"), (String) tokens.get("refresh_token"), 432000, 777600);
@@ -318,7 +303,7 @@ public class UserController {
      * @return A response indicating the result of the email sending process.
      * @throws MessagingException If an error occurs during email sending.
      */
-    @PostMapping("/auth/verify-email")
+    @PostMapping("/auth0/verify-email")
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws Exception {
         String email = request.get("email");
         String password = request.get("password");
@@ -329,13 +314,19 @@ public class UserController {
         return ResponseEntity.ok("Email sent");
     }
 
+
+
+
+
+
+
     /**
      * Resends the verification email with OTP.
      * @param request The request containing email.
      * @return A response indicating the result of the email sending process.
      * @throws MessagingException If an error occurs during email sending.
      */
-    @PostMapping("/auth/resend-verif-email")
+    @PostMapping("/auth0/resend-verif-email")
     public ResponseEntity<?> reSendCode(@RequestBody Map<String, String> request) throws MessagingException {
         try {
             String email = request.get("email");
@@ -353,7 +344,7 @@ public class UserController {
      * @param authentication The authentication object.
      * @return A response indicating whether the user is signed in.
      */
-    @GetMapping("/auth/is-signed-in")
+    @GetMapping("/auth0/check-auth")
     @PreAuthorize("hasRole('ROLE_admin')")
     public ResponseEntity<?> signinPage(Authentication authentication) {
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
@@ -361,6 +352,19 @@ public class UserController {
         }
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/auth0/check-role")
+    @PreAuthorize("hasRole('ROLE_admin')")
+    public ResponseEntity<?> checkRole(Authentication authentication) {
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
+
+
+
 
     /**
      * Updates the user profile.
@@ -373,6 +377,8 @@ public class UserController {
 
         try {
             Map<String, Object> response = userService.updateProfile(request);
+
+            System.out.println(response);
             return ResponseEntity.status((int) response.get("code")).body(response.get("user"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
@@ -389,13 +395,9 @@ public class UserController {
     public ResponseEntity<?> up(@RequestHeader HttpHeaders headers ,@RequestBody Map<String, String> request) throws Exception {
        try{
         String email = request.get("email");
-        System.out.println(email);
         String oldPassword = AESUtil.decrypt(request.get("oldPassword"), SECRET_KEY, ALGO);
         String newPassword = AESUtil.decrypt(request.get("newPassword"), SECRET_KEY, ALGO);
 
-        System.out.println(oldPassword);
-        System.out.println(newPassword);
-        System.out.println(email);
 
             Map<String, Object> response = userService.updatePassword(email, oldPassword, newPassword, bCryptPasswordEncoder);
             return ResponseEntity.status(Integer.parseInt((String) response.get("code"))).body(response.get("message").toString());
@@ -422,16 +424,64 @@ public class UserController {
      * @return A response indicating the result of the document saving process.
      */
     @PostMapping("/save-doc")
-    public String saveDoc(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> saveDoc(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
         try {
+            System.out.println("Saving docs");
             String userId = (String) request.get("userId");
+
+
+            System.out.println("UserID: " + userId);
+
             String docId = (String) request.get("documentId");
-            userService.saveDocument(userId, docId);
-            return "Document saved";
+            System.out.println("DocId: " + docId);
+
+            long date_milliseconds = (long) request.get("date_milliseconds");
+
+            System.out.println("TIMESTAMP: " + date_milliseconds);
+
+
+            //boolean kafkaResponse = kafkaService.sendEvent("inputtopic" ,userId, docId, "save", date_milliseconds);
+            String response = userService.toggleSaveDocument(userId, docId);
+
+            if(response != null){
+                return ResponseEntity.ok().body(response);
+            }
+            return ResponseEntity.status(500).body("Save document failed");
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
+
+    @PostMapping("/send-kafka-event")
+    public boolean sendKafkaEvent(@RequestHeader HttpHeaders headers, @RequestBody Map<String, String> request) {
+
+        try{
+
+            String topic = request.get("topic");
+            String userId = request.get("userId");
+
+            String docId = request.get("docId");
+
+            String eventType = request.get("eventType");
+
+
+            long timestamp = System.currentTimeMillis();
+
+
+
+            return  kafkaService.sendEvent(topic ,userId, docId, eventType, timestamp);
+
+
+
+
+        }catch (Exception e) {
+
+
+            return false;
+
+        }
+    }
+
 
     /**
      * Retrieves saved documents for a user.
@@ -441,10 +491,37 @@ public class UserController {
     @GetMapping("/saved-docs")
     public ResponseEntity<?> getSavedDocs(@RequestParam("userId") String userId) {
         try {
-            return ResponseEntity.ok(userService.getUserWithSavedDocuments(userId));
+            return ResponseEntity.ok(userService.getSavedDocuments(userId));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/track-doc-click")
+
+
+    public ResponseEntity<?> trackDocClick(@RequestHeader HttpHeaders headers, @RequestBody Map<String, String> request) {
+
+        try{
+            String userId = request.get("userId");
+
+            String docId = request.get("docId");
+
+            boolean kafkaResponse = kafkaService.sendEvent("inputtopic" ,userId, docId, "click", System.currentTimeMillis());
+
+            if(kafkaResponse){
+                return ResponseEntity.ok().build();
+
+            }else{
+
+                return ResponseEntity.status(500).build();
+
+            }
+        }catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+
+        }
+
     }
 
 
@@ -469,24 +546,6 @@ public class UserController {
 
 
 
-    @GetMapping("/send-event")
-    public ResponseEntity<?> sendEvent(@RequestHeader HttpHeaders header ,@RequestBody Map<String, Object> request) {
-
-        String topic = (String) request.get("topic");
-
-        Map<String, String> event = (Map<String, String>) request.get("event");
-
-
-        try{
-            return  ResponseEntity.ok(kafkaService.sendMessage(topic, event));
-
-        }catch(Exception e){
-            System.out.println(e.getMessage());
-
-            return ResponseEntity.status(500).body(e.getMessage());
-        }
-
-    }
 
 }
 

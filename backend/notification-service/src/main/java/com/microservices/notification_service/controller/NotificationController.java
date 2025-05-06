@@ -84,6 +84,22 @@ public class NotificationController {
     }
 
 
+    @PostMapping("/notify-user")
+    public ResponseEntity<String> notifyUser(@RequestBody Map<String, Object> payload) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String userId = mapper.convertValue(payload.get("user_id"), String.class);
+            String title = mapper.convertValue(payload.get("title"), String.class);
+            String message = mapper.convertValue(payload.get("message"), String.class);
+
+            notificationService.createUserNotification(userId, title, message);
+
+            return ResponseEntity.ok("User notified successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/send-group-notification")
 
     public ResponseEntity<?> sendGroupNotification(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> payload) {
@@ -118,6 +134,8 @@ public class NotificationController {
 
 
     }
+
+
 
 
 

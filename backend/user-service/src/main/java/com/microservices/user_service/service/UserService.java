@@ -1,17 +1,15 @@
 package com.microservices.user_service.service;
 
 
+import com.microservices.common_models_service.dto.DocumentDTO;
 import com.microservices.common_models_service.dto.ProfileDTO;
 import com.microservices.common_models_service.dto.UserDTO;
-import com.microservices.common_models_service.model.Document;
-import com.microservices.common_models_service.model.Profile;
-import com.microservices.common_models_service.model.User;
+import com.microservices.common_models_service.model.*;
 //import com.microservices.common_models_service.repository.ProfileRepository;
 //import com.microservices.common_models_service.repository.UserRepository;
 
-import com.microservices.common_models_service.repository.DocumentRepository;
-import com.microservices.common_models_service.repository.ProfileRepository;
-import com.microservices.common_models_service.repository.UserRepository;
+import com.microservices.common_models_service.repository.*;
+import com.microservices.user_service.exception.UserNotFoundException;
 import com.microservices.user_service.utils.VerificationData;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
@@ -44,6 +42,11 @@ public class UserService {
     private final ModelMapper adminMapper;// Inject the configured ModelMapper bean
 
 
+    @Qualifier("publicMapper")
+
+    private final ModelMapper publicMapper;
+
+
 
     @Autowired
     private static final Duration EXPIRATION = Duration.ofMinutes(10);
@@ -51,18 +54,53 @@ public class UserService {
 
 
     @Autowired
-    public UserService(UserRepository userRepository, ProfileRepository profileRepository, KeyCloakService keyCloakService, DocumentRepository documentRepository, ModelMapper adminMapper) {
+    private SubjectRepository subjectRepository;
+
+
+
+
+    @Autowired
+    public UserService(UserRepository userRepository, ProfileRepository profileRepository, SubjectRepository subjectRepository, KeyCloakService keyCloakService, DocumentRepository documentRepository, ModelMapper adminMapper, ModelMapper publicMapper) {
         super();
         this.userRepository = userRepository;
         this.keyCloakService = keyCloakService;
         this.profileRepository = profileRepository;
 
+        this.subjectRepository = subjectRepository;
+
         //this.passwordEncoder = passwordEncoder;
         this.documentRepository = documentRepository;
         this.adminMapper = adminMapper;
+        this.publicMapper = publicMapper;
     }
 
 
+
+    private UserDTO mapToUserDTO(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        ProfileDTO p = new ProfileDTO(user.getProfile().getFirstname(), user.getProfile().getLastname());
+        return new UserDTO(user.getUser_id(), p, user.getEmail());
+
+
+    }
+
+
+    public User addUser(User user) {
+        try {
+            String user_id = UUID.randomUUID().toString();
+            user.setUser_id(user_id);
+
+            Profile profile = user.getProfile();
+            profile.setUser(user);
+
+            return userRepository.save(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add user: " + e.getMessage(), e);
+        }
+    }
     public List<UserDTO> getAllUsers() {
 
         try{
@@ -75,13 +113,16 @@ public class UserService {
                         new UserDTO(
                                 user.getUser_id(),
                                 user.isActive(),
+                                user.getProfile() != null ? user.getProfile().getIdCard() : null,
                                 user.getEmail(),
                                 user.getProfile().getFirstname(),
                                 user.getProfile().getLastname(),
                                 user.getProfile().getRole(),
                                 user.getProfile().getPhone(),
                                 user.getProfile().getEducationLevel(),
-                                user.getProfile().getField()
+                                user.getProfile().getField(),
+
+                                user.getProfile().getSubject()
                         )
                 );
             }
@@ -124,7 +165,6 @@ public class UserService {
         Optional<User> user = userRepository.findByEmail(email);
 
 
-        System.out.println(resp);
 
         if(user.isPresent() && (int) resp.get("code") == 200) {
 
@@ -138,7 +178,21 @@ public class UserService {
 
             User u = userRepository.save(user.get());
 
-            resp.put("user", u);
+            u.setPassword("");
+
+            UserDTO dto =  new UserDTO(
+                    u.getUser_id(),
+                    u.isActive(),
+                    u.getEmail(),
+                    u.getProfile().getFirstname(),
+                    u.getProfile().getLastname(),
+                    u.getProfile().getRole(),
+                    u.getProfile().getPhone(),
+                    u.getProfile().getEducationLevel(),
+                    u.getProfile().getField().getName()
+            );
+
+            resp.put("user", dto);
 
 
 
@@ -169,11 +223,11 @@ public class UserService {
 
 
         System.out.println("new password: " + newPassword);
-       if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+       /*if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             response.put("code", "400");
             response.put("message", "Wrong password");
             return response;
-        }
+        }*/
 
         // Update password in the external service (e.g., Keycloak)
         if (keyCloakService.updatePassword(email, newPassword) == null) {
@@ -248,45 +302,41 @@ public class UserService {
 
     public Map<String, Object> login(String email, String password) throws Exception {
 
-        try{
+        try {
             System.out.println("email: " + email);
             System.out.println("password: " + password);
 
-            Map<String, Object> tokens =  keyCloakService.getToken(email, password);
+            Map<String, Object> tokens = keyCloakService.getToken(email, password);
             Map<String, Object> response = new HashMap<>();
 
             System.out.println("tokens: " + tokens);
 
 
             Optional<User> opt_user = userRepository.findByEmail(email);
-            if(opt_user.isPresent()) {
+            if (opt_user.isPresent()) {
 
                 User user = opt_user.get();
                 UserDTO userDTO = new UserDTO(
                         user.getUser_id(),
                         new ProfileDTO(
-                        user.getProfile().getFirstname(),
-                        user.getProfile().getLastname(),
-                        user.getProfile().getRole(),
-                        user.getProfile().getPhone(),
-                        user.getProfile().getEducationLevel(),
-                        user.getProfile().getField()
+                                user.getProfile().getFirstname(),
+                                user.getProfile().getLastname(),
+                                user.getProfile().getRole(),
+                                user.getProfile().getPhone(),
+                                user.getProfile().getEducationLevel(),
+                                user.getProfile().getField() != null ? user.getProfile().getField().getName() : null
                         ),
                         user.getEmail()
 
 
-                        );
+                );
 
                 response.put("data", userDTO);
                 response.put("code", "200");
-               response.put("tokens", tokens);
+                response.put("tokens", tokens);
 
 
-
-
-
-
-            }else{
+            } else {
                 response.put("code", "404");
                 response.put("message", "User not found");
 
@@ -297,8 +347,7 @@ public class UserService {
             return response;
 
 
-
-        }catch(Exception e){
+        } catch (Exception e) {
 
             System.out.println(e.getMessage());
             return null;
@@ -309,17 +358,88 @@ public class UserService {
 
 
 
+    public String toggleSaveDocument(String userId, String documentId) {
+
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            Document document = documentRepository.findById(documentId)
+                    .orElseThrow(() -> new RuntimeException("Document not found"));
+
+            System.out.println(user.getSavedDocuments());
+
+
+            String action;
+            if (user.hasSavedDocument(document)) {  // The `hasSavedDocument` checks if the document is already saved
+                user.unsaveDocument(document);  // The `unsaveDocument` removes the document from saved ones
+
+                action = "document unsaved";
+            } else {
+                user.saveDocument(document); // Save the document
+                action = "document saved";
+            }
+
+            userRepository.save(user);
+
+            return action;
 
 
 
-    public void saveDocument(String userId, String documentId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
 
-        user.saveDocument(document);
-        userRepository.save(user);
+        }catch (Exception e){
+
+            System.out.println(e.getMessage());
+
+            return null;
+
+        }
+    }
+
+
+    public List<DocumentDTO> getSavedDocuments(String userId) {
+
+        try{
+
+            Optional<User> userOptional = userRepository.findUserWithDocuments(userId);
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                List<DocumentDTO> savedDocs = new ArrayList<>();
+                for(Document doc: user.getSavedDocuments()){
+
+                    DocumentDTO dto = new DocumentDTO(
+                            doc.getId(),
+                            doc.getDocType() ,
+                            doc.getSubject().getSubjectId(),
+                            doc.getSubject() != null ? doc.getSubject().getName() : null,
+                            doc.getLevel(),
+                            doc.getField() != null ? doc.getField().getFieldId(): null,
+
+
+                            doc.getField() != null ? doc.getField().getName(): null,
+                            doc.getDownloads(),
+                            doc.getRating(),
+                            doc.getDescription(),
+                            mapToUserDTO(doc.getUser())
+
+                    );
+
+
+                    savedDocs.add(dto);
+
+
+
+                }
+
+                return savedDocs;
+            }
+            return null;
+
+
+        } catch (Exception e) {
+
+            return null;
+        }
     }
 
     public UserDTO getUserWithSavedDocuments(String userId) {
@@ -334,41 +454,18 @@ public class UserService {
     }
 
     public UserDTO getUserInformations(String userId) {
-
-        try{
-
+        try {
             Optional<User> userOptional = userRepository.findById(userId);
-
-            if(userOptional.isPresent()) {
-                User user = userOptional.get();
-                return new UserDTO(
-                        user.getUser_id(),
-                        user.isActive(),
-                        user.getEmail(),
-                        user.getProfile().getFirstname(),
-                        user.getProfile().getLastname(),
-                        user.getProfile().getRole(),
-                        user.getProfile().getPhone(),
-                        user.getProfile().getEducationLevel(),
-                        user.getProfile().getField()
-                );
-
-
-
-
-
-
-            }else{
-                return null;
-            }
-
-        }catch (Exception e){
+            return userOptional.map(UserDTO::fromUser)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+        } catch (UserNotFoundException e) {
             System.out.println(e.getMessage());
-            return null;
+            throw e;
+        } catch (Exception e) {
+            System.out.println("Error retrieving user information: " + e.getMessage());
+            throw new RuntimeException("Failed to retrieve user information", e);
         }
     }
-
-
 
 
 
