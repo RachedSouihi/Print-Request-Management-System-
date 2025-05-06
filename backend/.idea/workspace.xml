@@ -5,74 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6132e1f8-bbc2-483f-9596-a6aa16d5ac48" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../AI/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AI/app/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/app/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AI/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AI/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AI/flink-scripts/stream.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/flink-scripts/stream.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AI/src/create_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/src/create_dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AI/src/embeddings.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/src/embeddings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AI/src/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AI/src/profile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AI/src/xgbregressor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ProfDocDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/config/WebConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/controller/ApiGatewayController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/controller/ApiGatewayController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/filter/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/filter/JwtAuthenticationFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/filter/JwtTokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/filter/JwtTokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/routes/Routes.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/routes/Routes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/security/CustomJwtDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/security/CustomJwtDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/utils/AESUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservices/api_gateway/utils/AESUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/DocumentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/DocumentDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ModelMapperConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ModelMapperConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/PrintRequestDTO1.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/PrintRequestDTO1.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ProfileDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/ProfileDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/UserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/dto/UserDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Configuration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Cost.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Cost.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Document.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/PrintRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/PrintRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Profile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Stock.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Stock.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Subject.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/Subject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/ConfigurationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/ConfigurationRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/PrintRequestRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/PrintRequestRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/ProfileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/ProfileRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/SubjectRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/SubjectRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-models-service/src/main/java/com/microservices/common_models_service/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/controller/DocumentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/controller/DocumentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/service/DocumentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/document-service/src/main/java/com/microservices/document_service/service/DocumentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/cards/DocumentCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/cards/DocumentCard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/common/Loading.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/common/Loading.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/components/DocumentOverview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/components/DocumentOverview.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/components/PrintRequest/PrintRequest.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/components/PrintRequest/PrintRequest.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/components/SideBar/SideBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/components/SideBar/SideBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/features/CourseCart.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/features/CourseCart.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/features/ExamCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/features/ExamCard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/layouts/ChooseSubjectsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/layouts/ChooseSubjectsModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/layouts/Notification.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/layouts/Notification.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/main.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/Home/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/SavedDocs/SavedDocs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/SavedDocs/SavedDocs.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/Admin.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/Admin.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/Overview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/Overview.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/UserManagement.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/dashboard/data.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/history/PrintHistory.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/pages/profrequest/ProfRequest.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/pages/profrequest/ProfRequest.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/authSlice.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/authSlice.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/historySlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/historySlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/profSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/profSlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/store.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/store/userSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/store/userSlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/PRMS/src/types/userTypes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/PRMS/src/types/userTypes.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,32 +40,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.CommonModelsServiceApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Spring Boot.DocumentServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.NotificationServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.PrintrequestServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/backend/user-service/src/main/java/com/microservices/user_service/controller&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
+    "Spring Boot.CommonModelsServiceApplication.executor": "Debug",
+    "Spring Boot.DocumentServiceApplication.executor": "Run",
+    "Spring Boot.NotificationServiceApplication.executor": "Run",
+    "Spring Boot.PrintrequestServiceApplication.executor": "Run",
+    "Spring Boot.UserServiceApplication.executor": "Run",
+    "git-widget-placeholder": "Cherry-picking in main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/souih/OneDrive/Documents/GitHub/Print-Request-Management-System-/backend/user-service/src/main/java/com/microservices/user_service/controller",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.configurations.included.in.services": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\souih\OneDrive\Documents\GitHub\Print-Request-Management-System-\backend\user-service\src\main\java\com\microservices\user_service\controller" />
@@ -270,7 +207,7 @@
       <workItem from="1746285219348" duration="21492000" />
       <workItem from="1746370358127" duration="10389000" />
       <workItem from="1746434674106" duration="29497000" />
-      <workItem from="1746537658903" duration="6587000" />
+      <workItem from="1746537658903" duration="7800000" />
     </task>
     <servers />
   </component>

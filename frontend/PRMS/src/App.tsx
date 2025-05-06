@@ -23,6 +23,7 @@ import SubjectModal from "./layouts/ChooseSubjectsModal";
 import ProfRequest from "./pages/profrequest/ProfRequest";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { PrintRequestModal } from "./components/PrintRequest/PrintRequest";
+import DocAdmin from "./components/docadmin/docadmin";
 
 function App() {
   const [showModal, setShowModal] = useState(true);
@@ -38,7 +39,7 @@ function App() {
 
           <Route path="/loading" element={<Loading size="sm" color="secondary" />} />
 
-   
+
 
           <Route
             path="/choose"
@@ -51,18 +52,22 @@ function App() {
             }
           />
 
+<Route path="/admin" element={<DocAdmin />} />
+
+
 
 
           <Route path="/" element={<Home />}>
-          <Route path="/account" element={<AccountSettings />} />
+            <Route path="/account" element={<AccountSettings />} />
 
 
-              <Route path="/saved-docs" element={<SavedDocumentsPage />} />
+            <Route path="/saved-docs" element={<SavedDocumentsPage />} />
 
 
-            
+
             <Route path="/documents" element={<DocumentsPage />} />
             <Route path="/requests" element={<PrintHistory />} />
+
 
             <Route
               index
@@ -77,18 +82,18 @@ function App() {
               }
             />
           </Route>
-         
-            <Route
-              path="/dashboard/*"
-              element={
-                <>
-                  <Dashboard />
-                </>
-              }
-            />
+
+          <Route
+            path="/dashboard/*"
+            element={
+              <>
+                <Dashboard />
+              </>
+            }
+          />
 
 
-          
+
         </Routes>
       </Router>
     </div>
