@@ -8,6 +8,7 @@ import requestSlice from './requestSlice'
 import historyReducer from "./historySlice";
 import profReducer from "./profSlice";
 import profSlicereducer from "./profSlice" ;
+import adminDocSlice from "./adminDocApi";
 //import profSlicereducer from "./profSlice" ;
 
 
@@ -21,6 +22,7 @@ const store = configureStore({
     history: historyReducer,
     prof: profReducer,
     reducer: profReducer,
+    admindoc: adminDocSlice,
     
   },
 });

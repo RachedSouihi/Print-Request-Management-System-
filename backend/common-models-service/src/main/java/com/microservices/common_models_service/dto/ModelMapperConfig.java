@@ -21,8 +21,8 @@ public class ModelMapperConfig {
         // Configure Document -> DocumentDTO (only id and subject)
         modelMapper.createTypeMap(Document.class, DocumentDTO.class)
                 .setConverter(context -> new DocumentDTO(
-                        context.getSource().getId(),
-                        context.getSource().getSubject()
+                        context.getSource().getId().toString(),
+                        context.getSource().getSubject().getName()
                 ));
 
         // Configure User -> UserDTO (ignore savedDocuments recursion)
@@ -41,7 +41,7 @@ public class ModelMapperConfig {
     // Helper method to map Documents without recursion
     private List<DocumentDTO> mapDocumentsWithoutUser(List<Document> documents) {
         return documents.stream()
-                .map(doc -> new DocumentDTO(doc.getId(), doc.getSubject())) // Use 2-arg constructor
+                .map(doc -> new DocumentDTO(doc.getId().toString(), doc.getSubject().getName())) // Use 2-arg constructor
                 .collect(Collectors.toList());
     }
 
@@ -51,11 +51,11 @@ public class ModelMapperConfig {
         // Admin mappings (full details)
         modelMapper.createTypeMap(Document.class, DocumentDTO.class)
                 .setConverter(context -> new DocumentDTO(
-                        context.getSource().getId(),
+                        context.getSource().getId().toString(),
                         context.getSource().getDocType(),
-                        context.getSource().getSubject(),
+                        context.getSource().getSubject().getName(),
                         context.getSource().getLevel(),
-                        context.getSource().getField(),
+                        context.getSource().getField().getName(),
                         context.getSource().getDownloads(),
                         context.getSource().getRating(),
                         context.getSource().getDescription(),

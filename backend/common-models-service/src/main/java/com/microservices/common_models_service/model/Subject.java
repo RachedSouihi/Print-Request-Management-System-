@@ -1,35 +1,70 @@
 package com.microservices.common_models_service.model;
 
-
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "subjects")  // Nom de la table dans la base de données
+@Table(name = "subjects")
 public class Subject {
-
     @Id
-    private Long id;  // Clé primaire de l'entité
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "subject_id")
+    private Long subjectId;
 
-    private String name;  // Nom du sujet (ou autre attribut selon votre cas)
+    private String name;
 
-    // Constructeurs
-    public Subject() {}
 
-    public Subject(Long id, String name) {
-        this.id = id;
+
+    @OneToMany(mappedBy = "subject") // Documents reference Subject via 'subject' field
+    private Set<Document> documents = new HashSet<>();
+
+
+
+
+    @ManyToMany(mappedBy = "subjects")
+    private Set<User> users = new HashSet<>();
+
+    public Subject() {
+    }
+
+    public Subject(String name) {
         this.name = name;
     }
 
-    // Getters et Setters
-    public Long getId() {
-        return id;
+
+// Getters and Setters
+
+    @JsonProperty("subject_id") // Ensure JSON key is "user_id"
+
+    public Long getSubjectId() {
+        return subjectId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+
+
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
+    }
+
+
+    public Set<Document> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(Set<Document> documents) {
+        this.documents = documents;
+    }
+
+
+    public void addDocument(Document document) {
+        documents.add(document);
+    }
+
+    public void removeDocument(Document document) {
+        documents.remove(document);
     }
 
     public String getName() {
@@ -40,8 +75,19 @@ public class Subject {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return "Subject{id=" + id + ", name='" + name + "'}";
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    public void removeUser(User user) {
+        users.remove(user);
     }
 }

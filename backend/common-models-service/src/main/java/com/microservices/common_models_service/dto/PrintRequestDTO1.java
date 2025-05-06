@@ -67,18 +67,17 @@ public class PrintRequestDTO1 {
     public List<StatusHistoryEntryDTO> getStatusHistory() { return statusHistory; }
     public void setStatusHistory(List<StatusHistoryEntryDTO> statusHistory) { this.statusHistory = statusHistory; }
 
-    // Nested User class
-
-    // Nested Document class
-
     // fromEntity method
     public static PrintRequestDTO1 fromEntity(PrintRequest entity) {
         if (entity == null) return null;
 
+        // Conversion des valeurs Long en String si nécessaire
         String userId = entity.getUser() != null ? entity.getUser().getUserId() : null;
         String firstName = entity.getUser() != null ? entity.getUser().getProfile().getFirstname() : null;
         String lastName = entity.getUser() != null ? entity.getUser().getProfile().getLastname() : null;
         String email = entity.getUser() != null ? entity.getUser().getEmail() : null;
+
+        // Conversion de `paperType` en String
         String paperTypeName = entity.getPaperType() != null ? entity.getPaperType().getPaperType() : null;
 
         List<StatusHistoryEntryDTO> history = entity.getStatusHistory() != null ?
@@ -92,20 +91,17 @@ public class PrintRequestDTO1 {
                 email
         );
 
-
-
         Document document = entity.getDocument();
         DocumentDTO documentDTO = document != null ? new DocumentDTO(
-                document.getId(),
-                document.getSubject()
-
+                document.getId() != null ? document.getId().toString() : null,  // Conversion de Long en String ici
+                document.getSubject().getName()
         ) : null;
 
         return new PrintRequestDTO1(
                 entity.getRequestId(),
                 documentDTO,
                 userDTO,
-                entity.getCreatedAt().toString(),
+                entity.getCreatedAt() != null ? entity.getCreatedAt().toString() : null,  // Conversion de Date en String
                 entity.getCopies(),
                 paperTypeName,
                 entity.getInkUsage(),

@@ -19,7 +19,12 @@ import Login from './pages/Login/Login'
 import PrintHistory from './pages/history/PrintHistory'
 import DocumentOverview from './components/DocumentOverview'
 import Analyse from './pages/analyse'
+import DocAdmin from './components/docadmin/docadmin'
+import ConsumptionPredict from './pages/consompredict/ConsumptionPredict'
+import ProfDocs from './pages/profdocs/profdocs'
 
+
+import ProfRequest from './pages/profrequest/ProfRequest'
 
 function App() {
   return (
@@ -28,6 +33,14 @@ function App() {
         <Routes>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admindoc" element={<DocAdmin />} />
+          <Route path="/costpredict" element={<ConsumptionPredict/>} />
+          <Route path="/profdocs" element={<ProfDocs />} />
+          
+
+          <Route path="/profrequest" element={<ProfRequest show={false} handleClose={function (): void {
+            throw new Error('Function not implemented.')
+          } } />} />
 
           <Route path="/" element={<Home />}>
             <Route path="/account" element={<AccountSettings />} />
@@ -35,6 +48,8 @@ function App() {
             <Route path='/documents' element={<DocumentsPage />} />
             <Route path='/requests' element={<PrintHistory />} />
             <Route path="/analyse" element={<Analyse />} />
+            
+           
 
 
 

@@ -29,6 +29,7 @@ import java.util.*;
 /**
  * UserController handles all user-related operations such as signup, login, profile updates, and document management.
  */
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
 @EnableJpaRepositories(basePackages = "com.microservices.common-models.repository")
 @RequestMapping("/user")

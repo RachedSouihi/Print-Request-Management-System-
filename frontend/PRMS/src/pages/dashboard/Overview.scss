@@ -1,0 +1,220 @@
+
+
+@import '../../design.scss';
+
+
+
+
+
+.dashboard-container {
+  padding: map-get($spacing-scale, "lg");
+  background: $background-light;
+  min-height: 100vh;
+  
+  .dashboard-header {
+    margin-bottom: map-get($spacing-scale, "xl");
+    
+    .header-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: map-get($spacing-scale, "lg");
+      
+      h1 {
+        margin: 0;
+        @include font-scale("h2");
+        color: $dark-text;
+      }
+      
+      .time-filter-wrapper {
+
+        
+
+        .time-filter {
+          border: 1px solid $border-color;
+          //border-radius: map-get($border-radius, "pill");
+          padding: map-get($spacing-scale, "xs") map-get($spacing-scale, "md");
+          background: $background-light;
+          @include font-scale("small");
+
+
+
+          
+          
+          &:after {
+            margin-left: map-get($spacing-scale, "sm");
+          }
+        }
+      }
+    }
+  }
+}
+
+.metric-row {
+  margin-bottom: map-get($spacing-scale, "xl");
+  
+  .metric-col {
+    margin-bottom: map-get($spacing-scale, "md");
+  }
+}
+
+.dashboard-card {
+  border: 1px solid $border-color;
+  border-radius: map-get($border-radius, "md");
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 160px;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: map-get($shadow-elevation, "medium");
+    min-height: 200px;
+    
+    .metric-breakdown {
+      opacity: 1;
+      max-height: 200px;
+    }
+  }
+  
+  .metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: map-get($spacing-scale, "sm");
+    
+    .metric-title {
+      @include font-scale("small");
+      color: $dark-text;
+      margin: 0;
+      font-weight: map-get($font-weights, "semi-bold");
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .trend-badge {
+      @include font-scale("tiny");
+      padding: map-get($spacing-scale, "xxs") map-get($spacing-scale, "sm");
+      border-radius: map-get($border-radius, "pill");
+      font-weight: map-get($font-weights, "bold");
+      
+      &.trend-increase {
+        background: rgba($success-green, 0.1);
+        color: $success-green;
+      }
+      
+      &.trend-decrease {
+        background: rgba($error-red, 0.1);
+        color: $error-red;
+      }
+    }
+  }
+  
+  .metric-value {
+    @include font-scale("h3");
+    color: $dark-text;
+    margin-bottom: map-get($spacing-scale, "md");
+    font-weight: map-get($font-weights, "bold");
+  }
+  
+  .metric-breakdown {
+    opacity: 0;
+    max-height: 0;
+    transition: all 0.3s ease;
+    
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      padding: map-get($spacing-scale, "xs") 0;
+      border-top: 1px solid rgba($border-color, 0.5);
+      
+      .breakdown-label {
+        color: $secondary-blue;
+        @include font-scale("small");
+        font-weight: map-get($font-weights, "medium");
+      }
+      
+      .breakdown-values {
+        text-align: right;
+        
+        .breakdown-value {
+          @include font-scale("body");
+          color: $dark-text;
+          display: block;
+          font-weight: map-get($font-weights, "semi-bold");
+        }
+        
+        .breakdown-percentage {
+          @include font-scale("small");
+          color: $secondary-blue;
+        }
+      }
+    }
+  }
+}
+
+.charts-row {
+  margin-bottom: map-get($spacing-scale, "xl");
+  
+  .chart-col {
+    margin-bottom: map-get($spacing-scale, "md");
+  }
+  
+  .volume-chart, .cost-chart {
+    height: 400px;
+    padding: map-get($spacing-scale, "md");
+    
+    h5 {
+      @include font-scale("h4");
+      color: $dark-text;
+      margin-bottom: map-get($spacing-scale, "lg");
+      font-weight: map-get($font-weights, "semi-bold");
+    }
+  }
+}
+
+.documents-table {
+  .table-header {
+    margin-bottom: map-get($spacing-scale, "md");
+    
+    h5 {
+      @include font-scale("h4");
+      color: $dark-text;
+      margin: 0;
+    }
+  }
+  
+  th {
+    @include font-scale("small");
+    color: $secondary-blue !important;
+    text-transform: uppercase;
+    font-weight: map-get($font-weights, "bold");
+    letter-spacing: 0.5px;
+  }
+  
+  td {
+    @include font-scale("body");
+    color: $dark-text;
+    vertical-align: middle;
+    padding: map-get($spacing-scale, "sm") !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header .header-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: map-get($spacing-scale, "md");
+  }
+  
+  .dashboard-card {
+    min-height: 140px;
+    
+    &:hover {
+      min-height: 180px;
+    }
+  }
+  
+  .metric-value {
+    @include font-scale("h4");
+  }
+}

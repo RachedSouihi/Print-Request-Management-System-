@@ -7,6 +7,7 @@ import org.springframework.lang.Nullable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "documents")
@@ -38,7 +39,6 @@ public class Document {
     @JsonIgnore
     private byte[] document;
 
-    private String subject;
     private String description;
 
     @Column(name = "downloads", columnDefinition = "INT DEFAULT 0")
@@ -49,26 +49,42 @@ public class Document {
 
     private String level;
 
-    private String field;
-
     private LocalDate date;
 
     @Nullable
     @Column(name = "type")
-    private String type; // New attribute: Administrative or Educational
+    private String type; // Administrative or Educational
 
     @Nullable
     @Column(name = "visibility")
-    private String visibility; // New attribute: Public or Private
+    private String visibility; // Public or Private
 
     @Nullable
     @Column(name = "message")
-    private String message; // Nouveau champ message
+    private String message;
 
     @ManyToMany(mappedBy = "savedDocuments")
     private Set<User> savedByUsers = new HashSet<>();
 
+    // ======== New Relations ========
+
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
+
+    @ManyToOne
+    @JoinColumn(name = "field_id")
+    private Field field;
+
     // ========================= Getters and Setters ==============================
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;
@@ -78,13 +94,20 @@ public class Document {
         this.title = title;
     }
 
-    @Nullable
-    public String getInstructions() {
-        return instructions;
+    public User getUser() {
+        return user;
     }
 
-    public void setInstructions(@Nullable String instructions) {
-        this.instructions = instructions;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getDocType() {
+        return docType;
+    }
+
+    public void setDocType(String docType) {
+        this.docType = docType;
     }
 
     @Nullable
@@ -105,52 +128,13 @@ public class Document {
         this.deadline = deadline;
     }
 
-    public float getRating() {
-        return (rating != null) ? rating : 0.0f;
+    @Nullable
+    public String getInstructions() {
+        return instructions;
     }
 
-    public void setRating(float rating) {
-        this.rating = rating;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public void setInstructions(@Nullable String instructions) {
+        this.instructions = instructions;
     }
 
     public byte[] getDocument() {
@@ -161,28 +145,12 @@ public class Document {
         this.document = document;
     }
 
-    public String getDocType() {
-        return docType;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDocType(String docType) {
-        this.docType = docType;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getDownloads() {
@@ -193,12 +161,28 @@ public class Document {
         this.downloads = downloads;
     }
 
-    public Set<User> getSavedByUsers() {
-        return savedByUsers;
+    public float getRating() {
+        return (rating != null) ? rating : 0.0f;
     }
 
-    public void setSavedByUsers(Set<User> savedByUsers) {
-        this.savedByUsers = savedByUsers;
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     @Nullable
@@ -228,13 +212,40 @@ public class Document {
         this.message = message;
     }
 
+    public Set<User> getSavedByUsers() {
+        return savedByUsers;
+    }
+
+    public void setSavedByUsers(Set<User> savedByUsers) {
+        this.savedByUsers = savedByUsers;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
+    }
+
     // ========================= Hooks ==============================
 
     @PrePersist
     public void onCreate() {
-        date = LocalDate.now();
-        if (visibility == null) {
-            visibility = "Public"; // Default value if not set
+        this.date = LocalDate.now();
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
+        if (this.visibility == null) {
+            this.visibility = "Public";
         }
     }
 }

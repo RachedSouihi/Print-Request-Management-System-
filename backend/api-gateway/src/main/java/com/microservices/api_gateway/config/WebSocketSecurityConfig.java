@@ -27,7 +27,7 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // The endpoint for SockJS connections. Adjust allowed origins as needed.
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:5173")
+                .setAllowedOrigins("http://localhost:5174")
                 .addInterceptors(new CustomHandshakeInterceptor())
                 .setHandshakeHandler(new CustomHandshakeHandler())
                 .withSockJS();

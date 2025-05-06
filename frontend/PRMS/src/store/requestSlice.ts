@@ -42,7 +42,7 @@ export const sendPrintRequest = createAsyncThunk(
     const printRequestPayload: PrintRequest = {
       document: requestData.document,
       user: {
-        user_id: state.user?.user.userId ?? '',
+        user_id: state.user?.user.user_id ?? '',
         email: state.user.user.email,
       },
       copies: requestData.copies,

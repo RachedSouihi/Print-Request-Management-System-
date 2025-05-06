@@ -27,7 +27,7 @@ const Home: React.FC = () => {
 
 
   useEffect(() => {
-    const username = ' chaima';
+    const username = 'Jean';
 
     var socket = new SockJS(`http://127.0.0.1:8085/ws?username=${username}`);
       var stompClient = Stomp.over(socket);

@@ -5,6 +5,9 @@ import com.microservices.api_gateway.filter.JwtTokenProvider;
 import com.microservices.common_models_service.dto.PrintRequestDTO;
 import com.microservices.common_models_service.dto.PrintRequestDTO1;
 import com.microservices.common_models_service.model.PrintRequest;
+import com.microservices.printrequest_service.dto.MetricsDTO;
+import com.microservices.printrequest_service.dto.TopDocumentDTO;
+import com.microservices.printrequest_service.dto.VolumeEntry;
 import com.microservices.printrequest_service.service.PrintRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -134,6 +137,44 @@ public class PrintRequestController {
         }
 
 
+    }
+
+    //hi
+
+    // Pour les cartes de métriques (nombre de pages, users, etc.)
+    @GetMapping("/dashboard/metrics")
+    public ResponseEntity<MetricsDTO> getDashboardMetrics() {
+        try {
+            MetricsDTO metrics = printRequestService.getMetrics();
+            return ResponseEntity.ok(metrics);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // Pour les courbes de volume par jour
+    @GetMapping("/dashboard/volume")
+    public ResponseEntity<List<VolumeEntry>> getVolumeOverTime() {
+        try {
+            List<VolumeEntry> volumeData = printRequestService.getVolumeOverTime();
+            return ResponseEntity.ok(volumeData);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // Pour les documents les plus imprimés (top 5)
+    @GetMapping("/dashboard/top-documents")
+    public ResponseEntity<List<TopDocumentDTO>> getTopDocuments() {
+        try {
+            List<TopDocumentDTO> topDocuments = printRequestService.getTopDocuments();
+            return ResponseEntity.ok(topDocuments);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 }

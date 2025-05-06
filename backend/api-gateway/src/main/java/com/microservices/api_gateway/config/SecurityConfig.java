@@ -37,18 +37,22 @@ public class SecurityConfig {
         // Configure CORS
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        config.setAllowedOrigins(Arrays.asList("http://localhost:5174"));
+
+
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/**", config);
 
+
         // Apply CORS configuration
-        http.cors().configurationSource(source);
+        http.cors(cors -> cors.configurationSource(source));
+
 
         // Configure security
-        http
-                .csrf().disable()
+        http.csrf(csrf -> csrf.disable())
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtTokenProvider, securityProperties),
@@ -75,7 +79,10 @@ public class SecurityConfig {
                                 "/user/auth/signup",
                                 "/user/auth/login",
                                 "/api/follow/follow",
-                                "/api/follow/unfollow"
+                                "/api/follow/unfollow",
+                                "/p-request/dashboard/metrics",   // Route pour récupérer les métriques
+                                "/p-request/dashboard/volume",    // Route pour récupérer les volumes d'impression
+                                "/p-request/dashboard/top-documents"
                         ).permitAll()
                         .anyRequest().permitAll()
                 )

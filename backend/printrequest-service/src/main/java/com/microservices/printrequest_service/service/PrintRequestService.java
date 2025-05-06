@@ -192,7 +192,7 @@ public class PrintRequestService {
             Document doc = documentRepository.findById(docId).orElse(null);
             if (doc != null) {
                 TopDocumentDTO dto = new TopDocumentDTO();
-                dto.subject = doc.getSubject();
+                dto.subject = doc.getSubject().getName();
                 dto.level = doc.getLevel();
                 dto.owner = doc.getUser().getUserId();
                 dto.prints = sortedDocs.get(i).getValue();

@@ -15,6 +15,7 @@ public class User {
     private String userId;  // Correspond à user_id dans la table users
 
     private String email;
+
     private String password;
 
     @Column(nullable = false, columnDefinition = "boolean default true")
@@ -44,6 +45,7 @@ public class User {
     private Set<Subject> subjects = new HashSet<>();
 
     // Relation un-à-plusieurs avec Follow (suivi des utilisateurs)
+
     @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Follow> followings = new HashSet<>();
 
