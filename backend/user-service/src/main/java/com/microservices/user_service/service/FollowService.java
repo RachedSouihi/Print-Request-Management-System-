@@ -1,11 +1,13 @@
 package com.microservices.user_service.service;
 
+import com.microservices.common_models_service.enums.NotificationTypes;
 import com.microservices.common_models_service.model.Follow;
 import com.microservices.common_models_service.model.Profile;
 import com.microservices.common_models_service.model.User;
 import com.microservices.common_models_service.repository.FollowRepository;
 import com.microservices.common_models_service.repository.ProfileRepository;
 import com.microservices.common_models_service.repository.UserRepository;
+import com.microservices.user_service.client.NotificationClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -24,12 +26,25 @@ public class FollowService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
     private ProfileRepository profileRepository;
 
+
+
+    private final NotificationClient notificationClient;
+
+
+
+    @Autowired
+    public FollowService(NotificationClient notificationClient, ProfileRepository profileRepository, UserRepository userRepository) {
+        this.notificationClient = notificationClient;
+        this.profileRepository = profileRepository;
+        this.userRepository = userRepository;
+
+    }
     private final RestTemplate restTemplate = new RestTemplate(); // Pour appeler l'API de notification
 
     // Méthode pour permettre à un étudiant de suivre un professeur
+
     public String followUser(String followerId, String followedId) {
         try {
             // Recherche de l'utilisateur qui suit
@@ -63,16 +78,20 @@ public class FollowService {
 
                 followRepository.save(follow);
 
-                // ✅ Envoi de la notification via API Gateway
-                Map<String, String> notifData = new HashMap<>();
-                notifData.put("username", followed.getProfile().getFirstname()); 
-                notifData.put("message", follower.getProfile().getFirstname() + " started following you.");
+                // Prepare the notification payload
+                Map<String, Object> notificationPayload = new HashMap<>();
+                notificationPayload.put("user_id", followedId);
+                notificationPayload.put("title", "New Follower");
+                notificationPayload.put("message", follower.getProfile().getFirstname() + " started following you.");
+                notificationPayload.put("type", NotificationTypes.NEW_FOLLOWER); // Set the type
 
+                // Call the /notify-user endpoint
                 try {
-                    restTemplate.postForObject("http://localhost:8085/broadcast/notify", notifData, String.class);
-                    System.out.println("✅ Notification envoyée au professeur");
+
+                    notificationClient.notifyUser(notificationPayload);
+                    System.out.println("✅ Notification sent to the user");
                 } catch (Exception e) {
-                    System.out.println("❌ Erreur d'envoi de notification : " + e.getMessage());
+                    System.out.println("❌ Error sending notification: " + e.getMessage());
                 }
 
                 return "You are now following the professor successfully.";
@@ -84,6 +103,14 @@ public class FollowService {
             return "Error: " + e.getMessage();
         }
     }
+
+
+
+
+
+
+
+
 
     // Méthode pour permettre à un étudiant d'arrêter de suivre un professeur
     public String unfollowUser(String followerId, String followedId) {
