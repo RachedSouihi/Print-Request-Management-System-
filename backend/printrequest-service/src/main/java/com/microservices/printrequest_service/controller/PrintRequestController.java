@@ -4,7 +4,16 @@ package com.microservices.printrequest_service.controller;
 import com.microservices.api_gateway.filter.JwtTokenProvider;
 import com.microservices.common_models_service.dto.PrintRequestDTO;
 import com.microservices.common_models_service.dto.PrintRequestDTO1;
+import com.microservices.common_models_service.dto.PrintRequestDTO2;
+import com.microservices.common_models_service.model.Field;
+import com.microservices.common_models_service.model.PaperType;
 import com.microservices.common_models_service.model.PrintRequest;
+import com.microservices.common_models_service.model.Subject;
+import com.microservices.common_models_service.repository.FieldRepository;
+import com.microservices.common_models_service.repository.PaperTypeRepository;
+import com.microservices.common_models_service.repository.SubjectRepository;
+
+//import com.microservices.common_models_service.repository.subjectRepository;
 import com.microservices.printrequest_service.dto.MetricsDTO;
 import com.microservices.printrequest_service.dto.TopDocumentDTO;
 import com.microservices.printrequest_service.dto.VolumeEntry;
@@ -15,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +42,13 @@ public class PrintRequestController {
     public PrintRequestController(PrintRequestService printRequestService) {
         this.printRequestService = printRequestService;
     }
+    @Autowired
+    private FieldRepository fieldRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+    @Autowired
+    private PaperTypeRepository paperTypeRepository;
 
 
 
@@ -176,5 +194,67 @@ public class PrintRequestController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @PostMapping("/send-print-requestexam")
+    public ResponseEntity<?> sendPrintRequest(
+            @RequestParam("userId") String userId,
+            @RequestParam("paperType") String paperTypeName, // <-- c'est une chaîne comme "A4"
+            @RequestParam("level") String level,
+            @RequestParam("section") String sectionId,
+            @RequestParam("subject") String subjectId,
+            @RequestParam("className") String className,
+            @RequestParam("examDate") String examDate,
+            @RequestParam("copies") int copies,
+            @RequestParam("printMode") String printMode,
+            @RequestParam("instructions") String instructions,
+            @RequestParam("file") MultipartFile file
+    ) {
+        try {
+            Field section = fieldRepository.findByName(sectionId)
+                    .orElseThrow(() -> new RuntimeException("Section non trouvée"));
+
+            Subject subject = subjectRepository.findByName(subjectId)
+                    .orElseThrow(() -> new RuntimeException("Matière non trouvée"));
+
+            PaperType paperType = paperTypeRepository.findByPaperType(paperTypeName)
+                    .orElseThrow(() -> new RuntimeException("Type de papier non trouvé"));
+
+
+            // ✅ Construire le DTO avec l'objet PaperType (et non un String)
+            PrintRequestDTO2 dto = new PrintRequestDTO2(
+                    userId,
+                    paperType,
+                    level,
+                    section,
+                    subject,
+                    className,
+                    examDate,
+                    copies,
+                    printMode,
+                    instructions,
+                    file
+            );
+
+            PrintRequest savedRequest = printRequestService.handlePrintRequest(dto);
+            return ResponseEntity.ok("Demande d'impression envoyée avec succès. ID de la demande : " + savedRequest.getRequestId());
+        } catch (MultipartException e) {
+            return ResponseEntity.badRequest().body("Erreur lors du téléchargement du fichier : " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erreur : " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/fields")
+    public List<Field> getAllFields() {
+        return fieldRepository.findAll();
+    }
+    @GetMapping("/subjects")
+    public List<Subject> getAllSubjects() {
+        return subjectRepository.findAll();
+    }
+
+
+
+
 
 }

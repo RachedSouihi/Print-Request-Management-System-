@@ -25,8 +25,9 @@ public class PrintRequest {
     private String status = "pending";
 
     @ManyToOne
-    @JoinColumn(name = "paper_type")
+    @JoinColumn(name = "paper_type_id", referencedColumnName = "paper_type", nullable = false)
     private PaperType paperType;
+
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

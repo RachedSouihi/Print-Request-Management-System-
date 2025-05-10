@@ -1,5 +1,7 @@
 package com.microservices.printrequest_service.service;
 
+import com.microservices.common_models_service.dto.PrintRequestDTO1;
+import com.microservices.common_models_service.dto.PrintRequestDTO2;
 import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.PaperType;
 import com.microservices.common_models_service.model.PrintRequest;
@@ -13,8 +15,11 @@ import com.microservices.printrequest_service.dto.TopDocumentDTO;
 import com.microservices.printrequest_service.dto.UserBreakdown;
 import com.microservices.printrequest_service.dto.VolumeEntry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -201,6 +206,66 @@ public class PrintRequestService {
         }
 
         return topDocs;
+    }
+
+//exam printrequest
+
+    private static final String API_GATEWAY_URL = "http://localhost:9001/broadcast/print-request";
+
+    public PrintRequestService(DocumentRepository documentRepository,
+                               UserRepository userRepository,
+                               PaperTypeRepository paperTypeRepository,
+                               PrintRequestRepository printRequestRepository) {
+        this.documentRepository = documentRepository;
+        this.userRepository = userRepository;
+        this.paperTypeRepository = paperTypeRepository;
+        this.printRequestRepository = printRequestRepository;
+    }
+
+    public PrintRequest handlePrintRequest(PrintRequestDTO2 dto) throws IOException {
+        String requestId = UUID.randomUUID().toString();
+
+        Document document = new Document();
+        document.setSubject(dto.getSubject());
+        document.setDescription(dto.getInstructions());
+        document.setLevel(dto.getLevel());
+        document.setField(dto.getSection());
+        document.setDocType(dto.getPrintMode());
+        document.setDocument(dto.getFile().getBytes());
+        document.setTitle(dto.getFile().getOriginalFilename());
+        document.setDownloads(0);
+        document.setRating(0);
+        document = documentRepository.save(document);
+
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        PaperType paperType = dto.getPaperType();
+
+        PrintRequest request = new PrintRequest();
+        request.setRequestId(requestId);
+        request.setUser(user);
+        request.setDocument(document);
+        request.setCopies(dto.getCopies());
+        request.setPaperType(paperType);
+        PrintRequest savedRequest = printRequestRepository.save(request);
+
+        notifyApiGateway(savedRequest);
+
+        return savedRequest;
+    }
+
+    private void notifyApiGateway(PrintRequest request) {
+        PrintRequestDTO1 dtoToSend = PrintRequestDTO1.fromEntity(request);
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+            HttpEntity<PrintRequestDTO1> entity = new HttpEntity<>(dtoToSend);
+            restTemplate.postForObject(API_GATEWAY_URL, entity, Void.class);
+            System.out.println("✅ Notification envoyée à l'API Gateway");
+        } catch (Exception e) {
+            System.out.println("❌ Erreur lors de l'envoi à l'API Gateway : " + e.getMessage());
+        }
     }
 
 

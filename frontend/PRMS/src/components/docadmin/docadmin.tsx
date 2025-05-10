@@ -7,7 +7,10 @@ import {
   clearUploadStatus,
   Document,
   fetchDocumentsForAdmin,
+  deleteDocument,
+  updateDocument
 } from '../../store/adminDocApi';
+import PrintExam from '../../pages/printexam/printexam';
 
 const DocAdmin: React.FC = () => {
   const dispatch = useDispatch<any>();
@@ -22,6 +25,17 @@ const DocAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'documents' | 'add'>('documents');
   const [showOnlyMyDocuments, setShowOnlyMyDocuments] = useState(false);
   const currentUser = 'Mr. Dupont';
+  const [showPrintExamModal, setShowPrintExamModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
+  const [documentToUpdate, setDocumentToUpdate] = useState<Document | null>(null);
+  const [updatedDocument, setUpdatedDocument] = useState({
+    title: '',
+    type: 'Administrative' as 'Administrative' | 'Educational',
+    visibility: 'For all professors' as 'For all professors' | 'For admin only',
+    message: ''
+  });
 
   const [newDocument, setNewDocument] = useState<{
     title: string;
@@ -88,6 +102,42 @@ const DocAdmin: React.FC = () => {
     }
   };
 
+  const handleDeleteClick = (docId: string) => {
+    setDocumentToDelete(docId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (documentToDelete) {
+      dispatch(deleteDocument(documentToDelete));
+      setShowDeleteModal(false);
+      setDocumentToDelete(null);
+    }
+  };
+
+  const handleUpdateClick = (doc: Document) => {
+    setDocumentToUpdate(doc);
+    setUpdatedDocument({
+      title: doc.title,
+      type: doc.type,
+      visibility: doc.visibility,
+      message: doc.message
+    });
+    setShowUpdateModal(true);
+  };
+
+  const handleUpdateSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (documentToUpdate) {
+      dispatch(updateDocument({
+        id: documentToUpdate.id,
+        updates: updatedDocument
+      }));
+      setShowUpdateModal(false);
+      setDocumentToUpdate(null);
+    }
+  };
+
   const filteredDocuments = documents;
 
   const handlePrint = (fileUrl: string) => {
@@ -102,7 +152,119 @@ const DocAdmin: React.FC = () => {
     <div className="doc-admin-container">
       <header className="doc-header">
         <h1 className="doc-title">Administrative and Educational Documents</h1>
+        <button
+          className="print-exam-button"
+          onClick={() => setShowPrintExamModal(true)}
+        >
+          Print Request an Exam
+        </button>
       </header>
+
+      <PrintExam 
+        show={showPrintExamModal} 
+        handleClose={() => setShowPrintExamModal(false)} 
+      />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete this document?</p>
+            <div className="modal-actions">
+              <button 
+                className="modal-button cancel-button"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="modal-button confirm-button"
+                onClick={confirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Document Modal */}
+      {showUpdateModal && documentToUpdate && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Update Document</h3>
+            <form onSubmit={handleUpdateSubmit}>
+              <div className="form-group">
+                <label className="form-label">Document Title *</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={updatedDocument.title}
+                  onChange={(e) => setUpdatedDocument({...updatedDocument, title: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Document Type *</label>
+                <select
+                  className="form-select"
+                  value={updatedDocument.type}
+                  onChange={(e) =>
+                    setUpdatedDocument({...updatedDocument, type: e.target.value as 'Administrative' | 'Educational'})
+                  }
+                  required
+                >
+                  <option value="Administrative">Administrative</option>
+                  <option value="Educational">Educational</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Visibility *</label>
+                <select
+                  className="form-select"
+                  value={updatedDocument.visibility}
+                  onChange={(e) =>
+                    setUpdatedDocument({...updatedDocument, visibility: e.target.value as 'For all professors' | 'For admin only'})
+                  }
+                  required
+                >
+                  <option value="For all professors">For all professors</option>
+                  <option value="For admin only">For admin only</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Message</label>
+                <textarea
+                  rows={3}
+                  className="form-textarea"
+                  value={updatedDocument.message}
+                  onChange={(e) => setUpdatedDocument({...updatedDocument, message: e.target.value})}
+                ></textarea>
+              </div>
+
+              <div className="modal-actions">
+                <button 
+                  type="button"
+                  className="modal-button cancel-button"
+                  onClick={() => setShowUpdateModal(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="modal-button confirm-button"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="doc-tabs">
         <nav className="tab-nav">
@@ -190,6 +352,18 @@ const DocAdmin: React.FC = () => {
                         className="action-button print-button"
                       >
                         🖨️ Print
+                      </button>
+                      <button
+                        onClick={() => handleUpdateClick(doc)}
+                        className="action-button update-button"
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(doc.id)}
+                        className="action-button delete-button"
+                      >
+                        🗑️ Delete
                       </button>
                     </td>
                   </tr>
@@ -281,44 +455,42 @@ const DocAdmin: React.FC = () => {
             </div>
 
             <button
-  type="button"
-  className="scan-button"
-  onClick={async () => {
-    try {
-      // Vérification de la détection du scanner avant de lancer le scan
-      const checkScannerResponse = await fetch('http://localhost:8082/doc/check-scanner', {
-        method: 'GET',
-      });
+              type="button"
+              className="scan-button"
+              onClick={async () => {
+                try {
+                  const checkScannerResponse = await fetch('http://localhost:8082/doc/check-scanner', {
+                    method: 'GET',
+                  });
 
-      // Si le scanner n'est pas détecté
-      if (!checkScannerResponse.ok) {
-        const errorMessage = await checkScannerResponse.text();
-        alert('Scanner non détecté : ' + errorMessage);
-        return; // On arrête la procédure si le scanner n'est pas trouvé
-      }
+                  if (!checkScannerResponse.ok) {
+                    const errorMessage = await checkScannerResponse.text();
+                    alert('Scanner non détecté : ' + errorMessage);
+                    return;
+                  }
 
-      // Si le scanner est détecté, lancer le scan
-      const response = await fetch('http://localhost:8082/doc/scan', {
-        method: 'POST',
-      });
+                  const response = await fetch('http://localhost:8082/doc/scan', {
+                    method: 'POST',
+                  });
 
-      if (response.ok) {
-        alert('Scan lancé avec succès !');
-        dispatch(fetchDocuments());
-      } else {
-        const text = await response.text();
-        alert('Échec du scan : ' + text);
-      }
-    } catch (error) {
-      alert('Erreur lors de la requête scan : ' + (error).message);
-    }
-  }}
->
-  📠 Launch Scanner
-</button>
-
-
-
+                  if (response.ok) {
+                    alert('Scan lancé avec succès !');
+                    dispatch(fetchDocuments());
+                  } else {
+                    const text = await response.text();
+                    alert('Échec du scan : ' + text);
+                  }
+                } catch (error) {
+                  if (error instanceof Error) {
+                    alert('Erreur : ' + error.message);
+                  } else {
+                    alert('Erreur inconnue.');
+                  }
+                }
+              }}
+            >
+              📠 Launch Scanner
+            </button>
 
             <button type="submit" className="submit-button">
               Upload Document

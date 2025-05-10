@@ -407,3 +407,222 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
+/* Exam Modal Styles */
+.modal-header-custom {
+  background-color: #4a6fa5;
+  color: white;
+  border-bottom: none;
+  padding: 20px;
+}
+
+.modal-body-custom {
+  padding: 25px;
+  background-color: #f8f9fa;
+}
+
+.modal-footer-custom {
+  border-top: none;
+  padding: 15px 25px;
+  background-color: #f8f9fa;
+}
+
+.form-select-custom, .form-control-custom {
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  padding: 10px;
+  box-shadow: none;
+}
+
+.form-select-custom:focus, .form-control-custom:focus {
+  border-color: #4a6fa5;
+  box-shadow: 0 0 0 0.2rem rgba(74, 111, 165, 0.25);
+}
+
+.form-check-custom .form-check-input:checked {
+  background-color: #4a6fa5;
+  border-color: #4a6fa5;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  border: none;
+  padding: 8px 20px;
+}
+
+.btn-submit {
+  background-color: #4a6fa5;
+  border: none;
+  padding: 8px 20px;
+}
+
+.btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+.btn-submit:hover {
+  background-color: #3a5a8f;
+}
+
+.print-mode-options {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+/* Add Exam Button */
+.add-exam-button {
+  background-color: #4a6fa5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.add-exam-button:hover {
+  background-color: #3a5a8f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.exam-icon {
+  font-size: 18px;
+}
+
+.exam-label {
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .add-exam-button {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+  
+  .modal-body-custom {
+    padding: 15px;
+  }
+}
+/* Ajoutez ces styles à votre fichier design.css */
+
+.print-exam-button {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  background-color: #4a6fa5;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.print-exam-button:hover {
+  background-color: #3a5a8c;
+}
+
+.doc-header {
+  position: relative;
+}
+/* Ajoutez ceci à votre fichier design.css */
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.modal-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.cancel-button {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}
+
+.confirm-button {
+  background-color: #ff4444;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #cc0000;
+}
+
+/* Update button in table */
+.update-button {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.update-button:hover {
+  background-color: #3367d6;
+}
+
+/* Delete button in table */
+.delete-button {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #cc0000;
+}

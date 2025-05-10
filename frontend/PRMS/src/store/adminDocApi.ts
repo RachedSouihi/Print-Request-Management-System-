@@ -46,9 +46,7 @@ export const uploadDocument = createAsyncThunk<
       formData.append('message', message);
       formData.append('file', file);
 
-      const response = await axios.post(`${BASE_URL}/admindoc/upload`, formData, {
-        
-      });
+      const response = await axios.post(`${BASE_URL}/admindoc/upload`, formData);
       console.log('Réponse du serveur:', response);
 
       // Adapter la réponse backend au type attendu
@@ -140,6 +138,47 @@ export const fetchDocumentsForAdmin = createAsyncThunk<
   }
 );
 
+// Action pour supprimer un document
+export const deleteDocument = createAsyncThunk<
+  string, // Retourne l'ID du document supprimé
+  string, // Paramètre: l'ID du document à supprimer
+  { rejectValue: string }
+>(
+  'admindoc/deleteDocument',
+  async (id, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${BASE_URL}/admindoc/${id}`);
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || error.message || 'Failed to delete document');
+    }
+  }
+);
+
+// Action pour mettre à jour un document
+export const updateDocument = createAsyncThunk<
+  Document,
+  { id: string; updates: Partial<Document> },
+  { rejectValue: string }
+>(
+  'admindoc/updateDocument',
+  async ({ id, updates }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/admindoc/${id}`, updates);
+      
+      // Adapte la réponse comme pour les autres endpoints
+      const updatedDoc = {
+        ...response.data,
+        file: response.data.document || '',
+      };
+      delete updatedDoc.document;
+      
+      return updatedDoc;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || error.message || 'Failed to update document');
+    }
+  }
+);
 
 // Slice
 const adminDocSlice = createSlice({
@@ -184,14 +223,40 @@ const adminDocSlice = createSlice({
       })
       .addCase(fetchDocumentsForAdmin.fulfilled, (state, action: PayloadAction<Document[]>) => {
         state.loading = false;
-        state.documents = action.payload;  // ← Important ici
+        state.documents = action.payload;
       })
       .addCase(fetchDocumentsForAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to fetch documents for admin';
+      })
+      .addCase(deleteDocument.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteDocument.fulfilled, (state, action: PayloadAction<string>) => {
+        state.loading = false;
+        state.documents = state.documents.filter(doc => doc.id !== action.payload);
+      })
+      .addCase(deleteDocument.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to delete document';
+      })
+      .addCase(updateDocument.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDocument.fulfilled, (state, action: PayloadAction<Document>) => {
+        state.loading = false;
+        const index = state.documents.findIndex(doc => doc.id === action.payload.id);
+        if (index !== -1) {
+          state.documents[index] = action.payload;
+        }
+      })
+      .addCase(updateDocument.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update document';
       });
   }
-  
 });
 
 export const { clearUploadStatus } = adminDocSlice.actions;

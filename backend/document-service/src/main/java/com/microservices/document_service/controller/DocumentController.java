@@ -1,12 +1,15 @@
 package com.microservices.document_service.controller;
 import com.microservices.common_models_service.dto.AdminDocDTO;
+
 import com.microservices.common_models_service.dto.ProfDocDTO;
+
 import com.microservices.common_models_service.dto.ProfileDTO;
 import com.microservices.common_models_service.dto.UserDTO;
 import com.microservices.common_models_service.model.Document;
 import com.microservices.common_models_service.model.User;
 import com.microservices.common_models_service.repository.UserRepository;
 import com.microservices.document_service.dto.DocumentMetadataDTO;
+import com.microservices.document_service.service.DocumentPageResponse;
 import com.microservices.document_service.service.DocumentService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -50,7 +53,7 @@ public class DocumentController {
         // u.setUserId(user.getUser_id());
         //u.setEmail(user.getEmail());
 
-        ProfileDTO p = new ProfileDTO(user.getProfile().getFirstname(), user.getProfile().getLastname());
+       ProfileDTO p = new ProfileDTO(user.getProfile().getFirstname(), user.getProfile().getLastname());
         return new UserDTO(user.getUserId(), p, user.getEmail());
 
 
@@ -64,7 +67,7 @@ public class DocumentController {
 
 
 
-    public DocumentController(DocumentService documentService, UserRepository UserRepository, UserRepository userRepository, UserClient userClient) {
+    public DocumentController(DocumentService documentService, UserRepository UserRepository, UserClient userClient) {
         this.documentService = documentService;
         this.userRepository = UserRepository;
         this.userClient = userClient;
@@ -396,6 +399,30 @@ public class DocumentController {
         } else {
             return ResponseEntity.status(400).body("Aucun scanner détecté.");
         }
+    }
+
+
+    @PutMapping("admindoc/{id}")
+    public ResponseEntity<AdminDocDTO> updatedocDocument(
+            @PathVariable String id,
+            @RequestBody AdminDocDTO adminDocDTO) {
+
+        // Assure la cohérence entre l'ID dans le path et le DTO
+        adminDocDTO.setId(id);
+
+        AdminDocDTO updatedDocument = documentService.updatedocDocument(adminDocDTO);
+        return ResponseEntity.ok(updatedDocument);
+    }
+
+    /**
+     * Supprime un document
+     * @param id ID du document à supprimer
+     * @return Réponse vide avec statut 204 (No Content)
+     */
+    @DeleteMapping("admindoc/{id}")
+    public ResponseEntity<Void> deletedocDocument(@PathVariable String id) {
+        documentService.deleteDocument(id);
+        return ResponseEntity.noContent().build();
     }
 
 

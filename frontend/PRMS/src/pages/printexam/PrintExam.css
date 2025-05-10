@@ -1,0 +1,195 @@
+/* Main Modal Styles */
+.print-exam-modal {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .modal-xl-custom {
+    max-width: 1700px;
+    width: 100%;
+  }
+  
+  .modal-content-custom {
+    min-height: 85vh;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-header-custom {
+    background: linear-gradient(135deg, #1976d2, #0d47a1);
+    color: white;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 20px 25px;
+    border-bottom: none;
+  }
+  
+  .modal-title-custom {
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+  
+  .modal-body-custom {
+    padding: 25px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  
+  .modal-footer-custom {
+    border-top: 1px solid #e9ecef;
+    padding: 20px 25px;
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+  
+  /* Card Styles */
+  .card-custom {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .card-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-header-custom {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 15px 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    border-radius: 10px 10px 0 0 !important;
+  }
+  
+  .card-body-custom {
+    padding: 20px;
+  }
+  
+  /* Form Styles */
+  .form-label-custom {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+  
+  .form-control-custom,
+  .form-select-custom {
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .form-control-custom:focus,
+  .form-select-custom:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    outline: none;
+  }
+  
+  .form-select-custom {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+  }
+  
+  .form-text-custom {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 6px;
+  }
+  
+  /* Button Styles */
+  .btn-submit {
+    background: linear-gradient(135deg, #1976d2, #0d47a1);
+    border: none;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s;
+  }
+  
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-cancel {
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s;
+  }
+  
+  .btn-cancel:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Alert Styles */
+  .alert-success-custom {
+    background-color: #d4edda;
+    color: #155724;
+    border: none;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 25px;
+    font-size: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Radio Buttons */
+  .form-check-custom .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.2em;
+  }
+  
+  .form-check-custom .form-check-label {
+    font-size: 1rem;
+    margin-left: 5px;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 992px) {
+    .modal-xl-custom {
+      width: 98%;
+    }
+    
+    .modal-body-custom {
+      padding: 15px;
+    }
+    
+    .card-body-custom {
+      padding: 15px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .modal-title-custom {
+      font-size: 7.5rem;
+    }
+    
+    .card-header-custom {
+      font-size: 4.1rem;
+    }
+    
+    .btn-submit,
+    .btn-cancel {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+  }

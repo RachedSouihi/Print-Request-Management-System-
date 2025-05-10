@@ -70,10 +70,12 @@ public class Document {
 
     @ManyToOne
     @JoinColumn(name = "subject_id")
+    @JsonIgnore
     private Subject subject;
 
     @ManyToOne
     @JoinColumn(name = "field_id")
+    @JsonIgnore
     private Field field;
 
     // ========================= Getters and Setters ==============================
